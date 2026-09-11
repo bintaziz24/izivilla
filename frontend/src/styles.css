@@ -1,0 +1,271 @@
+/* IziVilla Senegal - Global Design System */
+/* Color Palette: Orange, Black, White */
+
+:root {
+  --primary-orange: #ea580c;
+  --primary-orange-hover: #c2410c;
+  --primary-orange-light: #fff7ed;
+  --primary-orange-glow: rgba(234, 88, 12, 0.25);
+  
+  --dark-obsidian: #0f172a;
+  --dark-surface: #1e293b;
+  --dark-border: #334155;
+  
+  --pure-white: #ffffff;
+  --light-bg: #f8fafc;
+  --card-border: #e2e8f0;
+  
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-white: #ffffff;
+  
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.1);
+  --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.15);
+  --shadow-glow: 0 0 20px rgba(234, 88, 12, 0.3);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  background-color: var(--light-bg);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-orange);
+}
+
+/* Buttons System */
+.btn-orange {
+  background-color: var(--primary-orange);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+  text-decoration: none;
+}
+
+.btn-orange:hover {
+  background-color: var(--primary-orange-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.35);
+}
+
+.btn-dark {
+  background-color: var(--dark-obsidian);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--dark-obsidian);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+
+.btn-dark:hover {
+  background-color: #1e293b;
+  transform: translateY(-2px);
+}
+
+.btn-outline-orange {
+  background-color: transparent;
+  color: var(--primary-orange);
+  border: 2px solid var(--primary-orange);
+  font-weight: 700;
+  padding: 0.65rem 1.35rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+}
+
+.btn-outline-orange:hover {
+  background-color: var(--primary-orange-light);
+  transform: translateY(-1px);
+}
+
+.btn-white {
+  background-color: #ffffff;
+  color: var(--dark-obsidian);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-white:hover {
+  background-color: #f1f5f9;
+}
+
+/* Badges */
+.badge-boosted {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.4);
+}
+
+.badge-furnished {
+  background-color: #10b981;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-dark {
+  background-color: var(--dark-obsidian);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+}
+
+/* Leaflet Map Custom Marker Styling */
+.custom-leaflet-pin {
+  background-color: var(--dark-obsidian);
+  color: var(--primary-orange);
+  border: 2px solid var(--primary-orange);
+  font-weight: 800;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  white-space: nowrap;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 14px;
+  padding: 4px;
+}
+
+/* ==========================================================================
+   Dark Mode Theme System Overrides
+   ========================================================================== */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0b1329;
+  color: #f1f5f9;
+}
+
+html.dark .bg-white {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1a2436 !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-800,
+html.dark .text-slate-700 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-slate-600,
+html.dark .text-slate-500 {
+  color: #94a3b8 !important;
+}
+
+html.dark .border-slate-100,
+html.dark .border-slate-200 {
+  border-color: #334155 !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+html.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+

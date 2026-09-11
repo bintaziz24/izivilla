@@ -1,0 +1,20 @@
+# Node & Frontend dependencies
+node_modules/
+frontend/node_modules/
+frontend/.angular/
+frontend/dist/
+
+# PHP & Backend dependencies
+vendor/
+backend/vendor/
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/storage/*.key
+
+# Logs & System
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
