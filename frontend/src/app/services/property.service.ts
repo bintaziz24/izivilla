@@ -4,6 +4,8 @@ import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Property, PropertyFilter, Agency, DirectMessage, PropertyReport, VerificationRequest } from '../models/property.model';
 
+import { environment } from '../../environments/environment';
+
 export interface UserSession {
   name: string;
   email: string;
@@ -15,7 +17,7 @@ export interface UserSession {
   providedIn: 'root'
 })
 export class PropertyService {
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = environment.apiUrl;
 
   // Session state for active role
   public currentRole$ = new BehaviorSubject<'tenant' | 'owner' | 'agency' | 'admin'>(this.getStoredUserRole());
