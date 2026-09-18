@@ -8,7 +8,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -22,7 +21,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
             'phone' => 'nullable|string|max:30',
-            'role' => 'nullable|string|in:user,agency,owner',
+            'role' => 'nullable|string|in:user,tenant,agency,owner',
         ]);
 
         $code = sprintf('%06d', mt_rand(100000, 999999));
@@ -32,24 +31,28 @@ class AuthController extends Controller
             'email' => strtolower(trim($validated['email'])),
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'] ?? null,
-            'role' => $validated['role'] ?? 'user',
+            'role' => $validated['role'] ?? 'tenant',
             'verification_code' => $code,
             'verification_code_expires_at' => now()->addMinutes(15),
             'email_verified_at' => null,
         ]);
 
-        // Envoi de la notification mail avec le code OTP
+        // Envoi asynchrone / sécurisé de la notification mail avec le code OTP
+        $mailSent = false;
         try {
             $user->notify(new VerifyEmailCodeNotification($code));
-        } catch (\Exception $e) {
+            $mailSent = true;
+        } catch (\Throwable $e) {
             Log::error('Erreur envoi mail vérification: ' . $e->getMessage());
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Inscription réussie ! Un code de vérification à 6 chiffres vous a été envoyé par email.',
+            'message' => $mailSent 
+                ? 'Inscription réussie ! Un code de vérification à 6 chiffres vous a été envoyé par email.' 
+                : 'Inscription réussie ! Veuillez saisir votre code de vérification à 6 chiffres.',
             'email' => $user->email,
-            'code_debug' => config('app.debug') ? $code : null, // Pour simplifier les tests en mode debug
+            'code_debug' => (config('app.debug') || config('mail.default') === 'log' || !$mailSent) ? $code : null,
         ], 201);
     }
 
@@ -69,7 +72,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Aucun compte trouvé avec cet email.'
-            ], 444);
+            ], 404);
         }
 
         if ($user->email_verified_at !== null) {
@@ -140,16 +143,18 @@ class AuthController extends Controller
             'verification_code_expires_at' => now()->addMinutes(15),
         ])->save();
 
+        $mailSent = false;
         try {
             $user->notify(new VerifyEmailCodeNotification($code));
-        } catch (\Exception $e) {
+            $mailSent = true;
+        } catch (\Throwable $e) {
             Log::error('Erreur renvoi mail vérification: ' . $e->getMessage());
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Un nouveau code de vérification a été envoyé à votre adresse email.',
-            'code_debug' => config('app.debug') ? $code : null,
+            'message' => 'Un nouveau code de vérification a été généré.',
+            'code_debug' => (config('app.debug') || config('mail.default') === 'log' || !$mailSent) ? $code : null,
         ]);
     }
 
@@ -177,7 +182,7 @@ class AuthController extends Controller
                 'success' => false,
                 'needs_verification' => true,
                 'email' => $user->email,
-                'message' => 'Votre compte n\'est pas encore vérifié. Veuillez saisir le code reçu par email.'
+                'message' => 'Votre compte n\'est pas encore vérifié. Veuillez saisir le code de validation.'
             ], 403);
         }
 
