@@ -4,9 +4,13 @@
 mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache bootstrap/cache
 chmod -R 777 storage bootstrap/cache
 
-# Nettoyer et régénérer les caches
+# Supprimer physiquement tous les fichiers de cache des routes et de config
+rm -f bootstrap/cache/*.php storage/framework/cache/data/* 2>/dev/null || true
+
+# Nettoyer et régénérer les caches Laravel
 php artisan config:clear || true
 php artisan route:clear || true
+php artisan cache:clear || true
 
 # Générer la clé d'application si absente
 if [ -z "$APP_KEY" ]; then

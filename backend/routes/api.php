@@ -19,9 +19,17 @@ use App\Http\Controllers\AuthController;
 
 // Auth Routes (Vérification par code OTP Email)
 Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
+
 Route::post('/auth/verify-code', [AuthController::class, 'verifyCode']);
+Route::post('/verify-code', [AuthController::class, 'verifyCode']);
+
 Route::post('/auth/resend-code', [AuthController::class, 'resendCode']);
+Route::post('/resend-code', [AuthController::class, 'resendCode']);
+
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
+
 
 
 Route::get('/properties', [PropertyController::class, 'index']);
