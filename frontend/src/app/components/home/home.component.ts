@@ -339,7 +339,7 @@ declare var L: any; // Leaflet JS
                 <!-- Price & Location -->
                 <div class="flex justify-between items-baseline mb-1">
                   <span class="text-2xl font-black text-orange-600">
-                    {{ prop.price_fcfa | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }} {{ prop.transaction_type === 'rent' ? '/mois' : '' }}</span>
+                    {{ countryService.convertPrice(prop.price_fcfa) | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }} {{ prop.transaction_type === 'rent' ? '/mois' : '' }}</span>
                   </span>
                 </div>
 
@@ -523,7 +523,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           <div style="font-family: sans-serif; width: 180px;">
             <img src="${this.getPrimaryImage(p)}" style="width:100%; height:80px; object-fit:cover; border-radius:6px; margin-bottom:4px;"/>
             <strong style="font-size:11px; color:#0f172a;">${p.title}</strong>
-            <p style="font-size:11px; color:#ea580c; font-weight:bold; margin-top:2px;">${p.price_fcfa.toLocaleString()} ${this.countryService.currentCountry.currency}</p>
+            <p style="font-size:11px; color:#ea580c; font-weight:bold; margin-top:2px;">${this.countryService.formatPrice(p.price_fcfa)} ${this.countryService.currentCountry.currency}</p>
           </div>
         `);
       }

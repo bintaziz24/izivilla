@@ -254,7 +254,7 @@ import { CountryService } from '../../services/country.service';
                 </div>
 
                 <div class="space-y-2">
-                  <p class="text-2xl font-black text-orange-600">{{ newProp.price_fcfa | number }} {{ countryService.currentCountry.currency }}</p>
+                  <p class="text-2xl font-black text-orange-600">{{ countryService.convertPrice(newProp.price_fcfa) | number }} {{ countryService.currentCountry.currency }}</p>
                   <h4 class="font-extrabold text-slate-900 text-base line-clamp-1">{{ newProp.title || 'Titre du bien' }}</h4>
                   <p class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-location-dot text-orange-500 mr-1"></i> {{ newProp.quartier }}, {{ newProp.city }}</p>
                 </div>

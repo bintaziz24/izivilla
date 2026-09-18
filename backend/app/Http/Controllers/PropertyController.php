@@ -15,6 +15,17 @@ class PropertyController extends Controller
     {
         $query = Property::with(['agency', 'images']);
 
+        // Exclude expired listings for public queries
+        if (!filter_var($request->get('include_expired', false), FILTER_VALIDATE_BOOLEAN)) {
+            $query->where(function ($q) {
+                $q->where('status', '!=', 'expired')
+                  ->where(function ($sub) {
+                      $sub->whereNull('expires_at')
+                          ->orWhere('expires_at', '>', Carbon::now());
+                  });
+            });
+        }
+
         // Search filters
         if ($request->filled('transaction_type')) {
             $query->where('transaction_type', $request->transaction_type);
@@ -114,6 +125,8 @@ class PropertyController extends Controller
         $validated['slug'] = Str::slug($validated['title']) . '-' . Str::random(5);
         $validated['contact_phone'] = $request->get('contact_phone', '+221 77 000 00 00');
         $validated['contact_whatsapp'] = $request->get('contact_whatsapp', '+221 77 000 00 00');
+        $validated['expires_at'] = Carbon::now()->addDays(60);
+        $validated['last_confirmed_at'] = Carbon::now();
 
         // Lat/Lng presets by quartier for Dakar / Senegal map markers
         $coords = $this->getCoordinates($validated['city'], $validated['quartier']);
@@ -140,10 +153,101 @@ class PropertyController extends Controller
             ]);
         }
 
+        // Trigger automated matching alert notifications (Étape I - Priorité 13)
+        $matchingAlerts = \App\Models\PropertyAlert::where('is_active', true)->get();
+        foreach ($matchingAlerts as $alert) {
+            $cityMatch = empty($alert->city) || strcasecmp($alert->city, $property->city) === 0;
+            $typeMatch = empty($alert->property_type) || strcasecmp($alert->property_type, $property->property_type) === 0;
+            $priceMatch = empty($alert->max_price) || $property->price_fcfa <= $alert->max_price;
+            $bedroomMatch = empty($alert->bedrooms) || ($property->bedrooms ?? 0) >= $alert->bedrooms;
+            $transactionMatch = empty($alert->transaction_type) || strcasecmp($alert->transaction_type, $property->transaction_type) === 0;
+
+            if ($cityMatch && $typeMatch && $priceMatch && $bedroomMatch && $transactionMatch) {
+                \App\Models\Notification::create([
+                    'recipient_email' => $alert->user_email,
+                    'title' => '🔔 Nouveau bien correspondant à votre recherche',
+                    'message' => "Un nouveau bien correspondant à vos critères vient d'être publié sur Izivilla !\n\n{$property->title}\n📍 {$property->city} ({$property->quartier})\nPrix : " . number_format($property->price_fcfa) . " FCFA",
+                    'type' => 'SEARCH_ALERT',
+                    'link' => '/annonces/' . $property->id,
+                    'is_read' => false,
+                    'data' => [
+                        'property_id' => $property->id,
+                        'alert_id' => $alert->id,
+                    ],
+                ]);
+            }
+        }
+
         return response()->json([
-            'message' => 'Annonce créée avec succès sur TerangaImmo !',
+            'message' => 'Annonce créée avec succès sur Izivilla !',
             'property' => $property->load(['agency', 'images']),
         ], 201);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|string|in:available,rented,sold,paused,expired'
+        ]);
+
+        $property = Property::findOrFail($id);
+        $property->status = $validated['status'];
+        $property->save();
+
+        $statusLabels = [
+            'available' => 'Disponible',
+            'rented' => 'Loué',
+            'sold' => 'Vendu',
+            'paused' => 'En pause / Indisponible',
+            'expired' => 'Expirée',
+        ];
+
+        return response()->json([
+            'message' => 'Le statut du bien a été mis à jour : ' . ($statusLabels[$property->status] ?? $property->status),
+            'property' => $property
+        ]);
+    }
+
+    public function renew($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->expires_at = Carbon::now()->addDays(60);
+        $property->last_confirmed_at = Carbon::now();
+        $property->status = 'available';
+        $property->is_expiration_warning_sent = false;
+        $property->is_inactivity_warning_sent = false;
+        $property->save();
+
+        return response()->json([
+            'message' => 'Annonce renouvelée avec succès pour 60 jours supplémentaires !',
+            'property' => $property
+        ]);
+    }
+
+    public function confirmAvailability($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->last_confirmed_at = Carbon::now();
+        $property->is_inactivity_warning_sent = false;
+        if ($property->status === 'expired') {
+            $property->status = 'available';
+        }
+        $property->save();
+
+        return response()->json([
+            'message' => 'Disponibilité confirmée avec succès !',
+            'property' => $property
+        ]);
+    }
+
+    public function checkExpirations()
+    {
+        \Illuminate\Support\Facades\Artisan::call('izivilla:check-property-expiration');
+
+        return response()->json([
+            'message' => 'Contrôle automatisé des expirations et des relances d\'inactivité (30j) exécuté avec succès.',
+            'output' => \Illuminate\Support\Facades\Artisan::output()
+        ]);
     }
 
     public function stats()

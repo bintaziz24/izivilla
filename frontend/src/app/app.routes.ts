@@ -20,10 +20,14 @@ export const routes: Routes = [
   { path: 'comment-ca-marche', component: HowItWorksComponent },
   { path: 'a-propos', component: AboutComponent },
   { path: 'dashboard', component: AgencyDashboardComponent, canActivate: [authGuard] },
+  { path: 'espace-proprietaire', component: AgencyDashboardComponent, canActivate: [authGuard] },
+  { path: 'espace-agence', component: AgencyDashboardComponent, canActivate: [authGuard] },
   { path: 'deposer-annonce', component: CreatePropertyComponent, canActivate: [authGuard] },
   { path: 'admin', component: AdminDashboardComponent, canActivate: [authGuard], data: { role: 'admin' } },
   { path: 'espace-locataire', component: TenantDashboardComponent, canActivate: [authGuard] },
+  { path: 'mes-demandes', component: TenantDashboardComponent, canActivate: [authGuard] },
   { path: '**', redirectTo: '' }
 ];
+
 
 

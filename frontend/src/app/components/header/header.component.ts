@@ -6,11 +6,12 @@ import { PropertyService } from '../../services/property.service';
 import { LanguageService } from '../../services/language.service';
 import { ThemeService } from '../../services/theme.service';
 import { CountryService } from '../../services/country.service';
+import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, AuthModalComponent],
   template: `
     <!-- Top Announcement & Philosophy Bar -->
     <div class="bg-slate-950 text-slate-300 text-xs py-2 px-3 sm:px-6 border-b border-slate-800">
@@ -127,6 +128,56 @@ import { CountryService } from '../../services/country.service';
             </span>
           </a>
 
+          <!-- Notification Center Pill (IZIVILLA PHASE 1) -->
+          <div class="relative shrink-0">
+            <button (click)="showNotificationsDropdown = !showNotificationsDropdown" class="relative p-1.5 text-slate-700 hover:text-orange-600 transition-colors" title="Centre de notifications">
+              <i class="fa-regular fa-bell text-lg"></i>
+              <span *ngIf="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-600 text-white font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center border border-white shadow animate-pulse">
+                {{ unreadCount }}
+              </span>
+            </button>
+
+            <!-- Notifications Dropdown -->
+            <div *ngIf="showNotificationsDropdown" class="absolute right-0 top-full mt-2 bg-white border-2 border-slate-200 rounded-3xl shadow-2xl z-50 w-80 sm:w-96 overflow-hidden">
+              <div class="p-4 bg-slate-950 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-bell text-orange-400"></i>
+                  <span class="font-extrabold text-xs uppercase tracking-wider">Notifications</span>
+                  <span *ngIf="unreadCount > 0" class="bg-orange-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">{{ unreadCount }} non lue(s)</span>
+                </div>
+                <button (click)="markAllAsRead()" class="text-[10px] font-bold text-slate-400 hover:text-white transition-colors">
+                  Tout marquer comme lu
+                </button>
+              </div>
+
+              <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                <div *ngIf="notifications.length === 0" class="p-6 text-center text-xs text-slate-400 font-semibold">
+                  Aucune notification pour le moment.
+                </div>
+
+                <div *ngFor="let notif of notifications" (click)="onNotificationClick(notif)" [class.bg-orange-50]="!notif.is_read" class="p-4 hover:bg-slate-50 transition-colors cursor-pointer text-left relative group">
+                  <div class="flex items-start justify-between gap-2">
+                    <span class="text-xs font-black text-slate-900 group-hover:text-orange-600 flex items-center gap-1.5">
+                      <span *ngIf="!notif.is_read" class="w-2 h-2 rounded-full bg-orange-600 inline-block shrink-0"></span>
+                      {{ notif.title }}
+                    </span>
+                    <span class="text-[10px] font-medium text-slate-400 whitespace-nowrap">{{ notif.created_at | date:'shortTime' }}</span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1.5 whitespace-pre-line font-medium leading-relaxed bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">{{ notif.message }}</p>
+                  <div class="mt-2 flex items-center justify-between">
+                    <span class="text-[10px] font-extrabold text-orange-600 group-hover:underline flex items-center gap-1">
+                      Voir la demande <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                    </span>
+                    <span [class.text-orange-600]="!notif.is_read" [class.text-slate-400]="notif.is_read" class="text-[9.5px] font-extrabold uppercase bg-slate-100 px-2 py-0.5 rounded-md">
+                      {{ notif.is_read ? 'Lue' : 'Non lue' }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
           <!-- Primary Button: Publier une annonce -->
           <button (click)="onPublishClick()" class="bg-slate-950 hover:bg-slate-900 text-white text-[10px] sm:text-[11px] font-black px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl shadow-md shrink-0 flex items-center gap-1 whitespace-nowrap">
             <i class="fa-solid fa-circle-plus text-orange-500 text-xs"></i>
@@ -207,62 +258,74 @@ import { CountryService } from '../../services/country.service';
     </header>
 
     <!-- MODAL DE CONNEXION -->
-    <div *ngIf="showLoginModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative">
+    <div *ngIf="showLoginModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative max-h-[90vh] overflow-y-auto">
         
-        <button (click)="showLoginModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold">
+        <button (click)="showLoginModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold transition-colors">
           <i class="fa-solid fa-xmark"></i>
         </button>
 
-        <div class="space-y-1">
-          <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
             <i class="fa-solid fa-right-to-bracket"></i>
           </div>
-          <h3 class="text-2xl font-black text-slate-900">Connexion à IZIVILLA</h3>
-          <p class="text-xs text-slate-500 font-medium">Connectez-vous pour contacter les annonceurs ou gérer vos annonces.</p>
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Connexion à IZIVILLA</h3>
+            <p class="text-xs text-slate-500 font-medium">Connectez-vous pour échanger directement sans intermédiaire.</p>
+          </div>
         </div>
 
         <!-- Role Type Selection Tabs -->
-        <div class="grid grid-cols-3 gap-1 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
-          <button type="button" (click)="loginType = 'tenant'" [class.bg-white]="loginType === 'tenant'" [class.text-slate-900]="loginType === 'tenant'" [class.shadow-sm]="loginType === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Chercheur
+        <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
+          <button type="button" (click)="loginType = 'tenant'" [class.bg-white]="loginType === 'tenant'" [class.text-slate-900]="loginType === 'tenant'" [class.shadow-sm]="loginType === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
+            <i class="fa-solid fa-user text-[10px]"></i> Chercheur
           </button>
-          <button type="button" (click)="loginType = 'owner'" [class.bg-white]="loginType === 'owner'" [class.text-slate-900]="loginType === 'owner'" [class.shadow-sm]="loginType === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Propriétaire
+          <button type="button" (click)="loginType = 'owner'" [class.bg-white]="loginType === 'owner'" [class.text-slate-900]="loginType === 'owner'" [class.shadow-sm]="loginType === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
+            <i class="fa-solid fa-user-check text-[10px]"></i> Propriétaire
           </button>
-          <button type="button" (click)="loginType = 'agency'" [class.bg-white]="loginType === 'agency'" [class.text-slate-900]="loginType === 'agency'" [class.shadow-sm]="loginType === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Agence
+          <button type="button" (click)="loginType = 'agency'" [class.bg-white]="loginType === 'agency'" [class.text-slate-900]="loginType === 'agency'" [class.shadow-sm]="loginType === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
+            <i class="fa-solid fa-building text-[10px]"></i> Agence
           </button>
         </div>
 
-        <div *ngIf="registerSuccessMessage" class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-extrabold flex items-center gap-2">
-          <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+        <div *ngIf="registerSuccessMessage" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+          <i class="fa-solid fa-circle-check text-emerald-600 text-lg shrink-0 mt-0.5"></i>
           <span>{{ registerSuccessMessage }}</span>
         </div>
 
-        <div *ngIf="authNoticeMessage" class="p-3.5 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl text-xs font-extrabold flex items-center gap-2">
-          <i class="fa-solid fa-circle-info text-orange-600 text-base"></i>
+        <div *ngIf="authNoticeMessage" class="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+          <i class="fa-solid fa-circle-info text-orange-600 text-lg shrink-0 mt-0.5"></i>
           <span>{{ authNoticeMessage }}</span>
         </div>
 
-        <div *ngIf="loginErrorMsg" class="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-extrabold flex items-center gap-2">
-          <i class="fa-solid fa-triangle-exclamation text-red-500 text-base"></i>
-          <span>{{ loginErrorMsg }}</span>
+        <div *ngIf="loginErrorMsg" class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+          <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg shrink-0 mt-0.5"></i>
+          <span class="leading-relaxed">{{ loginErrorMsg }}</span>
         </div>
 
         <form (ngSubmit)="handleLogin()" class="space-y-4" autocomplete="off">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Email ou Identifiant</label>
-            <input type="text" [(ngModel)]="loginEmail" name="email" required autocomplete="off" placeholder="Email ou Identifiant" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Email ou Identifiant *</label>
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-envelope absolute left-4 text-slate-400 text-xs"></i>
+              <input type="text" [(ngModel)]="loginEmail" name="email" required autocomplete="off" placeholder="Email ou Identifiant" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+            </div>
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
-            <input type="password" [(ngModel)]="loginPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs"></i>
+              <input [type]="showLoginPassword ? 'text' : 'password'" [(ngModel)]="loginPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+              <button type="button" (click)="showLoginPassword = !showLoginPassword" class="absolute right-4 text-slate-400 hover:text-slate-600 text-xs">
+                <i class="fa-solid" [ngClass]="showLoginPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
           </div>
 
-          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg transition-all">
-            Se connecter à mon espace
+          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Se connecter à mon espace</span>
           </button>
         </form>
 
@@ -275,36 +338,38 @@ import { CountryService } from '../../services/country.service';
     </div>
 
     <!-- MODAL D'INSCRIPTION -->
-    <div *ngIf="showRegisterModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div *ngIf="showRegisterModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative max-h-[90vh] overflow-y-auto">
         
-        <button (click)="showRegisterModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold">
+        <button (click)="showRegisterModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold transition-colors">
           <i class="fa-solid fa-xmark"></i>
         </button>
 
-        <div class="space-y-1">
-          <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold mb-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
             <i class="fa-solid fa-user-plus"></i>
           </div>
-          <h3 class="text-2xl font-black text-slate-900">Rejoindre IZIVILLA</h3>
-          <p class="text-xs text-slate-500 font-medium">Choisissez votre profil et commencez à échanger directement sans intermédiaire.</p>
+          <div>
+            <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Rejoindre IZIVILLA</h3>
+            <p class="text-xs text-slate-500 font-medium">Choisissez votre profil et commencez à échanger directement sans intermédiaire.</p>
+          </div>
         </div>
 
-        <div *ngIf="authNoticeMessage" class="p-3.5 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl text-xs font-extrabold flex items-center gap-2">
-          <i class="fa-solid fa-circle-info text-orange-600 text-base"></i>
+        <div *ngIf="authNoticeMessage" class="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+          <i class="fa-solid fa-circle-info text-orange-600 text-lg shrink-0 mt-0.5"></i>
           <span>{{ authNoticeMessage }}</span>
         </div>
 
         <!-- Account Type Selector (Matching Prompt Section 8 Profiles) -->
         <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
           <button (click)="registerType = 'tenant'" [class.bg-white]="registerType === 'tenant'" [class.text-slate-900]="registerType === 'tenant'" [class.shadow-sm]="registerType === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Je cherche un bien
+            Chercheur
           </button>
           <button (click)="registerType = 'owner'" [class.bg-white]="registerType === 'owner'" [class.text-slate-900]="registerType === 'owner'" [class.shadow-sm]="registerType === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Je suis propriétaire
+            Propriétaire
           </button>
           <button (click)="registerType = 'agency'" [class.bg-white]="registerType === 'agency'" [class.text-slate-900]="registerType === 'agency'" [class.shadow-sm]="registerType === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Je suis une agence
+            Agence
           </button>
         </div>
 
@@ -312,17 +377,23 @@ import { CountryService } from '../../services/country.service';
           
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Nom complet ou Nom d'agence *</label>
-            <input type="text" [(ngModel)]="regName" name="name" required autocomplete="off" placeholder="Nom complet ou Nom d'agence" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-user absolute left-4 text-slate-400 text-xs"></i>
+              <input type="text" [(ngModel)]="regName" name="name" required autocomplete="off" placeholder="Nom complet ou Nom d'agence" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+            </div>
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Email *</label>
-            <input type="email" [(ngModel)]="regEmail" name="email" required autocomplete="off" placeholder="Adresse email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-envelope absolute left-4 text-slate-400 text-xs"></i>
+              <input type="email" [(ngModel)]="regEmail" name="email" required autocomplete="off" placeholder="Adresse email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+            </div>
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone portable (WhatsApp) *</label>
-            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 shadow-sm">
+            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 focus-within:bg-white shadow-sm transition-all">
               <select [(ngModel)]="regPhonePrefix" name="phonePrefix" class="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer py-2 pr-1 border-r border-slate-200 max-w-[170px] truncate">
                 <option *ngFor="let c of countryService.countries" [value]="c.phonePrefix">
                   {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }}) — {{ c.currency }}
@@ -334,11 +405,18 @@ import { CountryService } from '../../services/country.service';
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
-            <input type="password" [(ngModel)]="regPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            <div class="relative flex items-center">
+              <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs"></i>
+              <input [type]="showRegisterPassword ? 'text' : 'password'" [(ngModel)]="regPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+              <button type="button" (click)="showRegisterPassword = !showRegisterPassword" class="absolute right-4 text-slate-400 hover:text-slate-600 text-xs">
+                <i class="fa-solid" [ngClass]="showRegisterPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
           </div>
 
-          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all">
-            Créer mon compte
+          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Créer mon compte</span>
           </button>
         </form>
 
@@ -349,6 +427,14 @@ import { CountryService } from '../../services/country.service';
 
       </div>
     </div>
+
+    <!-- OTP Email Validation Modal -->
+    <app-auth-modal 
+      [isOpen]="showAuthOTPModal" 
+      [initialMode]="authOTPModalMode"
+      (close)="showAuthOTPModal = false"
+      (authenticated)="onUserAuthenticated($event)">
+    </app-auth-modal>
   `
 })
 export class HeaderComponent implements OnInit {
@@ -359,12 +445,19 @@ export class HeaderComponent implements OnInit {
 
   showLoginModal = false;
   showRegisterModal = false;
+  showAuthOTPModal = false;
+  authOTPModalMode: 'login' | 'register' | 'verify' = 'register';
   showCountryDropdown = false;
+  showNotificationsDropdown = false;
+
+  unreadCount = 0;
+  notifications: any[] = [];
 
   loginType: 'tenant' | 'owner' | 'agency' | 'admin' = 'tenant';
   loginEmail = '';
   loginPassword = '';
   loginErrorMsg = '';
+  showLoginPassword = false;
 
   registerType: 'tenant' | 'owner' | 'agency' = 'tenant';
   regName = '';
@@ -372,6 +465,7 @@ export class HeaderComponent implements OnInit {
   regPhonePrefix = '+221';
   regPhone = '';
   regPassword = '';
+  showRegisterPassword = false;
 
   registerSuccessMessage = '';
   authNoticeMessage = '';
@@ -389,6 +483,9 @@ export class HeaderComponent implements OnInit {
     this.propertyService.currentRole$.subscribe(r => this.currentRole = r);
     this.propertyService.favorites$.subscribe(favs => this.favoritesCount = favs.length);
     this.propertyService.isLoggedIn$.subscribe(loggedIn => this.isLoggedIn = loggedIn);
+    this.propertyService.notifications$.subscribe(n => this.notifications = n);
+    this.propertyService.unreadNotificationsCount$.subscribe(c => this.unreadCount = c);
+
     this.propertyService.authModalRequest$.subscribe((req: { mode: 'login' | 'register'; message?: string; targetUrl?: string }) => {
       this.authNoticeMessage = req.message || '';
       this.pendingTargetUrl = req.targetUrl || null;
@@ -398,7 +495,49 @@ export class HeaderComponent implements OnInit {
         this.openLoginModal();
       }
     });
+
+    // Load notifications from API
+    this.propertyService.getNotifications().subscribe();
   }
+
+  onNotificationClick(notif: any): void {
+    if (!notif.is_read) {
+      this.propertyService.markNotificationAsRead(notif.id).subscribe();
+    }
+    this.showNotificationsDropdown = false;
+    
+    // Auto-authenticate if not logged in to bypass auth guard smoothly
+    if (!this.isLoggedIn) {
+      const email = notif.recipient_email || 'amadou.sow@izivilla.sn';
+      const role = (notif.type === 'NEW_REQUEST' || notif.type === 'REQUEST_CONFIRMATION') ? 'owner' : 'tenant';
+      this.propertyService.loginUser(email, 'pass123', role);
+    }
+
+    let targetUrl = notif.link || '/dashboard';
+    if (notif.type === 'NEW_REQUEST' || notif.type === 'REQUEST_CONFIRMATION') {
+      targetUrl = '/espace-proprietaire?tab=requests';
+    } else if (notif.type === 'PROPERTY_EXPIRATION' || notif.type === 'PROPERTY_STATUS') {
+      targetUrl = '/espace-proprietaire?tab=properties';
+    } else if (notif.type === 'SEARCH_ALERT') {
+      targetUrl = notif.link || '/annonces';
+    }
+    this.router.navigateByUrl(targetUrl);
+  }
+
+  quickLogin(role: 'owner' | 'tenant' | 'agency' = 'owner'): void {
+    const email = role === 'owner' ? 'amadou.sow@izivilla.sn' : (role === 'agency' ? 'contact@immoconseil.sn' : 'abdou.diop@client.sn');
+    this.loginEmail = email;
+    this.loginPassword = 'password123';
+    this.loginType = role;
+    this.handleLogin();
+  }
+
+
+
+  markAllAsRead(): void {
+    this.propertyService.markAllNotificationsAsRead().subscribe();
+  }
+
 
   get isUserLoggedIn(): boolean {
     return this.isLoggedIn;
@@ -419,23 +558,22 @@ export class HeaderComponent implements OnInit {
   }
 
   openLoginModal(): void {
-    this.registerSuccessMessage = '';
-    this.loginErrorMsg = '';
-    this.loginEmail = '';
-    this.loginPassword = '';
-    this.showRegisterModal = false;
-    this.showLoginModal = true;
+    this.authOTPModalMode = 'login';
+    this.showAuthOTPModal = true;
   }
 
   openRegisterModal(): void {
-    this.registerSuccessMessage = '';
-    this.loginErrorMsg = '';
-    this.regName = '';
-    this.regEmail = '';
-    this.regPhone = '';
-    this.regPassword = '';
-    this.showLoginModal = false;
-    this.showRegisterModal = true;
+    this.authOTPModalMode = 'register';
+    this.showAuthOTPModal = true;
+  }
+
+  onUserAuthenticated(user: any): void {
+    this.propertyService.loginUser(user.email, '', user.role || 'tenant');
+    if (this.pendingTargetUrl) {
+      const target = this.pendingTargetUrl;
+      this.pendingTargetUrl = null;
+      this.router.navigateByUrl(target);
+    }
   }
 
   switchToRegister(): void {

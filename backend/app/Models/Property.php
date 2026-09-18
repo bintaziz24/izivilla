@@ -44,6 +44,10 @@ class Property extends Model
         'equipments',
         'contact_phone',
         'contact_whatsapp',
+        'expires_at',
+        'last_confirmed_at',
+        'is_expiration_warning_sent',
+        'is_inactivity_warning_sent',
     ];
 
     protected $casts = [
@@ -57,8 +61,12 @@ class Property extends Model
         'is_featured' => 'boolean',
         'is_boosted' => 'boolean',
         'is_verified' => 'boolean',
+        'is_expiration_warning_sent' => 'boolean',
+        'is_inactivity_warning_sent' => 'boolean',
         'equipments' => 'array',
         'boosted_until' => 'datetime',
+        'expires_at' => 'datetime',
+        'last_confirmed_at' => 'datetime',
     ];
 
 

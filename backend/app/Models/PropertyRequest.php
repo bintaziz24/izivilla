@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Appointment extends Model
+class PropertyRequest extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'property_id',
-        'tenant_name',
-        'tenant_email',
-        'tenant_phone',
+        'client_name',
+        'client_email',
+        'client_phone',
         'advertiser_email',
-        'preferred_date',
-        'rescheduled_date',
         'message',
-        'advertiser_comment',
         'status',
-        'reminder_24h_sent',
-        'reminder_2h_sent',
+        'is_reminder_sent',
+    ];
+
+    protected $casts = [
+        'is_reminder_sent' => 'boolean',
     ];
 
     public function property()

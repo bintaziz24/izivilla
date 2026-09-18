@@ -5,7 +5,8 @@ import { RouterModule } from '@angular/router';
 import { PropertyService } from '../../services/property.service';
 import { LanguageService } from '../../services/language.service';
 import { CountryService } from '../../services/country.service';
-import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../../models/property.model';
+import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyRequest } from '../../models/property.model';
+
 
 @Component({
   selector: 'app-tenant-dashboard',
@@ -36,6 +37,16 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
         <!-- Navigation Tabs -->
         <div class="bg-white p-2 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-2 text-xs font-extrabold">
           
+          <button (click)="activeTab = 'requests'" 
+                  [class.bg-slate-950]="activeTab === 'requests'"
+                  [class.text-white]="activeTab === 'requests'"
+                  [class.text-slate-600]="activeTab !== 'requests'"
+                  class="px-5 py-3 rounded-xl transition-all flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane text-orange-500"></i>
+            <span>Mes Demandes (Nouveau, Contacté...)</span>
+            <span class="bg-orange-600 text-white text-[10px] px-2 py-0.5 rounded-full font-black ml-1">{{ myRequests.length }}</span>
+          </button>
+
           <button (click)="activeTab = 'messages'" 
                   [class.bg-slate-950]="activeTab === 'messages'"
                   [class.text-white]="activeTab === 'messages'"
@@ -77,6 +88,56 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
           </button>
 
         </div>
+
+        <!-- TAB 0: MES DEMANDES (PRIORITÉ 3) -->
+        <div *ngIf="activeTab === 'requests'" class="space-y-6">
+          <div *ngIf="myRequests.length === 0" class="bg-white p-12 rounded-3xl border border-slate-200 text-center space-y-4 shadow-sm">
+            <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto">
+              <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900">Aucune demande envoyée</h3>
+            <p class="text-slate-500 text-xs max-w-md mx-auto">Vos demandes envoyées aux annonceurs s'afficheront ici avec le suivi en temps réel du statut.</p>
+            <a routerLink="/annonces" class="btn-orange text-xs px-6 py-3 rounded-xl inline-flex items-center gap-2 font-bold">
+              <i class="fa-solid fa-magnifying-glass"></i> Parcourir les annonces
+            </a>
+          </div>
+
+          <div *ngIf="myRequests.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div *ngFor="let req of myRequests" class="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+              <div class="flex justify-between items-start border-b border-slate-100 pb-3">
+                <div>
+                  <span class="text-xs font-black text-orange-600 uppercase">Demande #{{ req.id }}</span>
+                  <h4 class="font-extrabold text-slate-900 text-base mt-0.5">{{ req.property?.title || ('Bien #' + req.property_id) }}</h4>
+                  <p class="text-[11px] text-slate-400 font-semibold">{{ req.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+                </div>
+
+                <span [ngClass]="{
+                  'bg-orange-100 text-orange-800 border-orange-300': req.status === 'NOUVEAU',
+                  'bg-amber-100 text-amber-800 border-amber-300': req.status === 'CONTACTÉ',
+                  'bg-purple-100 text-purple-800 border-purple-300': req.status === 'INTÉRESSÉ',
+                  'bg-cyan-100 text-cyan-800 border-cyan-300': req.status === 'VISITE',
+                  'bg-indigo-100 text-indigo-800 border-indigo-300': req.status === 'NÉGOCIATION',
+                  'bg-emerald-100 text-emerald-800 border-emerald-300': req.status === 'CONCLU',
+                  'bg-rose-100 text-rose-800 border-rose-300': req.status === 'PERDU',
+                  'bg-slate-100 text-slate-700 border-slate-300': req.status === 'ANNULÉ'
+                }" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border inline-flex items-center gap-1 shadow-sm">
+                  <span>{{ req.status }}</span>
+                </span>
+              </div>
+
+              <div class="bg-slate-50 p-4 rounded-2xl text-xs text-slate-700 font-medium space-y-1">
+                <p class="font-bold text-slate-900">Message transmis à l'annonceur :</p>
+                <p class="italic">"{{ req.message }}"</p>
+              </div>
+
+              <div class="flex items-center justify-between text-xs pt-2 border-t border-slate-100">
+                <span class="text-slate-500 font-semibold"><i class="fa-solid fa-envelope mr-1 text-orange-500"></i> {{ req.advertiser_email || 'Annonceur' }}</span>
+                <span class="text-xs font-extrabold text-orange-600 bg-orange-50 px-3 py-1 rounded-xl">Suivi Actif</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
 
         <!-- TAB 0: MESSAGES DIRECTS -->
         <div *ngIf="activeTab === 'messages'" class="space-y-6">
@@ -136,20 +197,50 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
                   <div>
                     <span [ngClass]="{
                       'bg-amber-100 text-amber-800 border-amber-300': app.status === 'pending',
-                      'bg-emerald-100 text-emerald-800 border-emerald-300': app.status === 'confirmed',
+                      'bg-emerald-600 text-white border-emerald-700': app.status === 'confirmed',
+                      'bg-purple-100 text-purple-800 border-purple-300': app.status === 'rescheduled',
                       'bg-red-100 text-red-800 border-red-300': app.status === 'cancelled'
                     }" class="px-3 py-1 rounded-full text-[11px] font-black uppercase border inline-flex items-center gap-1.5">
                       <i *ngIf="app.status === 'pending'" class="fa-solid fa-clock"></i>
                       <i *ngIf="app.status === 'confirmed'" class="fa-solid fa-circle-check"></i>
+                      <i *ngIf="app.status === 'rescheduled'" class="fa-solid fa-calendar-plus"></i>
                       <i *ngIf="app.status === 'cancelled'" class="fa-solid fa-circle-xmark"></i>
-                      <span>{{ app.status === 'pending' ? 'En attente de confirmation' : (app.status === 'confirmed' ? 'Visite Confirmée' : 'Annulée') }}</span>
+                      <span>{{ app.status === 'pending' ? 'En attente de confirmation' : (app.status === 'confirmed' ? '✅ Visite Confirmée' : (app.status === 'rescheduled' ? '⏰ Nouvelle Date Proposée' : 'Refusée / Annulée')) }}</span>
                     </span>
                     <p class="text-xs text-slate-400 font-semibold mt-2">Demande n°#VIS-00{{ app.id }} • {{ app.created_at | date:'dd/MM/yyyy' }}</p>
                   </div>
                   
                   <span class="text-xs font-extrabold text-orange-600 bg-orange-50 px-3 py-1 rounded-xl">
-                    <i class="fa-solid fa-calendar-day mr-1"></i> {{ app.preferred_date | date:'dd/MM/yyyy' }}
+                    <i class="fa-solid fa-calendar-day mr-1"></i> {{ (app.rescheduled_date || app.preferred_date) | date:'dd/MM/yyyy HH:mm':'UTC' }}
                   </span>
+                </div>
+
+                <!-- PRIORITÉ 7 FORMATTED CONFIRMED BANNER -->
+                <div *ngIf="app.status === 'confirmed'" class="bg-slate-950 text-white p-5 rounded-2xl border-2 border-emerald-500 shadow-lg space-y-2">
+                  <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <span class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                      <i class="fa-solid fa-circle-check text-emerald-500"></i> Visite confirmée
+                    </span>
+                    <span class="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">Rendez-vous acté</span>
+                  </div>
+
+                  <div class="space-y-1 text-xs">
+                    <p class="text-sm font-black text-white">📍 {{ app.property?.title }}</p>
+                    <p class="text-slate-300 font-semibold">📅 {{ (app.rescheduled_date || app.preferred_date) | date:'EEEE d MMMM yyyy':'UTC' }}</p>
+                    <p class="text-slate-300 font-semibold">🕐 {{ (app.rescheduled_date || app.preferred_date) | date:'HH:mm':'UTC' }}</p>
+                    <p class="text-xs font-extrabold text-orange-400 pt-1.5 border-t border-slate-800">
+                      Annonceur : {{ app.property?.owner_name || 'Propriétaire Direct' }}
+                    </p>
+                  </div>
+                </div>
+
+                <!-- RESCHEDULED NOTICE IF ADVERTISER PROPOSED ANOTHER DATE -->
+                <div *ngIf="app.status === 'rescheduled'" class="bg-purple-50 border border-purple-200 text-purple-900 p-4 rounded-2xl text-xs font-medium space-y-1">
+                  <p class="font-black text-purple-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-day text-purple-600"></i> Nouvelle date proposée par l'annonceur :
+                  </p>
+                  <p class="font-extrabold text-purple-700 text-sm">{{ app.rescheduled_date | date:'EEEE d MMMM yyyy à HH:mm':'UTC' }}</p>
+                  <p *ngIf="app.advertiser_comment" class="italic text-slate-600">« {{ app.advertiser_comment }} »</p>
                 </div>
 
                 <div *ngIf="app.property" class="flex gap-4 items-center bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
@@ -158,7 +249,7 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
                     <a [routerLink]="['/annonces', app.property.id]" class="font-extrabold text-slate-900 text-sm hover:text-orange-600 line-clamp-1">
                       {{ app.property.title }}
                     </a>
-                    <p class="text-xs font-bold text-orange-600 mt-0.5">{{ app.property.price_fcfa | number }} FCFA</p>
+                    <p class="text-xs font-bold text-orange-600 mt-0.5">{{ countryService.convertPrice(app.property.price_fcfa) | number }} {{ countryService.currentCountry.currency }}</p>
                     <p class="text-[11px] text-slate-500 font-medium"><i class="fa-solid fa-location-dot text-orange-500 mr-1"></i> {{ app.property.quartier }}, {{ app.property.city }}</p>
                   </div>
                 </div>
@@ -206,7 +297,7 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
 
               <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
                 <div>
-                  <span class="text-xl font-black text-orange-600">{{ prop.price_fcfa | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }}</span></span>
+                  <span class="text-xl font-black text-orange-600">{{ countryService.convertPrice(prop.price_fcfa) | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }}</span></span>
                   <h3 class="font-extrabold text-slate-900 text-base mt-1 line-clamp-1">{{ prop.title }}</h3>
                   <p class="text-slate-500 text-xs mt-1"><i class="fa-solid fa-location-dot text-orange-500 mr-1"></i> {{ prop.quartier }}, {{ prop.city }}</p>
                 </div>
@@ -261,7 +352,7 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
                 </button>
               </div>
 
-              <div class="grid grid-cols-2 gap-2 text-xs font-bold text-slate-700">
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-bold text-slate-700">
                 <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                   <span class="text-[10px] text-slate-400 uppercase font-black block">Ville & Quartier</span>
                   <span>{{ alert.city || 'Toutes' }} {{ alert.quartier ? '(' + alert.quartier + ')' : '' }}</span>
@@ -270,6 +361,16 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
                 <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                   <span class="text-[10px] text-slate-400 uppercase font-black block">Type de logement</span>
                   <span>{{ alert.property_type || 'Tous les types' }}</span>
+                </div>
+
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span class="text-[10px] text-slate-400 uppercase font-black block">Transaction</span>
+                  <span class="text-orange-600 font-extrabold">{{ alert.transaction_type === 'sale' ? 'Vente' : (alert.transaction_type === 'rent' ? 'Location' : 'Tous types') }}</span>
+                </div>
+
+                <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                  <span class="text-[10px] text-slate-400 uppercase font-black block">Chambres Min.</span>
+                  <span>{{ alert.bedrooms ? alert.bedrooms + ' ch. et +' : 'Indifférent' }}</span>
                 </div>
 
                 <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
@@ -283,9 +384,15 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
                 </div>
               </div>
 
-              <div class="flex items-center justify-between text-[11px] text-slate-400 pt-2">
-                <span>Statut : <strong class="text-emerald-600">Active</strong></span>
-                <span>Créée le {{ alert.created_at | date:'dd/MM/yyyy' }}</span>
+              <div class="flex items-center justify-between text-[11px] pt-3 border-t border-slate-100">
+                <div class="flex items-center gap-2">
+                  <span class="text-slate-500 font-semibold">Statut :</span>
+                  <button (click)="toggleAlertStatus(alert)" [class.bg-emerald-100]="alert.is_active" [class.text-emerald-800]="alert.is_active" [class.bg-slate-200]="!alert.is_active" [class.text-slate-600]="!alert.is_active" class="px-3 py-1 rounded-full text-[10px] font-black uppercase transition-all flex items-center gap-1.5 cursor-pointer hover:scale-105">
+                    <span class="w-2 h-2 rounded-full" [class.bg-emerald-500]="alert.is_active" [class.bg-slate-500]="!alert.is_active"></span>
+                    <span>{{ alert.is_active ? 'Active (Notification On)' : 'Désactivée (Notification Off)' }}</span>
+                  </button>
+                </div>
+                <span class="text-slate-400">Créée le {{ alert.created_at | date:'dd/MM/yyyy' }}</span>
               </div>
             </div>
           </div>
@@ -294,8 +401,8 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
       </div>
 
       <!-- CREATE ALERT MODAL -->
-      <div *ngIf="showCreateAlertModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative">
+      <div *ngIf="showCreateAlertModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative max-h-[90vh] overflow-y-auto">
           
           <button (click)="showCreateAlertModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold">
             <i class="fa-solid fa-xmark"></i>
@@ -306,7 +413,7 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
               <i class="fa-solid fa-bell"></i>
             </div>
             <h3 class="text-2xl font-black text-slate-900">Créer une Alerte Email sur Mesure</h3>
-            <p class="text-xs text-slate-500 font-medium">Définissez vos critères de recherche et soyez prévenu avant tout le monde.</p>
+            <p class="text-xs text-slate-500 font-medium">Définissez vos critères de recherche et soyez prévenu dès qu'un bien correspondant est publié.</p>
           </div>
 
           <div *ngIf="alertCreatedMsg" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
@@ -319,6 +426,31 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Votre Adresse Email *</label>
               <input type="email" [(ngModel)]="newAlert.user_email" name="user_email" required placeholder="moussa@exemple.sn" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Type de transaction</label>
+                <select [(ngModel)]="newAlert.transaction_type" name="transaction_type" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-orange-500">
+                  <option value="">Toutes (Vente & Location)</option>
+                  <option value="rent">Location</option>
+                  <option value="sale">Vente</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Type de bien</label>
+                <select [(ngModel)]="newAlert.property_type" name="property_type" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-orange-500">
+                  <option value="">Tous les types</option>
+                  <option value="Studio">Studio</option>
+                  <option value="F2">F2 (1 Chambre)</option>
+                  <option value="F3">F3 (2 Chambres)</option>
+                  <option value="F4">F4 (3 Chambres)</option>
+                  <option value="Villa">Villa</option>
+                  <option value="Appartement">Appartement</option>
+                  <option value="Maison">Maison</option>
+                </select>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
@@ -341,14 +473,13 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
 
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Type de bien</label>
-                <select [(ngModel)]="newAlert.property_type" name="property_type" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-orange-500">
-                  <option value="">Tous les types</option>
-                  <option value="Studio">Studio</option>
-                  <option value="F2">F2 (1 Chambre)</option>
-                  <option value="F3">F3 (2 Chambres)</option>
-                  <option value="F4">F4 (3 Chambres)</option>
-                  <option value="Villa">Villa</option>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Nombre min. de chambres</label>
+                <select [(ngModel)]="newAlert.bedrooms" name="bedrooms" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-orange-500">
+                  <option [ngValue]="null">Indifférent</option>
+                  <option [ngValue]="1">1 chambre minimum</option>
+                  <option [ngValue]="2">2 chambres minimum</option>
+                  <option [ngValue]="3">3 chambres minimum</option>
+                  <option [ngValue]="4">4+ chambres</option>
                 </select>
               </div>
 
@@ -377,7 +508,8 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage } from '../.
   `
 })
 export class TenantDashboardComponent implements OnInit {
-  activeTab: 'messages' | 'appointments' | 'favorites' | 'alerts' = 'messages';
+  activeTab: 'requests' | 'messages' | 'appointments' | 'favorites' | 'alerts' = 'requests';
+  myRequests: PropertyRequest[] = [];
   
   directMessages: DirectMessage[] = [
     {
@@ -400,9 +532,11 @@ export class TenantDashboardComponent implements OnInit {
 
   newAlert: any = {
     user_email: 'moussa@gmail.com',
+    transaction_type: 'rent',
     city: 'Dakar',
     quartier: 'Almadies',
     property_type: 'F4',
+    bedrooms: 2,
     max_price: 1000000,
     is_furnished: true
   };
@@ -424,6 +558,10 @@ export class TenantDashboardComponent implements OnInit {
   loadTenantData(): void {
     const tenantEmail = 'moussa@gmail.com';
 
+    this.propertyService.getPropertyRequests().subscribe(reqs => {
+      this.myRequests = reqs || [];
+    });
+
     this.propertyService.getTenantAppointments(tenantEmail).subscribe(res => {
       this.appointments = res;
     });
@@ -439,6 +577,7 @@ export class TenantDashboardComponent implements OnInit {
       this.alerts = res;
     });
   }
+
 
   getPrimaryImage(prop?: Property): string {
     return prop?.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80';
@@ -458,6 +597,13 @@ export class TenantDashboardComponent implements OnInit {
     if (!id) return;
     this.propertyService.deleteAlert(id).subscribe(() => {
       this.alerts = this.alerts.filter(a => a.id !== id);
+    });
+  }
+
+  toggleAlertStatus(alert: PropertyAlert): void {
+    if (!alert.id) return;
+    this.propertyService.toggleAlertStatus(alert.id).subscribe(res => {
+      alert.is_active = res.is_active;
     });
   }
 

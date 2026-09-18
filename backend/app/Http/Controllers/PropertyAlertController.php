@@ -25,6 +25,8 @@ class PropertyAlertController extends Controller
             'city' => 'nullable|string',
             'quartier' => 'nullable|string',
             'property_type' => 'nullable|string',
+            'transaction_type' => 'nullable|string',
+            'bedrooms' => 'nullable|integer',
             'max_price' => 'nullable|numeric',
             'is_furnished' => 'nullable|boolean',
         ]);
@@ -32,9 +34,23 @@ class PropertyAlertController extends Controller
         $alert = PropertyAlert::create($validated);
 
         return response()->json([
-            'message' => 'Alerte email enregistrée avec succès ! Vous recevrez des notifications pour les nouveaux biens correspondants.',
+            'message' => 'Alerte email activée avec succès ! Vous recevrez des notifications pour les nouveaux biens correspondants.',
             'alert' => $alert,
         ], 201);
+    }
+
+    public function toggleStatus($id)
+    {
+        $alert = PropertyAlert::findOrFail($id);
+        $alert->is_active = !$alert->is_active;
+        $alert->save();
+
+        $statusText = $alert->is_active ? 'activée' : 'désactivée';
+
+        return response()->json([
+            'message' => "L'alerte a été {$statusText} avec succès.",
+            'alert' => $alert,
+        ]);
     }
 
     public function destroy($id)

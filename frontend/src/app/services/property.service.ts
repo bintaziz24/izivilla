@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
-import { Property, PropertyFilter, Agency, DirectMessage, PropertyReport, VerificationRequest } from '../models/property.model';
+import { Property, PropertyFilter, Agency, DirectMessage, PropertyReport, VerificationRequest, PropertyRequest, AppNotification } from '../models/property.model';
 
 import { environment } from '../../environments/environment';
 
@@ -38,7 +38,238 @@ export class PropertyService {
   // Favorites session state
   public favorites$ = new BehaviorSubject<number[]>([1, 3]);
 
-  private localAppointments: any[] = [];
+  // Izivilla Phase 1 Automations - Notifications & Property Requests
+  public notifications$ = new BehaviorSubject<AppNotification[]>([
+    {
+      id: 1,
+      recipient_email: 'amadou.sow@izivilla.sn',
+      title: '🔔 Nouvelle demande sur votre annonce',
+      message: "Appartement 3 chambres – Rufisque\nClient : Abdou Diop\n« Je souhaite visiter le bien. »",
+      type: 'NEW_REQUEST',
+      link: '/espace-proprietaire',
+      is_read: false,
+      created_at: new Date().toISOString()
+    }
+  ]);
+  public unreadNotificationsCount$ = new BehaviorSubject<number>(1);
+  private localPropertyRequests: PropertyRequest[] = [
+    {
+      id: 1,
+      property_id: 1,
+      client_name: 'Abdou Diop',
+      client_email: 'abdou.diop@client.sn',
+      client_phone: '+221 77 654 32 10',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      message: 'Je souhaite visiter le bien ce samedi si possible.',
+      status: 'NOUVEAU',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      property: {
+        id: 1,
+        title: 'Appartement 3 chambres – Rufisque',
+        quartier: 'Rufisque',
+        city: 'Dakar',
+        price_fcfa: 250000,
+        property_type: 'Appartement',
+        transaction_type: 'rent',
+        description: 'Appartement lumineux avec balcon',
+        charges_included: true,
+        bedrooms: 3,
+        bathrooms: 2,
+        is_furnished: true,
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn'
+      }
+    },
+    {
+      id: 2,
+      property_id: 2,
+      client_name: 'Fatou Ndiaye',
+      client_email: 'fatou.ndiaye@client.sn',
+      client_phone: '+221 78 123 45 67',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      message: 'Bonjour, le bien est-il toujours disponible pour une entrée immédiate ?',
+      status: 'CONTACTÉ',
+      created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+      updated_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+      property: {
+        id: 2,
+        title: 'Villa Contemporaine 5 Chambres avec Piscine',
+        quartier: 'Almadies',
+        city: 'Dakar',
+        price_fcfa: 1500000,
+        property_type: 'Villa',
+        transaction_type: 'rent',
+        description: 'Superbe villa avec piscine',
+        bedrooms: 5,
+        bathrooms: 4,
+        is_furnished: true,
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn'
+      }
+    },
+    {
+      id: 3,
+      property_id: 1,
+      client_name: 'Mamadou Kane',
+      client_email: 'mamadou.kane@prospect.sn',
+      client_phone: '+221 77 444 88 99',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      message: 'Bonjour, j\'ai consulté l\'annonce et je suis très intéressé par la localisation.',
+      status: 'INTÉRESSÉ',
+      created_at: new Date(Date.now() - 3600000 * 24 * 7).toISOString(),
+      updated_at: new Date(Date.now() - 3600000 * 24 * 6).toISOString(),
+      inactive_days: 6,
+      is_inactive: true,
+      property: {
+        id: 1,
+        title: 'Appartement 3 chambres – Rufisque',
+        quartier: 'Rufisque',
+        city: 'Dakar',
+        price_fcfa: 250000,
+        property_type: 'Appartement',
+        transaction_type: 'rent',
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn'
+      }
+    },
+    {
+      id: 4,
+      property_id: 3,
+      client_name: 'Awa Faye',
+      client_email: 'awa.faye@email.sn',
+      client_phone: '+221 76 999 11 22',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      message: 'Rendez-vous de visite sollicité pour le penthouse aux Almadies.',
+      status: 'VISITE',
+      created_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+      updated_at: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
+      property: {
+        id: 3,
+        title: 'Penthouse Vue Mer Panoramique aux Almadies',
+        quartier: 'Almadies',
+        city: 'Dakar',
+        price_fcfa: 1200000,
+        property_type: 'Appartement',
+        transaction_type: 'rent',
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn'
+      }
+    },
+    {
+      id: 5,
+      property_id: 2,
+      client_name: 'Ousmane Cissé',
+      client_email: 'ousmane.cisse@prospect.sn',
+      client_phone: '+221 78 555 33 22',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      message: 'Proposition tarifaire transmise par le client après visite.',
+      status: 'NÉGOCIATION',
+      created_at: new Date(Date.now() - 3600000 * 24 * 10).toISOString(),
+      updated_at: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
+      inactive_days: 8,
+      is_inactive: true,
+      property: {
+        id: 2,
+        title: 'Villa Contemporaine 5 Chambres avec Piscine',
+        quartier: 'Almadies',
+        city: 'Dakar',
+        price_fcfa: 1500000,
+        property_type: 'Villa',
+        transaction_type: 'rent',
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn'
+      }
+    },
+    {
+      id: 6,
+      property_id: 1,
+      client_name: 'Seydou Ba',
+      client_email: 'seydou.ba@client.sn',
+      client_phone: '+221 77 222 33 44',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      message: 'Bail signé et caution versée.',
+      status: 'CONCLU',
+      created_at: new Date(Date.now() - 3600000 * 24 * 12).toISOString(),
+      updated_at: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
+      property: {
+        id: 1,
+        title: 'Appartement 3 chambres – Rufisque',
+        quartier: 'Rufisque',
+        city: 'Dakar',
+        price_fcfa: 250000,
+        property_type: 'Appartement',
+        transaction_type: 'rent',
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn'
+      }
+    }
+  ];
+
+
+
+  private localAppointments: any[] = [
+    {
+      id: 1,
+      property_id: 1,
+      tenant_name: 'Abdou Diop',
+      tenant_email: 'abdou.diop@client.sn',
+      tenant_phone: '+221 77 654 32 10',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      preferred_date: '2026-09-15T15:00:00',
+      message: 'Je souhaite visiter ce bien ce samedi à 15h00.',
+      status: 'confirmed',
+      reminder_24h_sent: false,
+      reminder_2h_sent: false,
+      created_at: new Date().toISOString(),
+      property: {
+        id: 1,
+        title: 'Villa Contemporaine 5 Chambres avec Piscine aux Almadies',
+        quartier: 'Almadies',
+        city: 'Dakar',
+        price_fcfa: 350000000,
+        property_type: 'Villa',
+        transaction_type: 'sale',
+        owner_name: 'Amadou Sow',
+        owner_phone: '+221 77 645 12 34',
+        owner_email: 'amadou.sow@izivilla.sn',
+        images: [{ image_url: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80', is_primary: true }]
+      }
+    },
+    {
+      id: 2,
+      property_id: 2,
+      tenant_name: 'Fatou Ndiaye',
+      tenant_email: 'fatou.ndiaye@client.sn',
+      tenant_phone: '+221 78 123 45 67',
+      advertiser_email: 'amadou.sow@izivilla.sn',
+      preferred_date: '2026-09-16T10:00:00',
+      message: 'Visite souhaitée dans la matinée.',
+      status: 'pending',
+      reminder_24h_sent: false,
+      reminder_2h_sent: false,
+      created_at: new Date().toISOString(),
+      property: {
+        id: 2,
+        title: 'Appartement Haut Standing F4 avec Balcon Vue Mer à Mermoz',
+        quartier: 'Mermoz',
+        city: 'Dakar',
+        price_fcfa: 750000,
+        property_type: 'Appartement',
+        transaction_type: 'rent',
+        owner_name: 'Immo Conseil Sénégal',
+        owner_phone: '+221 33 869 40 40',
+        owner_email: 'contact@immoconseil.sn',
+        images: [{ image_url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80', is_primary: true }]
+      }
+    }
+  ];
   private localAlerts: any[] = [];
   private localMessages: DirectMessage[] = [
     {
@@ -110,75 +341,102 @@ export class PropertyService {
     return this.currentUser$.getValue();
   }
 
+  private demoAccounts: { [email: string]: UserSession & { password?: string } } = {
+    'amadou.sow@izivilla.sn': { name: 'Amadou Sow', email: 'amadou.sow@izivilla.sn', phone: '+221 77 645 12 34', role: 'owner' },
+    'contact@immoconseil.sn': { name: 'Immo Conseil Senegal', email: 'contact@immoconseil.sn', phone: '+221 33 821 00 00', role: 'agency' },
+    'abdou.diop@client.sn': { name: 'Abdou Diop', email: 'abdou.diop@client.sn', phone: '+221 77 654 32 10', role: 'tenant' },
+    'moussa@gmail.com': { name: 'Moussa Diallo', email: 'moussa@gmail.com', phone: '+221 77 123 45 67', role: 'tenant' },
+    'admin@izivilla.sn': { name: 'Super Admin Izivilla', email: 'admin@izivilla.sn', role: 'admin' },
+    'admin': { name: 'Super Admin Izivilla', email: 'admin@izivilla.sn', role: 'admin' }
+  };
+
   loginUser(email: string, pass: string, selectedRole: 'tenant' | 'owner' | 'agency' | 'admin'): { success: boolean; message: string } {
-    let role: 'tenant' | 'owner' | 'agency' | 'admin' = selectedRole;
     const cleanEmail = (email || '').toLowerCase().trim();
     const cleanPass = (pass || '').trim();
 
-    // Auto-detect Admin credentials regardless of selected tab
-    if (cleanEmail === 'admin@izivilla.sn' || cleanEmail === 'admin' || cleanPass === 'admin123' || (cleanEmail.includes('admin') && cleanPass === 'admin123')) {
-      if (cleanPass !== 'admin123' && cleanPass !== 'admin') {
-        return { success: false, message: 'Mot de passe Administrateur incorrect.' };
-      }
-      role = 'admin';
-    } else if (role === 'admin') {
+    if (!cleanEmail || !cleanPass) {
+      return { success: false, message: 'Veuillez renseigner votre identifiant et votre mot de passe.' };
+    }
+
+    // 1. Admin login check
+    if (cleanEmail === 'admin@izivilla.sn' || cleanEmail === 'admin' || selectedRole === 'admin') {
       if (cleanPass !== 'admin123' && cleanPass !== 'admin') {
         return { success: false, message: 'Mot de passe Administrateur incorrect. (Démo: admin123)' };
       }
+      const adminSession: UserSession = {
+        name: 'Super Admin Izivilla',
+        email: 'admin@izivilla.sn',
+        role: 'admin'
+      };
+      this.saveUserSession(adminSession);
+      return { success: true, message: 'Connexion réussie en tant qu\'Administrateur !' };
     }
 
+    // 2. Check registered user in localStorage
     const registeredKey = 'izivilla_reg_' + cleanEmail;
     const registeredData = localStorage.getItem(registeredKey);
-    let session: UserSession;
 
     if (registeredData) {
       try {
         const parsed = JSON.parse(registeredData);
-        session = {
+        if (parsed.password && parsed.password !== cleanPass) {
+          return { success: false, message: 'Mot de passe incorrect.' };
+        }
+        const session: UserSession = {
           name: parsed.name,
           email: parsed.email,
           phone: parsed.phone,
-          role: parsed.role
+          role: parsed.role || selectedRole
         };
-        role = parsed.role;
+        this.saveUserSession(session);
+        return { success: true, message: `Connexion réussie !` };
       } catch {
-        session = {
-          name: email.split('@')[0] || 'Utilisateur Izivilla',
-          email: email || 'user@izivilla.sn',
-          role: role
-        };
+        return { success: false, message: 'Erreur lors de la lecture du compte enregistré.' };
       }
-    } else {
-      const userName = role === 'admin' ? 'Super Admin Izivilla' : (email.split('@')[0] || 'Utilisateur Izivilla');
-      session = {
-        name: userName,
-        email: email || 'user@izivilla.sn',
-        role: role
-      };
     }
 
+    // 3. Check demo accounts
+    if (this.demoAccounts[cleanEmail]) {
+      const demo = this.demoAccounts[cleanEmail];
+      const session: UserSession = {
+        name: demo.name,
+        email: demo.email,
+        phone: demo.phone,
+        role: demo.role
+      };
+      this.saveUserSession(session);
+      return { success: true, message: `Connexion réussie en tant que ${demo.role} !` };
+    }
+
+    // 4. Account not found
+    return { success: false, message: 'Compte introuvable ou identifiants incorrects. Veuillez vérifier votre adresse email ou créer un nouveau compte.' };
+  }
+
+  private saveUserSession(session: UserSession): void {
     localStorage.setItem('izivilla_logged_in', 'true');
     localStorage.setItem('izivilla_user', JSON.stringify(session));
 
-    this.currentRole$.next(role);
+    this.currentRole$.next(session.role);
     this.currentUser$.next(session);
     this.isLoggedIn$.next(true);
-
-    return { success: true, message: `Connexion réussie en tant que ${role} !` };
   }
 
   registerUser(name: string, email: string, phone: string, pass: string, role: 'tenant' | 'owner' | 'agency'): { success: boolean; message: string } {
-    const session: UserSession = {
+    const cleanEmail = (email || '').toLowerCase().trim();
+    if (!cleanEmail) {
+      return { success: false, message: 'Veuillez saisir une adresse email valide.' };
+    }
+
+    const userData = {
       name: name || 'Nouvel Utilisateur',
-      email: email,
+      email: cleanEmail,
       phone: phone,
+      password: pass,
       role: role
     };
 
-    const cleanEmail = (email || '').toLowerCase().trim();
-    localStorage.setItem('izivilla_reg_' + cleanEmail, JSON.stringify(session));
-
-    return { success: true, message: `Compte ${role} créé avec succès ! Veuillez vous connecter.` };
+    localStorage.setItem('izivilla_reg_' + cleanEmail, JSON.stringify(userData));
+    return { success: true, message: `Compte ${role} créé avec succès ! Vous pouvez maintenant vous connecter.` };
   }
 
   login(): void {
@@ -237,7 +495,14 @@ export class PropertyService {
   }
 
   getPropertyById(id: number): Observable<Property> {
-    return this.http.get<Property>(`${this.apiUrl}/properties/${id}`).pipe(
+    return this.http.get<any>(`${this.apiUrl}/properties/${id}`).pipe(
+      map(res => {
+        if (res && res.id) return res;
+        if (res && res.property && res.property.id) return res.property;
+        if (res && res.data && res.data.id) return res.data;
+        const all = this.getAllPropertiesCombined();
+        return all.find(p => p.id === Number(id)) || all[0];
+      }),
       catchError(() => {
         const all = this.getAllPropertiesCombined();
         const mock = all.find(p => p.id === Number(id));
@@ -245,6 +510,7 @@ export class PropertyService {
       })
     );
   }
+
 
   createProperty(propertyData: any): Observable<any> {
     const user = this.getCurrentUser();
@@ -291,9 +557,173 @@ export class PropertyService {
 
     this.customProperties.unshift(newProp);
 
+    // Generate automated matching alert notifications (Étape E)
+    this.localAlerts.forEach(alert => {
+      const alertNotif: AppNotification = {
+        id: Date.now(),
+        recipient_email: alert.user_email || 'moussa@gmail.com',
+        title: '🔔 Nouvelle alerte bien publié',
+        message: `Un nouveau bien correspondant à vos critères ("${newProp.city} - ${newProp.property_type}") vient d'être publié : "${newProp.title}".`,
+        type: 'MATCHING_ALERT',
+        link: `/annonces/${newProp.id}`,
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+      const current = this.notifications$.getValue();
+      this.notifications$.next([alertNotif, ...current]);
+    });
+    this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+
     return this.http.post<any>(`${this.apiUrl}/properties`, propertyData).pipe(
       catchError(() => of({ success: true, message: 'Votre bien a été publié. La vérification du profil sera effectuée par l\'Admin Izivilla.', property: newProp }))
     );
+  }
+
+  updatePropertyStatus(id: number, status: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/properties/${id}/status`, { status }).pipe(
+      tap(() => {
+        const all = this.getAllPropertiesCombined();
+        const prop = all.find(p => p.id === id);
+        if (prop) {
+          prop.status = status;
+        }
+      }),
+      catchError(() => {
+        const all = this.getAllPropertiesCombined();
+        const prop = all.find(p => p.id === id);
+        if (prop) {
+          prop.status = status;
+        }
+        return of({ message: 'Statut du bien mis à jour avec succès' });
+      })
+    );
+  }
+
+  renewProperty(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/properties/${id}/renew`, {}).pipe(
+      tap(() => this.applyLocalPropertyRenew(id)),
+      catchError(() => {
+        this.applyLocalPropertyRenew(id);
+        return of({ message: 'Annonce renouvelée avec succès pour 60 jours supplémentaires !' });
+      })
+    );
+  }
+
+  confirmPropertyAvailability(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/properties/${id}/confirm-availability`, {}).pipe(
+      tap(() => this.applyLocalPropertyConfirm(id)),
+      catchError(() => {
+        this.applyLocalPropertyConfirm(id);
+        return of({ message: 'Disponibilité du bien confirmée avec succès !' });
+      })
+    );
+  }
+
+  triggerPropertyExpirationCheck(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/properties/check-expirations`, {}).pipe(
+      tap(() => this.applyLocalPropertyExpirationCheck()),
+      catchError(() => {
+        const count = this.applyLocalPropertyExpirationCheck();
+        return of({ message: `Contrôle d'expiration exécuté avec succès. ${count} notification(s) générée(s).` });
+      })
+    );
+  }
+
+  private applyLocalPropertyRenew(id: number): void {
+    const all = this.getAllPropertiesCombined();
+    const prop = all.find(p => p.id === id);
+    if (prop) {
+      const future60 = new Date();
+      future60.setDate(future60.getDate() + 60);
+      prop.expires_at = future60.toISOString();
+      prop.last_confirmed_at = new Date().toISOString();
+      prop.status = 'available';
+      prop.is_expiration_warning_sent = false;
+      prop.is_inactivity_warning_sent = false;
+    }
+  }
+
+  private applyLocalPropertyConfirm(id: number): void {
+    const all = this.getAllPropertiesCombined();
+    const prop = all.find(p => p.id === id);
+    if (prop) {
+      prop.last_confirmed_at = new Date().toISOString();
+      prop.is_inactivity_warning_sent = false;
+      if (prop.status === 'expired') {
+        prop.status = 'available';
+      }
+    }
+  }
+
+  private applyLocalPropertyExpirationCheck(): number {
+    let count = 0;
+    const all = this.getAllPropertiesCombined();
+    const now = new Date();
+
+    all.forEach(prop => {
+      // 1. Check expiration date (if expired or within 7 days)
+      const expDate = prop.expires_at ? new Date(prop.expires_at) : null;
+      const advertiserEmail = prop.owner_email || prop.agency?.email || 'amadou.sow@izivilla.sn';
+
+      if (expDate && expDate <= now && prop.status !== 'expired') {
+        prop.status = 'expired';
+        count++;
+        const expNotif: AppNotification = {
+          id: Date.now() + count,
+          recipient_email: advertiserEmail,
+          title: '⚠️ Votre annonce a expiré',
+          message: `Votre annonce "${prop.title}" a atteint sa date d'expiration. Elle n'est plus visible dans les recherches publiques. Cliquez pour la renouveler.`,
+          type: 'PROPERTY_EXPIRATION',
+          link: '/espace-proprietaire?tab=properties',
+          is_read: false,
+          created_at: new Date().toISOString()
+        };
+        const currentNotifs = this.notifications$.getValue();
+        this.notifications$.next([expNotif, ...currentNotifs]);
+      } else if (expDate && !prop.is_expiration_warning_sent) {
+        const daysLeft = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 3600 * 24));
+        if (daysLeft <= 7 && daysLeft > 0) {
+          prop.is_expiration_warning_sent = true;
+          count++;
+          const warningNotif: AppNotification = {
+            id: Date.now() + count,
+            recipient_email: advertiserEmail,
+            title: '⚠️ Votre annonce arrive bientôt à expiration',
+            message: `Attention : Votre annonce "${prop.title}" expire dans ${daysLeft} jour(s). Pensez à la renouveler pour conserver sa visibilité.`,
+            type: 'PROPERTY_EXPIRATION',
+            link: '/espace-proprietaire?tab=properties',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          const currentNotifs = this.notifications$.getValue();
+          this.notifications$.next([warningNotif, ...currentNotifs]);
+        }
+      }
+
+      // 2. Check 30-day inactivity
+      const lastConfirm = prop.last_confirmed_at ? new Date(prop.last_confirmed_at) : (prop.created_at ? new Date(prop.created_at) : new Date(now.getTime() - 86400000 * 32));
+      const daysInactive = Math.floor((now.getTime() - lastConfirm.getTime()) / (1000 * 3600 * 24));
+
+      if (daysInactive >= 30 && !prop.is_inactivity_warning_sent && prop.status === 'available') {
+        prop.is_inactivity_warning_sent = true;
+        count++;
+        const inactivityNotif: AppNotification = {
+          id: Date.now() + count,
+          recipient_email: advertiserEmail,
+          title: '🔔 Votre annonce est en ligne depuis 30 jours',
+          message: `Bonjour, votre bien "${prop.title}" est-il toujours disponible ?\n\nConfirmez la disponibilité ou mettez à jour son statut en Vendu/Loué.`,
+          type: 'PROPERTY_STATUS',
+          link: '/espace-proprietaire?tab=properties',
+          is_read: false,
+          created_at: new Date().toISOString()
+        };
+        const currentNotifs = this.notifications$.getValue();
+        this.notifications$.next([inactivityNotif, ...currentNotifs]);
+      }
+    });
+
+    this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+    return count;
   }
 
   getAgencies(): Observable<Agency[]> {
@@ -409,17 +839,54 @@ export class PropertyService {
 
   submitAppointment(data: any): Observable<any> {
     const prop = this.getAllPropertiesCombined().find(p => p.id === data.property_id);
+    const advertiserEmail = prop?.owner_email || prop?.agency?.email || 'amadou.sow@izivilla.sn';
+
     const newAppointment = {
       id: Date.now(),
-      ...data,
+      property_id: data.property_id,
+      tenant_name: data.tenant_name,
+      tenant_email: data.tenant_email,
+      tenant_phone: data.tenant_phone,
+      advertiser_email: advertiserEmail,
+      preferred_date: data.preferred_date,
+      message: data.message || '',
       status: 'pending',
+      reminder_24h_sent: false,
+      reminder_2h_sent: false,
       created_at: new Date().toISOString(),
       property: prop || this.getMockProperties()[0]
     };
     this.localAppointments.unshift(newAppointment);
 
+    // Create notifications in local stream
+    const advertiserNotif: AppNotification = {
+      id: Date.now(),
+      recipient_email: advertiserEmail,
+      title: '📅 Demande de visite reçue',
+      message: `Demande de visite sur "${prop?.title || 'Votre annonce'}"\nClient : ${data.tenant_name} (${data.tenant_phone})\nDate souhaitée : ${new Date(data.preferred_date).toLocaleString('fr-FR')}\n« ${data.message || 'Souhaite effectuer une visite.'} »`,
+      type: 'VISIT_REQUEST',
+      link: '/espace-proprietaire?tab=appointments',
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+
+    const clientNotif: AppNotification = {
+      id: Date.now() + 1,
+      recipient_email: data.tenant_email,
+      title: '📅 Demande de visite transmise',
+      message: `Bonjour ${data.tenant_name}, votre demande de visite pour "${prop?.title || 'le bien'}" a bien été transmise à l'annonceur.`,
+      type: 'VISIT_SUBMITTED',
+      link: '/espace-locataire?tab=appointments',
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+
+    const currentNotifs = this.notifications$.getValue();
+    this.notifications$.next([clientNotif, advertiserNotif, ...currentNotifs]);
+    this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+
     return this.http.post<any>(`${this.apiUrl}/appointments`, data).pipe(
-      catchError(() => of({ message: 'Demande de visite enregistrée avec succès !', appointment: newAppointment }))
+      catchError(() => of({ message: 'Demande de visite transmise avec succès à l\'annonceur !', appointment: newAppointment }))
     );
   }
 
@@ -433,45 +900,205 @@ export class PropertyService {
     );
   }
 
-  getStats(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/properties/stats`).pipe(
-      catchError(() => of({
-        total_listings: 124,
-        active_agencies: 18,
-        verified_owners: 42,
-        boosted_listings: 14,
-        total_views: 18450,
-        city_breakdown: { Dakar: 82, Saly: 24, Thiès: 10, 'Saint-Louis': 8 }
-      }))
+  getTenantAppointments(email: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (email) params = params.set('tenant_email', email);
+
+    return this.http.get<any[]>(`${this.apiUrl}/appointments`, { params }).pipe(
+      map(res => (res && res.length > 0) ? res : this.localAppointments.filter(a => !email || a.tenant_email?.toLowerCase() === email.toLowerCase())),
+      catchError(() => of(this.localAppointments.filter(a => !email || a.tenant_email?.toLowerCase() === email.toLowerCase())))
     );
   }
 
-  getTenantAppointments(email: string): Observable<any[]> {
-    return of(this.localAppointments);
+  getAdvertiserAppointments(email: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (email) params = params.set('advertiser_email', email);
+
+    return this.http.get<any[]>(`${this.apiUrl}/appointments`, { params }).pipe(
+      map(res => (res && res.length > 0) ? res : this.localAppointments),
+      catchError(() => of(this.localAppointments))
+    );
+  }
+
+  updateAppointmentStatus(id: number, action: 'accept' | 'reschedule' | 'refuse', rescheduledDate?: string, comment?: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/appointments/${id}/status`, { action, rescheduled_date: rescheduledDate, comment }).pipe(
+      tap(() => {
+        this.applyLocalAppointmentStatusUpdate(id, action, rescheduledDate, comment);
+      }),
+      catchError(() => {
+        this.applyLocalAppointmentStatusUpdate(id, action, rescheduledDate, comment);
+        return of({ message: 'Statut de la visite mis à jour avec succès.' });
+      })
+    );
+  }
+
+  private applyLocalAppointmentStatusUpdate(id: number, action: 'accept' | 'reschedule' | 'refuse', rescheduledDate?: string, comment?: string): void {
+    const item = this.localAppointments.find(a => a.id === id);
+    if (!item) return;
+
+    const propTitle = item.property?.title || 'le bien';
+    const ownerName = item.property?.owner_name || 'L\'annonceur';
+
+    if (action === 'accept') {
+      item.status = 'confirmed';
+      if (comment) item.advertiser_comment = comment;
+
+      const clientNotif: AppNotification = {
+        id: Date.now(),
+        recipient_email: item.tenant_email,
+        title: '✅ Visite confirmée',
+        message: `✅ Visite confirmée !\n📍 Bien : ${propTitle}\n📅 Date & Heure : ${new Date(item.preferred_date).toLocaleString('fr-FR')}\nAnnonceur : ${ownerName}`,
+        type: 'VISIT_CONFIRMED',
+        link: '/espace-locataire?tab=appointments',
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+
+      const advertiserNotif: AppNotification = {
+        id: Date.now() + 1,
+        recipient_email: item.advertiser_email || '',
+        title: '✅ Visite confirmée enregistrée',
+        message: `Vous avez accepté le rendez-vous de visite avec ${item.tenant_name} pour "${propTitle}".`,
+        type: 'VISIT_CONFIRMED',
+        link: '/espace-proprietaire?tab=appointments',
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+
+      const currentNotifs = this.notifications$.getValue();
+      this.notifications$.next([clientNotif, advertiserNotif, ...currentNotifs]);
+    } else if (action === 'reschedule') {
+      item.status = 'rescheduled';
+      if (rescheduledDate) item.rescheduled_date = rescheduledDate;
+      if (comment) item.advertiser_comment = comment;
+
+      const clientNotif: AppNotification = {
+        id: Date.now(),
+        recipient_email: item.tenant_email,
+        title: '⏰ Nouvelle date proposée pour la visite',
+        message: `L'annonceur a proposé une nouvelle date pour "${propTitle}" : ${new Date(rescheduledDate || '').toLocaleString('fr-FR')}.${comment ? ' Commentaire : ' + comment : ''}`,
+        type: 'VISIT_RESCHEDULED',
+        link: '/espace-locataire?tab=appointments',
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+      const currentNotifs = this.notifications$.getValue();
+      this.notifications$.next([clientNotif, ...currentNotifs]);
+    } else if (action === 'refuse') {
+      item.status = 'cancelled';
+      if (comment) item.advertiser_comment = comment;
+
+      const clientNotif: AppNotification = {
+        id: Date.now(),
+        recipient_email: item.tenant_email,
+        title: '❌ Demande de visite refusée',
+        message: `Votre demande de visite pour "${propTitle}" n'a pas pu être acceptée par l'annonceur.${comment ? ' Motif : ' + comment : ''}`,
+        type: 'VISIT_CANCELLED',
+        link: '/espace-locataire?tab=appointments',
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+      const currentNotifs = this.notifications$.getValue();
+      this.notifications$.next([clientNotif, ...currentNotifs]);
+    }
+    this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+  }
+
+  triggerVisitReminders(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/appointments/send-reminders`, {}).pipe(
+      tap(() => this.applyLocalVisitReminders()),
+      catchError(() => {
+        const count = this.applyLocalVisitReminders();
+        return of({ message: `Rappels de visites traités. ${count} rappel(s) généré(s).` });
+      })
+    );
+  }
+
+  private applyLocalVisitReminders(): number {
+    let count = 0;
+    this.localAppointments.forEach(apt => {
+      if (apt.status === 'confirmed') {
+        if (!apt.reminder_24h_sent) {
+          apt.reminder_24h_sent = true;
+          count++;
+          const reminderNotif: AppNotification = {
+            id: Date.now() + count,
+            recipient_email: apt.tenant_email,
+            title: '🔔 Rappel de visite (Demain)',
+            message: `🔔 Rappel : votre visite pour "${apt.property?.title || 'le bien'}" est prévue demain à ${new Date(apt.preferred_date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.`,
+            type: 'VISIT_REMINDER',
+            link: '/espace-locataire?tab=appointments',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          const currentNotifs = this.notifications$.getValue();
+          this.notifications$.next([reminderNotif, ...currentNotifs]);
+        }
+      }
+    });
+    this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+    return count;
   }
 
   createAlert(data: any): Observable<any> {
     const newAlert = {
       id: Date.now(),
-      ...data,
+      user_email: data.user_email || 'client@izivilla.sn',
+      city: data.city || '',
+      quartier: data.quartier || '',
+      property_type: data.property_type || '',
+      transaction_type: data.transaction_type || '',
+      bedrooms: data.bedrooms || null,
+      max_price: data.max_price || null,
+      is_furnished: data.is_furnished || false,
       is_active: true,
       created_at: new Date().toISOString()
     };
     this.localAlerts.unshift(newAlert);
 
-    return of({
-      message: 'Alerte email créée avec succès sur Izivilla !',
-      alert: newAlert
-    });
+    return this.http.post<any>(`${this.apiUrl}/alerts`, data).pipe(
+      catchError(() => of({
+        message: 'Alerte email activée avec succès sur Izivilla ! Vous recevrez un avis dès qu\'un nouveau bien correspondra.',
+        alert: newAlert
+      }))
+    );
   }
 
   getAlertsByEmail(email: string): Observable<any[]> {
-    return of(this.localAlerts);
+    let params = new HttpParams();
+    if (email) params = params.set('email', email);
+
+    return this.http.get<any[]>(`${this.apiUrl}/alerts`, { params }).pipe(
+      map(res => (res && res.length > 0) ? res : this.localAlerts),
+      catchError(() => of(this.localAlerts))
+    );
+  }
+
+  toggleAlertStatus(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/alerts/${id}/toggle`, {}).pipe(
+      tap(() => {
+        const item = this.localAlerts.find(a => a.id === id);
+        if (item) item.is_active = !item.is_active;
+      }),
+      catchError(() => {
+        const item = this.localAlerts.find(a => a.id === id);
+        if (item) item.is_active = !item.is_active;
+        const statusText = item?.is_active ? 'activée' : 'désactivée';
+        return of({ message: `L'alerte a été ${statusText} avec succès.` });
+      })
+    );
   }
 
   deleteAlert(id: number): Observable<any> {
-    this.localAlerts = this.localAlerts.filter(a => a.id !== id);
-    return of({ message: 'Alerte supprimée avec succès.' });
+    return this.http.delete<any>(`${this.apiUrl}/alerts/${id}`).pipe(
+      tap(() => {
+        this.localAlerts = this.localAlerts.filter(a => a.id !== id);
+      }),
+      catchError(() => {
+        this.localAlerts = this.localAlerts.filter(a => a.id !== id);
+        return of({ message: 'Alerte supprimée avec succès.' });
+      })
+    );
   }
 
   toggleFavorite(propertyId: number): void {
@@ -486,6 +1113,8 @@ export class PropertyService {
   isFavorite(propertyId: number): boolean {
     return this.favorites$.getValue().includes(propertyId);
   }
+
+
 
   public getAllPropertiesCombined(): Property[] {
     return [...this.customProperties, ...this.getMockProperties()];
@@ -830,5 +1459,315 @@ export class PropertyService {
       }
     ];
   }
+
+  // ==========================================
+  // IZIVILLA PHASE 1 : AUTOMATISATIONS METHODS
+  // ==========================================
+
+  sendPropertyRequest(reqData: { property_id: number; client_name: string; client_email: string; client_phone?: string; message: string; advertiser_email?: string; property_title?: string }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/property-requests`, reqData).pipe(
+      tap(res => {
+        // Also sync local state & generate instant notification for advertiser
+        const newReq: PropertyRequest = {
+          id: res?.request?.id || Date.now(),
+          property_id: reqData.property_id,
+          client_name: reqData.client_name,
+          client_email: reqData.client_email,
+          client_phone: reqData.client_phone,
+          advertiser_email: reqData.advertiser_email || 'owner@izivilla.sn',
+          message: reqData.message,
+          status: 'NOUVEAU',
+          created_at: new Date().toISOString()
+        };
+        this.localPropertyRequests.unshift(newReq);
+
+        // 1. Generate instant notification for advertiser
+        const advertiserNotif: AppNotification = {
+          id: Date.now(),
+          recipient_email: newReq.advertiser_email || '',
+          title: '🔔 Nouvelle demande sur votre annonce',
+          message: `${reqData.property_title || 'Votre bien'}\nClient : ${reqData.client_name}\n« ${reqData.message} »`,
+          type: 'NEW_REQUEST',
+          link: '/espace-proprietaire?tab=requests',
+          is_read: false,
+          created_at: new Date().toISOString(),
+          data: { request_id: newReq.id, property_id: reqData.property_id }
+        };
+
+        // 2. Generate instant confirmation notification for client (PRIORITÉ 3)
+        const clientNotif: AppNotification = {
+          id: Date.now() + 1,
+          recipient_email: newReq.client_email,
+          title: '✅ Confirmation de votre demande',
+          message: `Bonjour ${reqData.client_name},\n\nvotre demande concernant ${reqData.property_title || 'le bien'} a bien été transmise à l'annonceur.\n\nVous serez contacté prochainement.`,
+          type: 'REQUEST_CONFIRMATION',
+          link: '/espace-locataire?tab=requests',
+          is_read: false,
+          created_at: new Date().toISOString(),
+          data: { request_id: newReq.id, property_id: reqData.property_id }
+        };
+
+        const currentNotifs = this.notifications$.getValue();
+        const updated = [clientNotif, advertiserNotif, ...currentNotifs];
+        this.notifications$.next(updated);
+        this.unreadNotificationsCount$.next(updated.filter(n => !n.is_read).length);
+      }),
+      catchError(err => {
+        // Fallback for offline/mock mode
+        const newReq: PropertyRequest = {
+          id: Date.now(),
+          property_id: reqData.property_id,
+          client_name: reqData.client_name,
+          client_email: reqData.client_email,
+          client_phone: reqData.client_phone,
+          advertiser_email: reqData.advertiser_email || 'owner@izivilla.sn',
+          message: reqData.message,
+          status: 'NOUVEAU',
+          created_at: new Date().toISOString()
+        };
+        this.localPropertyRequests.unshift(newReq);
+
+        const advertiserNotif: AppNotification = {
+          id: Date.now(),
+          recipient_email: newReq.advertiser_email || '',
+          title: '🔔 Nouvelle demande sur votre annonce',
+          message: `${reqData.property_title || 'Votre bien'}\nClient : ${reqData.client_name}\n« ${reqData.message} »`,
+          type: 'NEW_REQUEST',
+          link: '/espace-proprietaire?tab=requests',
+          is_read: false,
+          created_at: new Date().toISOString()
+        };
+
+        const clientNotif: AppNotification = {
+          id: Date.now() + 1,
+          recipient_email: newReq.client_email,
+          title: '✅ Confirmation de votre demande',
+          message: `Bonjour ${reqData.client_name},\n\nvotre demande concernant ${reqData.property_title || 'le bien'} a bien été transmise à l'annonceur.\n\nVous serez contacté prochainement.`,
+          type: 'REQUEST_CONFIRMATION',
+          link: '/espace-locataire?tab=requests',
+          is_read: false,
+          created_at: new Date().toISOString()
+        };
+
+        const currentNotifs = this.notifications$.getValue();
+        const updated = [clientNotif, advertiserNotif, ...currentNotifs];
+        this.notifications$.next(updated);
+        this.unreadNotificationsCount$.next(updated.filter(n => !n.is_read).length);
+
+        return of({
+          message: `Bonjour ${reqData.client_name}, votre demande concernant ${reqData.property_title || 'le bien'} a bien été transmise à l'annonceur. Vous serez contacté prochainement.`,
+          request: newReq
+        });
+      })
+    );
+  }
+
+
+  getPropertyRequests(params?: { advertiser_email?: string; client_email?: string; status?: string }): Observable<PropertyRequest[]> {
+    let httpParams = new HttpParams();
+    if (params?.advertiser_email) httpParams = httpParams.set('advertiser_email', params.advertiser_email);
+    if (params?.client_email) httpParams = httpParams.set('client_email', params.client_email);
+    if (params?.status) httpParams = httpParams.set('status', params.status);
+
+    return this.http.get<PropertyRequest[]>(`${this.apiUrl}/property-requests`, { params: httpParams }).pipe(
+      map(res => (res && res.length > 0) ? res : this.localPropertyRequests),
+      catchError(() => of(this.localPropertyRequests))
+    );
+  }
+
+
+  updateRequestStatus(id: number, status: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/property-requests/${id}/status`, { status }).pipe(
+      tap(() => {
+        const item = this.localPropertyRequests.find(r => r.id === id);
+        if (item) {
+          item.status = status as any;
+          const statusNotif: AppNotification = {
+            id: Date.now(),
+            recipient_email: item.client_email,
+            title: `📌 Statut de demande mis à jour : ${status}`,
+            message: `L'annonceur a mis à jour le statut de votre demande sur "${item.property?.title || 'votre demande'}" en "${status}".`,
+            type: 'STATUS_UPDATE',
+            link: '/mes-demandes',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          const currentNotifs = this.notifications$.getValue();
+          this.notifications$.next([statusNotif, ...currentNotifs]);
+          this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+        }
+      }),
+      catchError(() => {
+        const item = this.localPropertyRequests.find(r => r.id === id);
+        if (item) {
+          item.status = status as any;
+          const statusNotif: AppNotification = {
+            id: Date.now(),
+            recipient_email: item.client_email,
+            title: `📌 Statut de demande mis à jour : ${status}`,
+            message: `L'annonceur a mis à jour le statut de votre demande sur "${item.property?.title || 'votre demande'}" en "${status}".`,
+            type: 'STATUS_UPDATE',
+            link: '/mes-demandes',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          const currentNotifs = this.notifications$.getValue();
+          this.notifications$.next([statusNotif, ...currentNotifs]);
+          this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+        }
+        return of({ message: 'Statut mis à jour avec succès' });
+      })
+    );
+  }
+
+  sendProspectFollowup(id: number, message: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/property-requests/${id}/send-followup`, { message }).pipe(
+      tap(() => {
+        const item = this.localPropertyRequests.find(r => r.id === id);
+        if (item) {
+          item.updated_at = new Date().toISOString();
+          item.last_followup_at = new Date().toISOString();
+          item.is_inactive = false;
+          item.inactive_days = 0;
+          const followupNotif: AppNotification = {
+            id: Date.now(),
+            recipient_email: item.client_email,
+            title: `💬 Message de l'annonceur concernant votre demande`,
+            message: message,
+            type: 'PROSPECT_FOLLOWUP',
+            link: '/espace-locataire?tab=requests',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          const currentNotifs = this.notifications$.getValue();
+          this.notifications$.next([followupNotif, ...currentNotifs]);
+          this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+        }
+      }),
+      catchError(() => {
+        const item = this.localPropertyRequests.find(r => r.id === id);
+        if (item) {
+          item.updated_at = new Date().toISOString();
+          item.last_followup_at = new Date().toISOString();
+          item.is_inactive = false;
+          item.inactive_days = 0;
+          const followupNotif: AppNotification = {
+            id: Date.now(),
+            recipient_email: item.client_email,
+            title: `💬 Message de l'annonceur concernant votre demande`,
+            message: message,
+            type: 'PROSPECT_FOLLOWUP',
+            link: '/espace-locataire?tab=requests',
+            is_read: false,
+            created_at: new Date().toISOString()
+          };
+          const currentNotifs = this.notifications$.getValue();
+          this.notifications$.next([followupNotif, ...currentNotifs]);
+          this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+        }
+        return of({ message: 'Relance transmise avec succès au prospect !' });
+      })
+    );
+  }
+
+  triggerAutomatedReminders(): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/property-requests/send-reminders`, {}).pipe(
+      tap(res => {
+        this.localPropertyRequests.forEach(req => {
+          if (req.status === 'NOUVEAU') {
+            req.is_reminder_sent = true;
+            const reminderNotif: AppNotification = {
+              id: Date.now(),
+              recipient_email: req.advertiser_email || 'owner@izivilla.sn',
+              title: '⏰ Rappel : Demande client en attente de réponse',
+              message: `Rappel Izivilla : Vous avez 1 demande sans réponse de ${req.client_name} pour le bien "${req.property?.title || 'Votre annonce'}".`,
+              type: 'REQUEST_REMINDER',
+              link: '/espace-proprietaire?tab=requests',
+              is_read: false,
+              created_at: new Date().toISOString()
+            };
+            const currentNotifs = this.notifications$.getValue();
+            this.notifications$.next([reminderNotif, ...currentNotifs]);
+          }
+        });
+        this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+      }),
+      catchError(() => {
+        let count = 0;
+        this.localPropertyRequests.forEach(req => {
+          if (req.status === 'NOUVEAU') {
+            req.is_reminder_sent = true;
+            count++;
+            const reminderNotif: AppNotification = {
+              id: Date.now(),
+              recipient_email: req.advertiser_email || 'owner@izivilla.sn',
+              title: '⏰ Rappel : Demande client en attente de réponse',
+              message: `Rappel Izivilla : Vous avez 1 demande sans réponse de ${req.client_name} pour le bien "${req.property?.title || 'Votre annonce'}".`,
+              type: 'REQUEST_REMINDER',
+              link: '/espace-proprietaire?tab=requests',
+              is_read: false,
+              created_at: new Date().toISOString()
+            };
+            const currentNotifs = this.notifications$.getValue();
+            this.notifications$.next([reminderNotif, ...currentNotifs]);
+          }
+        });
+        this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
+        return of({ message: `Rappels automatiques envoyés à ${count} annonceur(s)` });
+      })
+    );
+  }
+
+  getNotifications(recipientEmail?: string): Observable<{ notifications: AppNotification[]; unread_count: number }> {
+    let params = new HttpParams();
+    if (recipientEmail) params = params.set('recipient_email', recipientEmail);
+
+    return this.http.get<{ notifications: AppNotification[]; unread_count: number }>(`${this.apiUrl}/notifications`, { params }).pipe(
+      tap(res => {
+        if (res.notifications) {
+          this.notifications$.next(res.notifications);
+          this.unreadNotificationsCount$.next(res.unread_count);
+        }
+      }),
+      catchError(() => {
+        const current = this.notifications$.getValue();
+        const unread = current.filter(n => !n.is_read).length;
+        return of({ notifications: current, unread_count: unread });
+      })
+    );
+  }
+
+  markNotificationAsRead(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/notifications/${id}/read`, {}).pipe(
+      tap(() => {
+        const current = this.notifications$.getValue().map(n => n.id === id ? { ...n, is_read: true } : n);
+        this.notifications$.next(current);
+        this.unreadNotificationsCount$.next(current.filter(n => !n.is_read).length);
+      }),
+      catchError(() => {
+        const current = this.notifications$.getValue().map(n => n.id === id ? { ...n, is_read: true } : n);
+        this.notifications$.next(current);
+        this.unreadNotificationsCount$.next(current.filter(n => !n.is_read).length);
+        return of({ message: 'Marqué comme lu' });
+      })
+    );
+  }
+
+  markAllNotificationsAsRead(recipientEmail?: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/notifications/mark-all-read`, { recipient_email: recipientEmail }).pipe(
+      tap(() => {
+        const current = this.notifications$.getValue().map(n => ({ ...n, is_read: true }));
+        this.notifications$.next(current);
+        this.unreadNotificationsCount$.next(0);
+      }),
+      catchError(() => {
+        const current = this.notifications$.getValue().map(n => ({ ...n, is_read: true }));
+        this.notifications$.next(current);
+        this.unreadNotificationsCount$.next(0);
+        return of({ message: 'Toutes les notifications ont été marquées comme lues' });
+      })
+    );
+  }
 }
+
 

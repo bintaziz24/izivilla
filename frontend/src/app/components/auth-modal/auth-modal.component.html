@@ -1,0 +1,144 @@
+<div class="auth-modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="auth-modal-container" (click)="$event.stopPropagation()">
+
+    <!-- Header Modal -->
+    <div class="modal-header">
+      <div class="brand-logo">
+        <span class="brand-icon">🏠</span>
+        <span class="brand-text">Teranga<span class="highlight">Immo</span></span>
+      </div>
+      <button class="close-btn" (click)="closeModal()" aria-label="Fermer">✕</button>
+    </div>
+
+    <!-- Alert Messages -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <span class="alert-icon">⚠️</span>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div class="alert alert-success" *ngIf="successMessage">
+      <span class="alert-icon">✅</span>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <!-- Mode 1: INSCRIPTION -->
+    <div class="modal-body" *ngIf="mode === 'register'">
+      <h2>Créer un compte</h2>
+      <p class="subtitle">Inscrivez-vous pour réserver, publier ou enregistrer des propriétés.</p>
+
+      <form (ngSubmit)="onRegisterSubmit()">
+        <div class="form-group">
+          <label for="reg-name">Nom complet *</label>
+          <input type="text" id="reg-name" [(ngModel)]="name" name="name" placeholder="Ex: Moussa Diop" required class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="reg-email">Adresse Email *</label>
+          <input type="email" id="reg-email" [(ngModel)]="email" name="email" placeholder="exemple@email.com" required class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="reg-phone">Numéro de téléphone</label>
+          <input type="tel" id="reg-phone" [(ngModel)]="phone" name="phone" placeholder="+221 77 000 00 00" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="reg-role">Vous êtes :</label>
+          <select id="reg-role" [(ngModel)]="role" name="role" class="form-select">
+            <option value="user">Locataire / Acheteur</option>
+            <option value="owner">Propriétaire particulier</option>
+            <option value="agency">Agence immobilière</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="reg-password">Mot de passe *</label>
+          <input type="password" id="reg-password" [(ngModel)]="password" name="password" placeholder="Au moins 6 caractères" required class="form-input" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading">
+          <span *ngIf="!isLoading">S'inscrire et recevoir le code</span>
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="modal-footer">
+        <p>Déjà inscrit ? <a (click)="switchMode('login')">Se connecter</a></p>
+      </div>
+    </div>
+
+    <!-- Mode 2: VÉRIFICATION PAR CODE OTP -->
+    <div class="modal-body" *ngIf="mode === 'verify'">
+      <div class="otp-icon-container">
+        <span class="otp-badge">✉️</span>
+      </div>
+      <h2>Code de vérification</h2>
+      <p class="subtitle">Un code de validation à 6 chiffres a été envoyé à <strong>{{ pendingEmail }}</strong>.</p>
+
+      <!-- Zone de débogage si présente en mode dev -->
+      <div class="debug-code-box" *ngIf="debugCode">
+        <span class="debug-label">💡 Code de test rapide (Dev) :</span>
+        <span class="debug-code">{{ debugCode }}</span>
+      </div>
+
+      <div class="otp-inputs">
+        <input 
+          *ngFor="let digit of otpDigits; let i = index" 
+          type="text" 
+          maxlength="6"
+          [id]="'otp-input-' + i" 
+          [value]="otpDigits[i]"
+          (input)="onOtpInput($event, i)"
+          (keydown)="onOtpKeyDown($event, i)"
+          class="otp-digit-input"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+        />
+      </div>
+
+      <button type="button" class="btn btn-primary btn-block" (click)="onVerifySubmit()" [disabled]="isLoading || fullOtpCode.length < 6">
+        <span *ngIf="!isLoading">Valider mon compte</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+      </button>
+
+      <div class="resend-container">
+        <button type="button" class="btn-link" (click)="onResendCode()" [disabled]="resendCountdown > 0 || isLoading">
+          <span *ngIf="resendCountdown === 0">Renvoyer un nouveau code</span>
+          <span *ngIf="resendCountdown > 0">Renvoyer le code dans {{ resendCountdown }}s</span>
+        </button>
+      </div>
+
+      <div class="modal-footer">
+        <p><a (click)="switchMode('register')">← Changer d'adresse email</a></p>
+      </div>
+    </div>
+
+    <!-- Mode 3: CONNEXION -->
+    <div class="modal-body" *ngIf="mode === 'login'">
+      <h2>Connexion</h2>
+      <p class="subtitle">Connectez-vous à votre espace TerangaImmo.</p>
+
+      <form (ngSubmit)="onLoginSubmit()">
+        <div class="form-group">
+          <label for="login-email">Adresse Email</label>
+          <input type="email" id="login-email" [(ngModel)]="loginEmail" name="loginEmail" placeholder="votre@email.com" required class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" [(ngModel)]="loginPassword" name="loginPassword" placeholder="••••••••" required class="form-input" />
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Se connecter</span>
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="modal-footer">
+        <p>Pas encore de compte ? <a (click)="switchMode('register')">S'inscrire</a></p>
+      </div>
+    </div>
+
+  </div>
+</div>

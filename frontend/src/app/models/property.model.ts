@@ -61,11 +61,15 @@ export interface Property {
   equipments?: string[];
   latitude: number;
   longitude: number;
-  status: 'available' | 'sold' | 'rented' | 'pending';
+  status: 'available' | 'sold' | 'rented' | 'paused' | 'pending' | 'expired' | string;
   is_featured?: boolean;
   is_boosted?: boolean;
   boosted_until?: string;
   views_count: number;
+  expires_at?: string;
+  last_confirmed_at?: string;
+  is_expiration_warning_sent?: boolean;
+  is_inactivity_warning_sent?: boolean;
 
   // Direct Advertiser details (Core Izivilla Value)
   owner_type: 'owner' | 'agency' | 'Propriétaire' | 'Agence';
@@ -105,6 +109,8 @@ export interface PropertyAlert {
   city?: string;
   quartier?: string;
   property_type?: string;
+  transaction_type?: string;
+  bedrooms?: number;
   max_price?: number;
   is_furnished?: boolean;
   is_active?: boolean;
@@ -117,9 +123,14 @@ export interface AppointmentRequest {
   tenant_name: string;
   tenant_email: string;
   tenant_phone: string;
+  advertiser_email?: string;
   preferred_date: string;
+  rescheduled_date?: string;
   message?: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  advertiser_comment?: string;
+  status: 'pending' | 'confirmed' | 'rescheduled' | 'cancelled' | string;
+  reminder_24h_sent?: boolean;
+  reminder_2h_sent?: boolean;
   created_at?: string;
   property?: Property;
 }
@@ -165,5 +176,33 @@ export interface VerificationRequest {
   created_at?: string;
 }
 
+export interface PropertyRequest {
+  id?: number;
+  property_id: number;
+  client_name: string;
+  client_email: string;
+  client_phone?: string;
+  advertiser_email?: string;
+  message: string;
+  status: 'NOUVEAU' | 'CONTACTÉ' | 'INTÉRESSÉ' | 'VISITE' | 'NÉGOCIATION' | 'CONCLU' | 'PERDU' | 'ANNULÉ' | string;
+  is_reminder_sent?: boolean;
+  created_at?: string;
+  updated_at?: string;
+  inactive_days?: number;
+  is_inactive?: boolean;
+  last_followup_at?: string;
+  property?: Partial<Property> | any;
+}
 
-
+export interface AppNotification {
+  id: number;
+  recipient_email: string;
+  title: string;
+  message: string;
+  type: 'NEW_REQUEST' | 'REQUEST_CONFIRMATION' | 'OWNER_REMINDER' | 'VISIT_REQUEST' | 'VISIT_CONFIRMED' | 'VISIT_REMINDER' | 'PROPERTY_EXPIRATION' | 'PROPERTY_STATUS' | 'SEARCH_ALERT' | 'PROSPECT_FOLLOWUP' | string;
+  link?: string;
+  is_read: boolean;
+  read_at?: string;
+  data?: any;
+  created_at?: string;
+}

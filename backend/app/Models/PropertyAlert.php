@@ -14,6 +14,8 @@ class PropertyAlert extends Model
         'city',
         'quartier',
         'property_type',
+        'transaction_type',
+        'bedrooms',
         'max_price',
         'is_furnished',
         'is_active',
@@ -23,5 +25,6 @@ class PropertyAlert extends Model
         'is_furnished' => 'boolean',
         'is_active' => 'boolean',
         'max_price' => 'integer',
+        'bedrooms' => 'integer',
     ];
 }

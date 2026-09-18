@@ -142,6 +142,15 @@ import { Property, PropertyFilter } from '../../models/property.model';
                 </label>
               </div>
 
+              <!-- PRIORITÉ 13: ALERTES DE RECHERCHE CTA -->
+              <div class="pt-4 border-t border-slate-100">
+                <button (click)="openAlertModal()" class="w-full bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-xs py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-[1.02] border border-orange-500/30">
+                  <i class="fa-solid fa-bell text-orange-400 text-sm animate-bounce"></i>
+                  <span>🔔 Activer l'alerte pour cette recherche</span>
+                </button>
+                <p class="text-[10px] text-slate-400 text-center font-medium mt-1.5">Soyez notifié dès qu'un bien correspondant est en ligne.</p>
+              </div>
+
             </div>
           </div>
 
@@ -182,7 +191,7 @@ import { Property, PropertyFilter } from '../../models/property.model';
                 <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
                   <div>
                     <div class="flex justify-between items-baseline">
-                      <span class="text-xl font-black text-orange-600">{{ prop.price_fcfa | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }}</span></span>
+                      <span class="text-xl font-black text-orange-600">{{ countryService.convertPrice(prop.price_fcfa) | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }}</span></span>
                       <span class="text-[10px] font-black uppercase text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{{ prop.property_type }}</span>
                     </div>
 
@@ -240,7 +249,7 @@ import { Property, PropertyFilter } from '../../models/property.model';
                 <div class="p-5 flex-1 flex flex-col justify-between">
                   <div>
                     <div class="flex justify-between items-baseline">
-                      <span class="text-2xl font-black text-orange-600">{{ prop.price_fcfa | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }}</span></span>
+                      <span class="text-2xl font-black text-orange-600">{{ countryService.convertPrice(prop.price_fcfa) | number }} <span class="text-xs font-bold text-slate-500">{{ countryService.currentCountry.currency }}</span></span>
                       <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">{{ prop.property_type }}</span>
                     </div>
 
@@ -276,6 +285,65 @@ import { Property, PropertyFilter } from '../../models/property.model';
         </div>
 
       </div>
+
+      <!-- MODAL ACTIVER ALERTE POUR CETTE RECHERCHE -->
+      <div *ngIf="showSearchAlertModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative">
+          
+          <button (click)="showSearchAlertModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <div class="space-y-1">
+            <div class="w-12 h-12 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-bold mb-3">
+              <i class="fa-solid fa-bell"></i>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900">Activer l'alerte de recherche</h3>
+            <p class="text-xs text-slate-500 font-medium">Recevez un mail en temps réel dès qu'un bien correspondant à vos critères actuels est publié.</p>
+          </div>
+
+          <!-- Recap of active search filters -->
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 text-xs font-bold space-y-1.5 text-slate-700">
+            <p class="text-[10px] text-slate-400 font-black uppercase tracking-wider">Critères mémorisés :</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="bg-orange-100 text-orange-800 px-2.5 py-0.5 rounded-md font-extrabold text-[11px]">
+                {{ filter.transaction_type === 'sale' ? 'Vente' : (filter.transaction_type === 'rent' ? 'Location' : 'Tous types') }}
+              </span>
+              <span *ngIf="filter.property_type" class="bg-slate-200 text-slate-800 px-2.5 py-0.5 rounded-md font-extrabold text-[11px]">
+                {{ filter.property_type }}
+              </span>
+              <span *ngIf="filter.city" class="bg-slate-200 text-slate-800 px-2.5 py-0.5 rounded-md font-extrabold text-[11px]">
+                📍 {{ filter.city }} {{ filter.quartier ? '(' + filter.quartier + ')' : '' }}
+              </span>
+              <span *ngIf="filter.max_price && filter.max_price < 500000000" class="bg-slate-200 text-slate-800 px-2.5 py-0.5 rounded-md font-extrabold text-[11px]">
+                Max {{ filter.max_price | number }} FCFA
+              </span>
+              <span *ngIf="filter.is_furnished" class="bg-slate-200 text-slate-800 px-2.5 py-0.5 rounded-md font-extrabold text-[11px]">
+                Meublé
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="alertSuccessMsg" class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-extrabold flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+            <span>{{ alertSuccessMsg }}</span>
+          </div>
+
+          <form *ngIf="!alertSuccessMsg" (ngSubmit)="submitSearchAlert()" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Votre Adresse Email *</label>
+              <input type="email" [(ngModel)]="alertEmail" name="alertEmail" required placeholder="moussa@exemple.sn" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+            </div>
+
+            <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bell"></i>
+              <span>Activer mon alerte instantanée</span>
+            </button>
+          </form>
+
+        </div>
+      </div>
+
     </div>
   `
 })
@@ -283,6 +351,10 @@ export class PropertiesComponent implements OnInit {
   filteredProperties: Property[] = [];
   allProperties: Property[] = [];
   viewMode: 'grid' | 'list' = 'grid';
+
+  showSearchAlertModal = false;
+  alertEmail = 'moussa@gmail.com';
+  alertSuccessMsg = '';
 
   filter: PropertyFilter = {
     transaction_type: '',
@@ -402,6 +474,33 @@ export class PropertiesComponent implements OnInit {
       sort: 'featured'
     };
     this.applyFilters();
+  }
+
+  openAlertModal(): void {
+    this.alertSuccessMsg = '';
+    this.showSearchAlertModal = true;
+  }
+
+  submitSearchAlert(): void {
+    if (!this.alertEmail) return;
+
+    const payload = {
+      user_email: this.alertEmail,
+      city: this.filter.city || '',
+      quartier: this.filter.quartier || '',
+      property_type: this.filter.property_type || '',
+      max_price: (this.filter.max_price && this.filter.max_price < 500000000) ? this.filter.max_price : null,
+      is_furnished: this.filter.is_furnished || false,
+      transaction_type: this.filter.transaction_type || null
+    };
+
+    this.propertyService.createAlert(payload).subscribe(res => {
+      this.alertSuccessMsg = res.message || 'Alerte créée avec succès ! Vous recevrez un notification à chaque nouveau bien.';
+      setTimeout(() => {
+        this.showSearchAlertModal = false;
+        this.alertSuccessMsg = '';
+      }, 2000);
+    });
   }
 
   getPrimaryImage(prop: Property): string {

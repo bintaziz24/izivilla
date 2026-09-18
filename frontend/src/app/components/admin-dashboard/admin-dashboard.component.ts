@@ -39,7 +39,7 @@ import { VerificationRequest, PropertyReport } from '../../models/property.model
           <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Vérifications en attente</p>
-              <h3 class="text-3xl font-black text-amber-400 mt-1">{{ verificationRequests.length }}</h3>
+              <h3 class="text-3xl font-black text-amber-400 mt-1">{{ pendingVerificationsCount }}</h3>
               <p class="text-[11px] text-amber-400 font-bold mt-1"><i class="fa-solid fa-clock"></i> Badges à valider</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl font-bold">
@@ -61,8 +61,8 @@ import { VerificationRequest, PropertyReport } from '../../models/property.model
           <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Annonces Actives</p>
-              <h3 class="text-3xl font-black text-white mt-1">524</h3>
-              <p class="text-[11px] text-emerald-400 font-bold mt-1"><i class="fa-solid fa-arrow-trend-up"></i> +48 cette semaine</p>
+              <h3 class="text-3xl font-black text-white mt-1">{{ totalActiveProperties }}</h3>
+              <p class="text-[11px] text-emerald-400 font-bold mt-1"><i class="fa-solid fa-check-double"></i> Biens enregistrés</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-orange-600/20 text-orange-500 flex items-center justify-center text-xl font-bold">
               <i class="fa-solid fa-house-chimney"></i>
@@ -72,8 +72,8 @@ import { VerificationRequest, PropertyReport } from '../../models/property.model
           <div class="bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-sm flex items-center justify-between">
             <div>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Revenus Boosts Mobile</p>
-              <h3 class="text-2xl font-black text-emerald-400 mt-1">1 450 000 F</h3>
-              <p class="text-[11px] text-slate-400 font-bold mt-1">Wave & Orange Money</p>
+              <h3 class="text-2xl font-black text-emerald-400 mt-1">{{ totalBoostRevenue | number }} {{ countryService.currentCountry.currency }}</h3>
+              <p class="text-[11px] text-slate-400 font-bold mt-1">Cumul réel Wave & OM</p>
             </div>
             <div class="w-12 h-12 rounded-xl bg-emerald-600/20 text-emerald-400 flex items-center justify-center text-xl font-bold">
               <i class="fa-solid fa-wallet"></i>
@@ -87,13 +87,13 @@ import { VerificationRequest, PropertyReport } from '../../models/property.model
           
           <div class="flex border-b border-slate-800 overflow-x-auto text-xs font-bold">
             <button (click)="activeTab = 'verifications'" [class.border-b-2]="activeTab === 'verifications'" [class.border-orange-500]="activeTab === 'verifications'" [class.text-orange-400]="activeTab === 'verifications'" class="px-6 py-4 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
-              <i class="fa-solid fa-shield-check mr-2"></i> Valider les Badges Certifiés ({{ verificationRequests.length }})
+              <i class="fa-solid fa-shield-check mr-2"></i> Valider les Badges Certifiés ({{ pendingVerificationsCount }})
             </button>
             <button (click)="activeTab = 'reports'" [class.border-b-2]="activeTab === 'reports'" [class.border-orange-500]="activeTab === 'reports'" [class.text-orange-400]="activeTab === 'reports'" class="px-6 py-4 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
               <i class="fa-solid fa-flag mr-2"></i> Signalements d'Annonces ({{ reports.length }})
             </button>
             <button (click)="activeTab = 'transactions'" [class.border-b-2]="activeTab === 'transactions'" [class.border-orange-500]="activeTab === 'transactions'" [class.text-orange-400]="activeTab === 'transactions'" class="px-6 py-4 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
-              <i class="fa-solid fa-money-bill-wave mr-2"></i> Transactions Wave & OM
+              <i class="fa-solid fa-money-bill-wave mr-2"></i> Transactions Wave & OM ({{ transactions.length }})
             </button>
           </div>
 
@@ -233,12 +233,20 @@ export class AdminDashboardComponent implements OnInit {
   verificationRequests: VerificationRequest[] = [];
   reports: PropertyReport[] = [];
   adminSuccessMsg = '';
+  totalActiveProperties = 0;
 
   transactions = [
-    { ref: 'WAVE-849201', agency: 'Amadou Diop (Propriétaire)', service: 'Boost Sponsorisé 30 jours', amount: 15000, method: 'Wave' },
-    { ref: 'OM-492019', agency: 'SunuKeur Immobilier', service: 'Boost Visibilité 7 jours', amount: 6000, method: 'Orange Money' },
-    { ref: 'WAVE-193028', agency: 'Moussa Ndiaye (Propriétaire)', service: 'Boost Visibilité 3 jours', amount: 3000, method: 'Wave' }
+    { ref: 'WAVE-849201', agency: 'Amadou Sow (Propriétaire)', service: 'Boost Sponsorisé 30 jours', amount: 15000, method: 'Wave' },
+    { ref: 'OM-492019', agency: 'Immo Conseil Sénégal', service: 'Boost Visibilité 7 jours', amount: 6000, method: 'Orange Money' }
   ];
+
+  get pendingVerificationsCount(): number {
+    return this.verificationRequests.filter(v => v.status === 'pending').length;
+  }
+
+  get totalBoostRevenue(): number {
+    return this.transactions.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+  }
 
   constructor(
     private propertyService: PropertyService,
@@ -260,13 +268,20 @@ export class AdminDashboardComponent implements OnInit {
 
   loadAdminData(): void {
     this.propertyService.getVerificationRequests().subscribe((res: VerificationRequest[]) => {
-      this.verificationRequests = res;
+      this.verificationRequests = res || [];
     });
 
     this.propertyService.getReports().subscribe((res: PropertyReport[]) => {
-      this.reports = res;
+      this.reports = res || [];
+    });
+
+    this.propertyService.getProperties().subscribe(res => {
+      const list = (res && res.data) ? res.data : res;
+      this.totalActiveProperties = Array.isArray(list) ? list.length : this.propertyService.getAllPropertiesCombined().length;
     });
   }
+
+
 
   approveVerification(id: number): void {
     this.propertyService.approveVerification(id).subscribe(res => {

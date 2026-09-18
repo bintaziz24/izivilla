@@ -327,5 +327,42 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
         }
+
+        // 3. Seed initial PropertyRequests & Notifications
+        $req1 = \App\Models\PropertyRequest::create([
+            'property_id' => 1,
+            'client_name' => 'Abdou Diop',
+            'client_email' => 'abdou.diop@client.sn',
+            'client_phone' => '+221 77 654 32 10',
+            'advertiser_email' => 'amadou.sow@izivilla.sn',
+            'message' => 'Je souhaite visiter la villa aux Almadies ce samedi à 15h00.',
+            'status' => 'NOUVEAU',
+            'is_reminder_sent' => false,
+        ]);
+
+        \App\Models\Notification::create([
+            'recipient_email' => 'amadou.sow@izivilla.sn',
+            'title' => '🔔 Nouvelle demande sur votre annonce',
+            'message' => "Villa Contemporaine 5 Chambres avec Piscine – Almadies\nClient : Abdou Diop\n« Je souhaite visiter la villa aux Almadies ce samedi à 15h00. »",
+            'type' => 'NEW_REQUEST',
+            'link' => '/espace-proprietaire?tab=requests',
+            'is_read' => false,
+            'data' => [
+                'request_id' => $req1->id,
+                'property_id' => 1,
+            ]
+        ]);
+
+        $req2 = \App\Models\PropertyRequest::create([
+            'property_id' => 2,
+            'client_name' => 'Fatou Ndiaye',
+            'client_email' => 'fatou.ndiaye@client.sn',
+            'client_phone' => '+221 78 123 45 67',
+            'advertiser_email' => 'contact@immoconseil.sn',
+            'message' => 'Bonjour, le bien est-il toujours disponible pour une entrée immédiate ?',
+            'status' => 'CONTACTÉ',
+            'is_reminder_sent' => false,
+        ]);
     }
 }
+

@@ -14,9 +14,14 @@ return new class extends Migration
             $table->string('tenant_name');
             $table->string('tenant_email');
             $table->string('tenant_phone');
+            $table->string('advertiser_email')->nullable();
             $table->dateTime('preferred_date');
+            $table->dateTime('rescheduled_date')->nullable();
             $table->text('message')->nullable();
-            $table->string('status')->default('pending'); // pending, confirmed, cancelled
+            $table->text('advertiser_comment')->nullable();
+            $table->string('status')->default('pending'); // pending, confirmed, rescheduled, cancelled
+            $table->boolean('reminder_24h_sent')->default(false);
+            $table->boolean('reminder_2h_sent')->default(false);
             $table->timestamps();
         });
 
