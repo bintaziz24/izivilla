@@ -17,9 +17,6 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
     <div class="bg-slate-950 text-slate-300 text-xs py-2 px-3 sm:px-6 border-b border-slate-800">
       <div class="w-full max-w-[1440px] mx-auto flex flex-wrap justify-between items-center gap-2">
         <div class="flex items-center gap-2 sm:gap-3">
-          <span class="bg-emerald-500/20 text-emerald-400 font-extrabold px-2 py-0.5 rounded text-[10px] sm:text-[11px] border border-emerald-500/30 whitespace-nowrap">
-            <i class="fa-solid fa-bolt mr-1"></i> IZIVILLA DIRECT
-          </span>
           <span class="font-extrabold text-white text-[10px] sm:text-[11px] tracking-wide truncate">
             « Zéro intermédiaire inutile. »
           </span>
@@ -257,177 +254,6 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
       </div>
     </header>
 
-    <!-- MODAL DE CONNEXION -->
-    <div *ngIf="showLoginModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative max-h-[90vh] overflow-y-auto">
-        
-        <button (click)="showLoginModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold transition-colors">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
-            <i class="fa-solid fa-right-to-bracket"></i>
-          </div>
-          <div>
-            <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Connexion à IZIVILLA</h3>
-            <p class="text-xs text-slate-500 font-medium">Connectez-vous pour échanger directement sans intermédiaire.</p>
-          </div>
-        </div>
-
-        <!-- Role Type Selection Tabs -->
-        <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
-          <button type="button" (click)="loginType = 'tenant'" [class.bg-white]="loginType === 'tenant'" [class.text-slate-900]="loginType === 'tenant'" [class.shadow-sm]="loginType === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
-            <i class="fa-solid fa-user text-[10px]"></i> Chercheur
-          </button>
-          <button type="button" (click)="loginType = 'owner'" [class.bg-white]="loginType === 'owner'" [class.text-slate-900]="loginType === 'owner'" [class.shadow-sm]="loginType === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
-            <i class="fa-solid fa-user-check text-[10px]"></i> Propriétaire
-          </button>
-          <button type="button" (click)="loginType = 'agency'" [class.bg-white]="loginType === 'agency'" [class.text-slate-900]="loginType === 'agency'" [class.shadow-sm]="loginType === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
-            <i class="fa-solid fa-building text-[10px]"></i> Agence
-          </button>
-        </div>
-
-        <div *ngIf="registerSuccessMessage" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
-          <i class="fa-solid fa-circle-check text-emerald-600 text-lg shrink-0 mt-0.5"></i>
-          <span>{{ registerSuccessMessage }}</span>
-        </div>
-
-        <div *ngIf="authNoticeMessage" class="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
-          <i class="fa-solid fa-circle-info text-orange-600 text-lg shrink-0 mt-0.5"></i>
-          <span>{{ authNoticeMessage }}</span>
-        </div>
-
-        <div *ngIf="loginErrorMsg" class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
-          <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg shrink-0 mt-0.5"></i>
-          <span class="leading-relaxed">{{ loginErrorMsg }}</span>
-        </div>
-
-        <form (ngSubmit)="handleLogin()" class="space-y-4" autocomplete="off">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Email ou Identifiant *</label>
-            <div class="relative flex items-center">
-              <i class="fa-solid fa-envelope absolute left-4 text-slate-400 text-xs"></i>
-              <input type="text" [(ngModel)]="loginEmail" name="email" required autocomplete="off" placeholder="Email ou Identifiant" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
-            <div class="relative flex items-center">
-              <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs"></i>
-              <input [type]="showLoginPassword ? 'text' : 'password'" [(ngModel)]="loginPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
-              <button type="button" (click)="showLoginPassword = !showLoginPassword" class="absolute right-4 text-slate-400 hover:text-slate-600 text-xs">
-                <i class="fa-solid" [ngClass]="showLoginPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-right-to-bracket"></i>
-            <span>Se connecter à mon espace</span>
-          </button>
-        </form>
-
-        <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
-          Pas encore de compte ? 
-          <button (click)="switchToRegister()" class="font-extrabold text-orange-600 hover:underline ml-1">Créer un compte</button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- MODAL D'INSCRIPTION -->
-    <div *ngIf="showRegisterModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative max-h-[90vh] overflow-y-auto">
-        
-        <button (click)="showRegisterModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold transition-colors">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
-            <i class="fa-solid fa-user-plus"></i>
-          </div>
-          <div>
-            <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Rejoindre IZIVILLA</h3>
-            <p class="text-xs text-slate-500 font-medium">Choisissez votre profil et commencez à échanger directement sans intermédiaire.</p>
-          </div>
-        </div>
-
-        <div *ngIf="authNoticeMessage" class="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
-          <i class="fa-solid fa-circle-info text-orange-600 text-lg shrink-0 mt-0.5"></i>
-          <span>{{ authNoticeMessage }}</span>
-        </div>
-
-        <!-- Account Type Selector (Matching Prompt Section 8 Profiles) -->
-        <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
-          <button (click)="registerType = 'tenant'" [class.bg-white]="registerType === 'tenant'" [class.text-slate-900]="registerType === 'tenant'" [class.shadow-sm]="registerType === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Chercheur
-          </button>
-          <button (click)="registerType = 'owner'" [class.bg-white]="registerType === 'owner'" [class.text-slate-900]="registerType === 'owner'" [class.shadow-sm]="registerType === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Propriétaire
-          </button>
-          <button (click)="registerType = 'agency'" [class.bg-white]="registerType === 'agency'" [class.text-slate-900]="registerType === 'agency'" [class.shadow-sm]="registerType === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
-            Agence
-          </button>
-        </div>
-
-        <form (ngSubmit)="handleRegister()" class="space-y-4" autocomplete="off">
-          
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Nom complet ou Nom d'agence *</label>
-            <div class="relative flex items-center">
-              <i class="fa-solid fa-user absolute left-4 text-slate-400 text-xs"></i>
-              <input type="text" [(ngModel)]="regName" name="name" required autocomplete="off" placeholder="Nom complet ou Nom d'agence" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Email *</label>
-            <div class="relative flex items-center">
-              <i class="fa-solid fa-envelope absolute left-4 text-slate-400 text-xs"></i>
-              <input type="email" [(ngModel)]="regEmail" name="email" required autocomplete="off" placeholder="Adresse email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone portable (WhatsApp) *</label>
-            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 focus-within:bg-white shadow-sm transition-all">
-              <select [(ngModel)]="regPhonePrefix" name="phonePrefix" class="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer py-2 pr-1 border-r border-slate-200 max-w-[170px] truncate">
-                <option *ngFor="let c of countryService.countries" [value]="c.phonePrefix">
-                  {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }}) — {{ c.currency }}
-                </option>
-              </select>
-              <input type="tel" [(ngModel)]="regPhone" name="phone" required autocomplete="off" placeholder="Numéro de téléphone" class="w-full bg-transparent px-2 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
-            <div class="relative flex items-center">
-              <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs"></i>
-              <input [type]="showRegisterPassword ? 'text' : 'password'" [(ngModel)]="regPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
-              <button type="button" (click)="showRegisterPassword = !showRegisterPassword" class="absolute right-4 text-slate-400 hover:text-slate-600 text-xs">
-                <i class="fa-solid" [ngClass]="showRegisterPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>Créer mon compte</span>
-          </button>
-        </form>
-
-        <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
-          Déjà un compte ? 
-          <button (click)="switchToLogin()" class="font-extrabold text-orange-600 hover:underline ml-1">Se connecter</button>
-        </div>
-
-      </div>
-    </div>
-
     <!-- OTP Email Validation Modal -->
     <app-auth-modal 
       [isOpen]="showAuthOTPModal" 
@@ -568,22 +394,37 @@ export class HeaderComponent implements OnInit {
   }
 
   onUserAuthenticated(user: any): void {
-    this.propertyService.loginUser(user.email, '', user.role || 'tenant');
+    const session = {
+      name: user.name || 'Utilisateur',
+      email: user.email,
+      role: (user.role || 'tenant') as 'tenant' | 'owner' | 'agency' | 'admin',
+      phone: user.phone || ''
+    };
+    this.propertyService.loginWithUserSession(session);
+    this.showAuthOTPModal = false;
     if (this.pendingTargetUrl) {
       const target = this.pendingTargetUrl;
       this.pendingTargetUrl = null;
       this.router.navigateByUrl(target);
+    } else {
+      if (session.role === 'admin') {
+        this.router.navigate(['/admin']);
+      } else if (session.role === 'agency' || session.role === 'owner') {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.router.navigate(['/espace-locataire']);
+      }
     }
   }
 
   switchToRegister(): void {
-    this.showLoginModal = false;
-    this.showRegisterModal = true;
+    this.authOTPModalMode = 'register';
+    this.showAuthOTPModal = true;
   }
 
   switchToLogin(): void {
-    this.showRegisterModal = false;
-    this.showLoginModal = true;
+    this.authOTPModalMode = 'login';
+    this.showAuthOTPModal = true;
   }
 
   onPublishClick(): void {

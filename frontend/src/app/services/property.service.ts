@@ -421,6 +421,10 @@ export class PropertyService {
     this.isLoggedIn$.next(true);
   }
 
+  public loginWithUserSession(session: UserSession): void {
+    this.saveUserSession(session);
+  }
+
   registerUser(name: string, email: string, phone: string, pass: string, role: 'tenant' | 'owner' | 'agency'): { success: boolean; message: string } {
     const cleanEmail = (email || '').toLowerCase().trim();
     if (!cleanEmail) {

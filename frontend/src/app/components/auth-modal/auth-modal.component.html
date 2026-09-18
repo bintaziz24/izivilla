@@ -1,87 +1,179 @@
-<div class="auth-modal-overlay" *ngIf="isOpen" (click)="closeModal()">
-  <div class="auth-modal-container" (click)="$event.stopPropagation()">
+<div *ngIf="isOpen" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative max-h-[92vh] overflow-y-auto" (click)="$event.stopPropagation()">
 
-    <!-- Header Modal -->
-    <div class="modal-header">
-      <div class="brand-logo">
-        <span class="brand-icon">🏠</span>
-        <span class="brand-text">Teranga<span class="highlight">Immo</span></span>
+    <!-- Close button -->
+    <button (click)="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold transition-colors">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage" class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+      <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg shrink-0 mt-0.5"></i>
+      <span class="leading-relaxed">{{ errorMessage }}</span>
+    </div>
+
+    <!-- Success Alert -->
+    <div *ngIf="successMessage" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+      <i class="fa-solid fa-circle-check text-emerald-600 text-lg shrink-0 mt-0.5"></i>
+      <span class="leading-relaxed">{{ successMessage }}</span>
+    </div>
+
+    <!-- MODE 1: CONNEXION -->
+    <ng-container *ngIf="mode === 'login'">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
+          <i class="fa-solid fa-right-to-bracket"></i>
+        </div>
+        <div>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Connexion à IZIVILLA</h3>
+          <p class="text-xs text-slate-500 font-medium">Connectez-vous pour échanger directement sans intermédiaire.</p>
+        </div>
       </div>
-      <button class="close-btn" (click)="closeModal()" aria-label="Fermer">✕</button>
-    </div>
 
-    <!-- Alert Messages -->
-    <div class="alert alert-error" *ngIf="errorMessage">
-      <span class="alert-icon">⚠️</span>
-      <span>{{ errorMessage }}</span>
-    </div>
+      <!-- Role Tabs -->
+      <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
+        <button type="button" (click)="loginType = 'tenant'" [class.bg-white]="loginType === 'tenant'" [class.text-slate-900]="loginType === 'tenant'" [class.shadow-sm]="loginType === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
+          <i class="fa-solid fa-user text-[10px]"></i> Chercheur
+        </button>
+        <button type="button" (click)="loginType = 'owner'" [class.bg-white]="loginType === 'owner'" [class.text-slate-900]="loginType === 'owner'" [class.shadow-sm]="loginType === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
+          <i class="fa-solid fa-user-check text-[10px]"></i> Propriétaire
+        </button>
+        <button type="button" (click)="loginType = 'agency'" [class.bg-white]="loginType === 'agency'" [class.text-slate-900]="loginType === 'agency'" [class.shadow-sm]="loginType === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1">
+          <i class="fa-solid fa-building text-[10px]"></i> Agence
+        </button>
+      </div>
 
-    <div class="alert alert-success" *ngIf="successMessage">
-      <span class="alert-icon">✅</span>
-      <span>{{ successMessage }}</span>
-    </div>
-
-    <!-- Mode 1: INSCRIPTION -->
-    <div class="modal-body" *ngIf="mode === 'register'">
-      <h2>Créer un compte</h2>
-      <p class="subtitle">Inscrivez-vous pour réserver, publier ou enregistrer des propriétés.</p>
-
-      <form (ngSubmit)="onRegisterSubmit()">
-        <div class="form-group">
-          <label for="reg-name">Nom complet *</label>
-          <input type="text" id="reg-name" [(ngModel)]="name" name="name" placeholder="Ex: Moussa Diop" required class="form-input" />
+      <form (ngSubmit)="onLoginSubmit()" class="space-y-4" autocomplete="off">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Email ou Identifiant *</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-envelope absolute left-4 text-slate-400 text-xs"></i>
+            <input type="email" [(ngModel)]="loginEmail" name="email" required autocomplete="off" placeholder="Adresse email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="reg-email">Adresse Email *</label>
-          <input type="email" id="reg-email" [(ngModel)]="email" name="email" placeholder="exemple@email.com" required class="form-input" />
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs"></i>
+            <input [type]="showLoginPassword ? 'text' : 'password'" [(ngModel)]="loginPassword" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+            <button type="button" (click)="showLoginPassword = !showLoginPassword" class="absolute right-4 text-slate-400 hover:text-slate-600 text-xs">
+              <i class="fa-solid" [ngClass]="showLoginPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="reg-phone">Numéro de téléphone</label>
-          <input type="tel" id="reg-phone" [(ngModel)]="phone" name="phone" placeholder="+221 77 000 00 00" class="form-input" />
-        </div>
-
-        <div class="form-group">
-          <label for="reg-role">Vous êtes :</label>
-          <select id="reg-role" [(ngModel)]="role" name="role" class="form-select">
-            <option value="user">Locataire / Acheteur</option>
-            <option value="owner">Propriétaire particulier</option>
-            <option value="agency">Agence immobilière</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="reg-password">Mot de passe *</label>
-          <input type="password" id="reg-password" [(ngModel)]="password" name="password" placeholder="Au moins 6 caractères" required class="form-input" />
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading">
-          <span *ngIf="!isLoading">S'inscrire et recevoir le code</span>
+        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2" [disabled]="isLoading">
+          <i class="fa-solid fa-right-to-bracket" *ngIf="!isLoading"></i>
+          <span *ngIf="!isLoading">Se connecter à mon espace</span>
           <span *ngIf="isLoading" class="spinner"></span>
         </button>
       </form>
 
-      <div class="modal-footer">
-        <p>Déjà inscrit ? <a (click)="switchMode('login')">Se connecter</a></p>
+      <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+        Pas encore de compte ? 
+        <button type="button" (click)="switchMode('register')" class="font-extrabold text-orange-600 hover:underline ml-1">Créer un compte</button>
       </div>
-    </div>
+    </ng-container>
 
-    <!-- Mode 2: VÉRIFICATION PAR CODE OTP -->
-    <div class="modal-body" *ngIf="mode === 'verify'">
-      <div class="otp-icon-container">
-        <span class="otp-badge">✉️</span>
-      </div>
-      <h2>Code de vérification</h2>
-      <p class="subtitle">Un code de validation à 6 chiffres a été envoyé à <strong>{{ pendingEmail }}</strong>.</p>
-
-      <!-- Zone de débogage si présente en mode dev -->
-      <div class="debug-code-box" *ngIf="debugCode">
-        <span class="debug-label">💡 Code de test rapide (Dev) :</span>
-        <span class="debug-code">{{ debugCode }}</span>
+    <!-- MODE 2: INSCRIPTION -->
+    <ng-container *ngIf="mode === 'register'">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <div>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Rejoindre IZIVILLA</h3>
+          <p class="text-xs text-slate-500 font-medium">Choisissez votre profil et commencez à échanger directement sans intermédiaire.</p>
+        </div>
       </div>
 
-      <div class="otp-inputs">
+      <!-- Account Type Selector -->
+      <div class="grid grid-cols-3 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
+        <button type="button" (click)="role = 'tenant'" [class.bg-white]="role === 'tenant'" [class.text-slate-900]="role === 'tenant'" [class.shadow-sm]="role === 'tenant'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
+          Chercheur
+        </button>
+        <button type="button" (click)="role = 'owner'" [class.bg-white]="role === 'owner'" [class.text-slate-900]="role === 'owner'" [class.shadow-sm]="role === 'owner'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
+          Propriétaire
+        </button>
+        <button type="button" (click)="role = 'agency'" [class.bg-white]="role === 'agency'" [class.text-slate-900]="role === 'agency'" [class.shadow-sm]="role === 'agency'" class="py-2.5 rounded-xl text-slate-500 transition-all text-center">
+          Agence
+        </button>
+      </div>
+
+      <form (ngSubmit)="onRegisterSubmit()" class="space-y-4" autocomplete="off">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nom complet ou Nom d'agence *</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-user absolute left-4 text-slate-400 text-xs"></i>
+            <input type="text" [(ngModel)]="name" name="name" required autocomplete="off" placeholder="Nom complet ou Nom d'agence" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Email *</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-envelope absolute left-4 text-slate-400 text-xs"></i>
+            <input type="email" [(ngModel)]="email" name="email" required autocomplete="off" placeholder="Adresse email" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone portable (WhatsApp) *</label>
+          <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 focus-within:bg-white shadow-sm transition-all">
+            <select [(ngModel)]="phonePrefix" name="phonePrefix" class="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer py-2 pr-1 border-r border-slate-200 max-w-[150px] truncate">
+              <option *ngFor="let c of countryService.countries" [value]="c.phonePrefix">
+                {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }})
+              </option>
+            </select>
+            <input type="tel" [(ngModel)]="phone" name="phone" required autocomplete="off" placeholder="Numéro de téléphone" class="w-full bg-transparent px-2 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Mot de passe *</label>
+          <div class="relative flex items-center">
+            <i class="fa-solid fa-lock absolute left-4 text-slate-400 text-xs"></i>
+            <input [type]="showRegisterPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" required autocomplete="new-password" placeholder="Mot de passe" class="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-10 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 focus:bg-white shadow-sm transition-all">
+            <button type="button" (click)="showRegisterPassword = !showRegisterPassword" class="absolute right-4 text-slate-400 hover:text-slate-600 text-xs">
+              <i class="fa-solid" [ngClass]="showRegisterPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2" [disabled]="isLoading">
+          <i class="fa-solid fa-user-plus" *ngIf="!isLoading"></i>
+          <span *ngIf="!isLoading">Créer mon compte et recevoir le code</span>
+          <span *ngIf="isLoading" class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+        Déjà un compte ? 
+        <button type="button" (click)="switchMode('login')" class="font-extrabold text-orange-600 hover:underline ml-1">Se connecter</button>
+      </div>
+    </ng-container>
+
+    <!-- MODE 3: VÉRIFICATION CODE OTP -->
+    <ng-container *ngIf="mode === 'verify'">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
+          <i class="fa-solid fa-envelope-circle-check"></i>
+        </div>
+        <div>
+          <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Code de vérification</h3>
+          <p class="text-xs text-slate-500 font-medium">Saisissez le code à 6 chiffres envoyé à <strong class="text-slate-900">{{ pendingEmail }}</strong>.</p>
+        </div>
+      </div>
+
+      <!-- Code de test (Mode Dev) -->
+      <div *ngIf="debugCode" class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center justify-between">
+        <span class="font-bold">💡 Code de test rapide :</span>
+        <span class="font-mono text-sm font-black bg-white px-2.5 py-1 rounded-xl border border-amber-200 tracking-widest text-orange-600">{{ debugCode }}</span>
+      </div>
+
+      <!-- Saisie des 6 chiffres OTP -->
+      <div class="flex gap-2 justify-center my-4">
         <input 
           *ngFor="let digit of otpDigits; let i = index" 
           type="text" 
@@ -90,55 +182,31 @@
           [value]="otpDigits[i]"
           (input)="onOtpInput($event, i)"
           (keydown)="onOtpKeyDown($event, i)"
-          class="otp-digit-input"
+          class="w-12 h-14 text-center text-xl font-black text-slate-900 border-2 border-slate-200 rounded-2xl bg-slate-50 focus:outline-none focus:border-orange-500 focus:bg-white focus:shadow-md transition-all"
           inputmode="numeric"
           autocomplete="one-time-code"
         />
       </div>
 
-      <button type="button" class="btn btn-primary btn-block" (click)="onVerifySubmit()" [disabled]="isLoading || fullOtpCode.length < 6">
+      <button type="button" (click)="onVerifySubmit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2" [disabled]="isLoading || fullOtpCode.length < 6">
+        <i class="fa-solid fa-check-circle" *ngIf="!isLoading"></i>
         <span *ngIf="!isLoading">Valider mon compte</span>
         <span *ngIf="isLoading" class="spinner"></span>
       </button>
 
-      <div class="resend-container">
-        <button type="button" class="btn-link" (click)="onResendCode()" [disabled]="resendCountdown > 0 || isLoading">
-          <span *ngIf="resendCountdown === 0">Renvoyer un nouveau code</span>
+      <div class="text-center">
+        <button type="button" (click)="onResendCode()" [disabled]="resendCountdown > 0 || isLoading" class="text-xs font-bold text-orange-600 hover:underline disabled:text-slate-400 disabled:no-underline">
+          <span *ngIf="resendCountdown === 0">Renvoyer un nouveau code par email</span>
           <span *ngIf="resendCountdown > 0">Renvoyer le code dans {{ resendCountdown }}s</span>
         </button>
       </div>
 
-      <div class="modal-footer">
-        <p><a (click)="switchMode('register')">← Changer d'adresse email</a></p>
-      </div>
-    </div>
-
-    <!-- Mode 3: CONNEXION -->
-    <div class="modal-body" *ngIf="mode === 'login'">
-      <h2>Connexion</h2>
-      <p class="subtitle">Connectez-vous à votre espace TerangaImmo.</p>
-
-      <form (ngSubmit)="onLoginSubmit()">
-        <div class="form-group">
-          <label for="login-email">Adresse Email</label>
-          <input type="email" id="login-email" [(ngModel)]="loginEmail" name="loginEmail" placeholder="votre@email.com" required class="form-input" />
-        </div>
-
-        <div class="form-group">
-          <label for="login-password">Mot de passe</label>
-          <input type="password" id="login-password" [(ngModel)]="loginPassword" name="loginPassword" placeholder="••••••••" required class="form-input" />
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block" [disabled]="isLoading">
-          <span *ngIf="!isLoading">Se connecter</span>
-          <span *ngIf="isLoading" class="spinner"></span>
+      <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
+        <button type="button" (click)="switchMode('register')" class="font-extrabold text-slate-600 hover:text-orange-600">
+          ← Modifier l'adresse email
         </button>
-      </form>
-
-      <div class="modal-footer">
-        <p>Pas encore de compte ? <a (click)="switchMode('register')">S'inscrire</a></p>
       </div>
-    </div>
+    </ng-container>
 
   </div>
 </div>
