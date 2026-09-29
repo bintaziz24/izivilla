@@ -28,7 +28,7 @@ export class CountryService {
     { code: 'TZ', name: 'Tanzanie', flag: '🇹🇿', flagUrl: 'https://flagcdn.com/w40/tz.png', currency: 'TZS', phonePrefix: '+255', rateFromFcfa: 4.545 },
     { code: 'UG', name: 'Ouganda', flag: '🇺🇬', flagUrl: 'https://flagcdn.com/w40/ug.png', currency: 'UGX', phonePrefix: '+256', rateFromFcfa: 6.25 },
     { code: 'ET', name: 'Éthiopie', flag: '🇪🇹', flagUrl: 'https://flagcdn.com/w40/et.png', currency: 'ETB', phonePrefix: '+251', rateFromFcfa: 0.2 },
-    { code: 'FR', name: 'France (Euro)', flag: '🇪🇺', flagUrl: 'https://flagcdn.com/w40/eu.png', currency: 'EUR', phonePrefix: '+33', rateFromFcfa: 0.001524 }
+    { code: 'MA', name: 'Maroc', flag: '🇲🇦', flagUrl: 'https://flagcdn.com/w40/ma.png', currency: 'MAD', phonePrefix: '+212', rateFromFcfa: 0.0165 }
   ];
 
   private selectedCountrySubject = new BehaviorSubject<Country>(this.countries[0]);

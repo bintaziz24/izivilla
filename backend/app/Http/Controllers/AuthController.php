@@ -22,6 +22,11 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
             'phone' => 'nullable|string|max:30',
             'role' => 'nullable|string|in:user,tenant,agency,owner',
+        ], [
+            'email.unique' => 'Un compte existe déjà avec cette adresse email.',
+            'email.email' => 'Veuillez renseigner une adresse email valide.',
+            'email.required' => 'L\'adresse email est obligatoire.',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères.',
         ]);
 
         $code = sprintf('%06d', mt_rand(100000, 999999));

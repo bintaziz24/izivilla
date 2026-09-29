@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
+import { catchError, tap, timeout } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface User {
@@ -42,12 +42,44 @@ export class AuthService {
     }
   }
 
+  private handleAuthError(err: any, defaultMsg: string): Observable<never> {
+    let message = defaultMsg;
+    let status = err?.status ?? 0;
+    let name = err?.name ?? 'HttpErrorResponse';
+
+    if (err?.name === 'TimeoutError') {
+      message = 'Le serveur met trop de temps à répondre. Mode démo activé.';
+      status = 0;
+    } else if (err?.error?.errors) {
+      const firstKey = Object.keys(err.error.errors)[0];
+      if (firstKey && err.error.errors[firstKey]?.[0]) {
+        message = err.error.errors[firstKey][0];
+      }
+    } else if (err?.error?.message) {
+      message = err.error.message;
+    } else if (typeof err?.error === 'string') {
+      message = err.error;
+    } else if (err?.message) {
+      message = err.message;
+    }
+
+    return throwError(() => ({
+      status,
+      name,
+      message,
+      error: err?.error,
+      needs_verification: err?.error?.needs_verification,
+      email: err?.error?.email
+    }));
+  }
+
   /**
    * Inscription d'un utilisateur
    */
   register(data: { name: string; email: string; password: string; phone?: string; role?: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
-      catchError(err => throwError(() => err.error || { success: false, message: 'Erreur lors de l\'inscription.' }))
+      timeout(3000),
+      catchError(err => this.handleAuthError(err, 'Erreur lors de l\'inscription.'))
     );
   }
 
@@ -56,12 +88,13 @@ export class AuthService {
    */
   verifyCode(email: string, code: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/verify-code`, { email, code }).pipe(
+      timeout(3000),
       tap(res => {
         if (res.success && res.user) {
           this.setSession(res.user);
         }
       }),
-      catchError(err => throwError(() => err.error || { success: false, message: 'Code de vérification invalide.' }))
+      catchError(err => this.handleAuthError(err, 'Code de vérification invalide.'))
     );
   }
 
@@ -70,7 +103,8 @@ export class AuthService {
    */
   resendCode(email: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/resend-code`, { email }).pipe(
-      catchError(err => throwError(() => err.error || { success: false, message: 'Erreur lors du renvoi du code.' }))
+      timeout(3000),
+      catchError(err => this.handleAuthError(err, 'Erreur lors du renvoi du code.'))
     );
   }
 
@@ -79,12 +113,13 @@ export class AuthService {
    */
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+      timeout(3000),
       tap(res => {
         if (res.success && res.user) {
           this.setSession(res.user);
         }
       }),
-      catchError(err => throwError(() => err.error || { success: false, message: 'Identifiants incorrects.' }))
+      catchError(err => this.handleAuthError(err, 'Identifiants incorrects.'))
     );
   }
 

@@ -7,9 +7,17 @@
     </button>
 
     <!-- Error Alert -->
-    <div *ngIf="errorMessage" class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
-      <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg shrink-0 mt-0.5"></i>
-      <span class="leading-relaxed">{{ errorMessage }}</span>
+    <div *ngIf="errorMessage" class="p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-bold flex flex-col gap-2 shadow-sm">
+      <div class="flex items-start gap-3">
+        <i class="fa-solid fa-triangle-exclamation text-red-500 text-lg shrink-0 mt-0.5"></i>
+        <span class="leading-relaxed">{{ errorMessage }}</span>
+      </div>
+      <div *ngIf="errorMessage.includes('existe déjà')" class="pt-1 pl-7">
+        <button type="button" (click)="switchMode('login')" class="bg-orange-600 hover:bg-orange-700 text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition-all shadow-sm flex items-center gap-1.5">
+          <i class="fa-solid fa-right-to-bracket text-[11px]"></i>
+          <span>Se connecter avec cet email</span>
+        </button>
+      </div>
     </div>
 
     <!-- Success Alert -->
@@ -101,7 +109,7 @@
         </button>
       </div>
 
-      <form (ngSubmit)="onRegisterSubmit()" class="space-y-4" autocomplete="off">
+      <form (submit)="$event.preventDefault(); onRegisterSubmit()" class="space-y-4" autocomplete="off">
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Nom complet ou Nom d'agence *</label>
           <div class="relative flex items-center">
@@ -141,10 +149,9 @@
           </div>
         </div>
 
-        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2" [disabled]="isLoading">
-          <i class="fa-solid fa-user-plus" *ngIf="!isLoading"></i>
-          <span *ngIf="!isLoading">Créer mon compte et recevoir le code</span>
-          <span *ngIf="isLoading" class="spinner"></span>
+        <button type="button" (click)="onRegisterSubmit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Créer mon compte et recevoir le code</span>
         </button>
       </form>
 
@@ -158,18 +165,48 @@
     <ng-container *ngIf="mode === 'verify'">
       <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold shrink-0">
-          <i class="fa-solid fa-envelope-circle-check"></i>
+          <i class="fa-solid" [ngClass]="otpChannel === 'email' ? 'fa-envelope-circle-check' : 'fa-comment-sms'"></i>
         </div>
         <div>
           <h3 class="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Code de vérification</h3>
-          <p class="text-xs text-slate-500 font-medium">Saisissez le code à 6 chiffres envoyé à <strong class="text-slate-900">{{ pendingEmail }}</strong>.</p>
+          <p class="text-xs text-slate-500 font-medium">Choisissez le moyen de réception de votre code OTP.</p>
         </div>
       </div>
 
+      <!-- Selector: Email vs WhatsApp / SMS -->
+      <div class="grid grid-cols-2 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
+        <button 
+          type="button" 
+          (click)="setOtpChannel('email')" 
+          [class.bg-white]="otpChannel === 'email'" 
+          [class.text-orange-600]="otpChannel === 'email'" 
+          [class.shadow-sm]="otpChannel === 'email'" 
+          class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-envelope text-xs"></i> Email
+        </button>
+        <button 
+          type="button" 
+          (click)="setOtpChannel('phone')" 
+          [class.bg-white]="otpChannel === 'phone'" 
+          [class.text-emerald-600]="otpChannel === 'phone'" 
+          [class.shadow-sm]="otpChannel === 'phone'" 
+          class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1.5">
+          <i class="fa-brands fa-whatsapp text-sm text-emerald-500"></i> WhatsApp / SMS
+        </button>
+      </div>
+
+      <!-- Channel Recipient Banner -->
+      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-700 font-medium flex items-center gap-2">
+        <i class="fa-solid" [ngClass]="otpChannel === 'email' ? 'fa-envelope text-orange-500' : 'fa-mobile-screen-button text-emerald-500'"></i>
+        <span>
+          Code envoyé à <strong class="text-slate-900">{{ otpChannel === 'email' ? targetEmail : targetPhone }}</strong>
+        </span>
+      </div>
+
       <!-- Code de test (Mode Dev) -->
-      <div *ngIf="debugCode" class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center justify-between">
-        <span class="font-bold">💡 Code de test rapide :</span>
-        <span class="font-mono text-sm font-black bg-white px-2.5 py-1 rounded-xl border border-amber-200 tracking-widest text-orange-600">{{ debugCode }}</span>
+      <div *ngIf="debugCode" (click)="fillDebugCode()" class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center justify-between cursor-pointer hover:bg-amber-100 transition-colors shadow-sm" title="Cliquer pour remplir le code de test">
+        <span class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-key text-orange-500"></i> Code de test rapide :</span>
+        <span class="font-mono text-sm font-black bg-white px-2.5 py-1 rounded-xl border border-amber-200 tracking-widest text-orange-600 shadow-sm hover:scale-105 transition-transform">{{ debugCode }}</span>
       </div>
 
       <!-- Saisie des 6 chiffres OTP -->
@@ -196,14 +233,14 @@
 
       <div class="text-center">
         <button type="button" (click)="onResendCode()" [disabled]="resendCountdown > 0 || isLoading" class="text-xs font-bold text-orange-600 hover:underline disabled:text-slate-400 disabled:no-underline">
-          <span *ngIf="resendCountdown === 0">Renvoyer un nouveau code par email</span>
+          <span *ngIf="resendCountdown === 0">Renvoyer un nouveau code par {{ otpChannel === 'email' ? 'Email' : 'WhatsApp / SMS' }}</span>
           <span *ngIf="resendCountdown > 0">Renvoyer le code dans {{ resendCountdown }}s</span>
         </button>
       </div>
 
       <div class="text-center pt-2 border-t border-slate-100 text-xs text-slate-500">
         <button type="button" (click)="switchMode('register')" class="font-extrabold text-slate-600 hover:text-orange-600">
-          ← Modifier l'adresse email
+          ← Modifier mes coordonnées
         </button>
       </div>
     </ng-container>
