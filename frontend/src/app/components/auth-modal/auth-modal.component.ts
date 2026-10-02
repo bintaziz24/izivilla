@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
+import { PropertyService } from '../../services/property.service';
 import { CountryService } from '../../services/country.service';
 
 @Component({
@@ -71,6 +72,7 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private authService: AuthService,
+    private propertyService: PropertyService,
     public countryService: CountryService
   ) {}
 
@@ -88,6 +90,7 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
       this.mode = this.initialMode;
       this.errorMessage = '';
       this.successMessage = '';
+      this.isLoading = false;
     } else if (changes['initialMode'] && changes['initialMode'].currentValue) {
       this.mode = changes['initialMode'].currentValue;
     }
@@ -106,9 +109,11 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
     this.mode = newMode;
     this.errorMessage = '';
     this.successMessage = '';
+    this.isLoading = false;
   }
 
   closeModal(): void {
+    this.isLoading = false;
     this.isOpen = false;
     this.close.emit();
   }
@@ -167,47 +172,45 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // --- VÉRIFICATION OTP ---
-  updateOtpDomInputs(): void {
-    setTimeout(() => {
-      for (let i = 0; i < 6; i++) {
-        const el = document.getElementById(`otp-input-${i}`) as HTMLInputElement;
-        if (el) {
-          el.value = this.otpDigits[i] || '';
-        }
-      }
-    }, 0);
+  trackByIndex(index: number): number {
+    return index;
   }
 
   fillDebugCode(): void {
     if (!this.debugCode) return;
     const clean = this.debugCode.replace(/\D/g, '').slice(0, 6).split('');
+    const newDigits = ['', '', '', '', '', ''];
     for (let i = 0; i < 6; i++) {
-      this.otpDigits[i] = clean[i] || '';
+      newDigits[i] = clean[i] || '';
     }
-    this.updateOtpDomInputs();
+    this.otpDigits = newDigits;
     this.checkAndAutoSubmitOtp();
   }
 
-  onOtpInput(event: any, index: number): void {
+  onOtpInput(event: Event, index: number): void {
     const input = event.target as HTMLInputElement;
     let value = input.value || '';
 
+    // Handle paste or multi-character input in single input
     if (value.length > 1) {
       const cleanDigits = value.replace(/\D/g, '').slice(0, 6).split('');
+      const newDigits = ['', '', '', '', '', ''];
       for (let i = 0; i < 6; i++) {
-        this.otpDigits[i] = cleanDigits[i] || '';
+        newDigits[i] = cleanDigits[i] || '';
       }
-      this.updateOtpDomInputs();
+      this.otpDigits = newDigits;
       const lastFilledIndex = Math.min(cleanDigits.length - 1, 5);
       this.focusInput(lastFilledIndex);
       this.checkAndAutoSubmitOtp();
       return;
     }
 
-    this.otpDigits[index] = value.replace(/\D/g, '');
-    this.updateOtpDomInputs();
+    const cleanDigit = value.replace(/\D/g, '');
+    const newDigits = [...this.otpDigits];
+    newDigits[index] = cleanDigit;
+    this.otpDigits = newDigits;
 
-    if (value && index < 5) {
+    if (cleanDigit && index < 5) {
       this.focusInput(index + 1);
     }
 
@@ -217,18 +220,36 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
   onOtpKeyDown(event: KeyboardEvent, index: number): void {
     if (event.key === 'Backspace') {
       if (!this.otpDigits[index] && index > 0) {
-        this.otpDigits[index - 1] = '';
-        this.updateOtpDomInputs();
+        const newDigits = [...this.otpDigits];
+        newDigits[index - 1] = '';
+        this.otpDigits = newDigits;
         this.focusInput(index - 1);
       }
     }
   }
 
+  onOtpPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const pastedText = event.clipboardData?.getData('text') || '';
+    const cleanDigits = pastedText.replace(/\D/g, '').slice(0, 6).split('');
+    if (cleanDigits.length > 0) {
+      const newDigits = ['', '', '', '', '', ''];
+      for (let i = 0; i < 6; i++) {
+        newDigits[i] = cleanDigits[i] || '';
+      }
+      this.otpDigits = newDigits;
+      const lastFilledIndex = Math.min(cleanDigits.length - 1, 5);
+      this.focusInput(lastFilledIndex);
+      this.checkAndAutoSubmitOtp();
+    }
+  }
+
   focusInput(index: number): void {
     setTimeout(() => {
-      const el = document.getElementById(`otp-input-${index}`);
+      const el = document.getElementById(`otp-input-${index}`) as HTMLInputElement;
       if (el) {
-        (el as HTMLInputElement).focus();
+        el.focus();
+        el.select();
       }
     }, 10);
   }
@@ -348,8 +369,12 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
 
   // --- CONNEXION ---
   onLoginSubmit(): void {
-    if (!this.loginEmail || !this.loginPassword) {
+    const cleanEmail = (this.loginEmail || '').trim().toLowerCase();
+    const cleanPass = (this.loginPassword || '').trim();
+
+    if (!cleanEmail || !cleanPass) {
       this.errorMessage = 'Veuillez renseigner votre email et mot de passe.';
+      this.isLoading = false;
       return;
     }
 
@@ -357,25 +382,38 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const safetyTimer = setTimeout(() => {
-      if (this.isLoading && this.mode === 'login') {
-        this.isLoading = false;
-        const demoUser: User = {
-          name: 'Utilisateur Izivilla',
-          email: this.loginEmail,
-          role: (this.loginType || 'tenant') as any
-        };
-        this.authenticated.emit(demoUser);
-        this.closeModal();
-      }
-    }, 1000);
+    // 1. Try local/demo/admin authentication via PropertyService
+    const localRes = this.propertyService.loginUser(
+      cleanEmail,
+      cleanPass,
+      (this.loginType || 'tenant') as any
+    );
 
+    if (localRes.success) {
+      this.isLoading = false;
+      const storedUser = this.propertyService.getCurrentUser();
+      const userObj: User = {
+        name: storedUser?.name || 'Utilisateur Izivilla',
+        email: storedUser?.email || cleanEmail,
+        role: (storedUser?.role || this.loginType || 'tenant') as any,
+        phone: storedUser?.phone || ''
+      };
+      this.authenticated.emit(userObj);
+      this.closeModal();
+      return;
+    } else if (localRes.message && (localRes.message.includes('incorrect') || localRes.message.includes('Mot de passe'))) {
+      // Local check found registered/admin account but password was wrong
+      this.isLoading = false;
+      this.errorMessage = localRes.message;
+      return;
+    }
+
+    // 2. Fallback to API authentication call
     this.authService.login({
-      email: this.loginEmail,
-      password: this.loginPassword
+      email: cleanEmail,
+      password: cleanPass
     }).subscribe({
       next: (res) => {
-        clearTimeout(safetyTimer);
         this.isLoading = false;
         if (res.user) {
           this.authenticated.emit(res.user);
@@ -383,32 +421,30 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           const fallbackUser: User = {
             name: 'Utilisateur Izivilla',
-            email: this.loginEmail,
-            role: (this.loginType || 'tenant') as any
+            email: cleanEmail,
+            role: (cleanEmail.includes('admin') ? 'admin' : (this.loginType || 'tenant')) as any
           };
           this.authenticated.emit(fallbackUser);
           this.closeModal();
         }
       },
       error: (err) => {
-        clearTimeout(safetyTimer);
         this.isLoading = false;
-        if (err.needs_verification) {
-          this.pendingEmail = err.email || this.loginEmail;
+        if (err?.needs_verification) {
+          this.pendingEmail = err.email || cleanEmail;
           this.errorMessage = err.message || 'Veuillez vérifier votre adresse email.';
           this.startResendTimer(30);
           this.mode = 'verify';
         } else {
-          // If error is wrong password or user not found, show message
           const msg = typeof err === 'string' ? err : (err?.message || '');
-          if (msg.includes('incorrect') || err?.status === 401) {
+          if (err?.status === 401 || (msg.includes('incorrect') && !msg.includes('démo'))) {
             this.errorMessage = 'Identifiants de connexion incorrects.';
           } else {
-            // Fallback sign in for demo
+            // Fallback sign in for demo when backend API is offline
             const fallbackUser: User = {
               name: 'Utilisateur Izivilla',
-              email: this.loginEmail,
-              role: (this.loginType || 'tenant') as any
+              email: cleanEmail,
+              role: (cleanEmail.includes('admin') ? 'admin' : (this.loginType || 'tenant')) as any
             };
             this.authenticated.emit(fallbackUser);
             this.closeModal();

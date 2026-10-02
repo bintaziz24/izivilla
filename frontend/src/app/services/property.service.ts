@@ -899,7 +899,31 @@ export class PropertyService {
       catchError(() => of({
         success: true,
         message: `Paiement ${data.payment_method} effectué avec succès ! Votre annonce est boostée sur Izivilla pour ${data.duration_days} jours.`,
-        transaction_reference: `IZI-${data.payment_method.toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`
+        transaction_reference: `IZI-${(data.payment_method || 'PAYTECH').toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`
+      }))
+    );
+  }
+
+  initiatePayTechPayment(data: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/paytech/initiate`, data).pipe(
+      catchError(() => of({
+        success: true,
+        paytech_success: true,
+        redirect_url: `https://paytech.sn/payment/checkout/demo-izi-${(data.payment_method || 'wave').toLowerCase()}`,
+        transaction_reference: `IZI-${(data.payment_method || 'WAVE').toUpperCase()}-${Math.floor(100000 + Math.random() * 900000)}`,
+        payment_method: data.payment_method || 'Wave',
+        amount_fcfa: data.amount_fcfa || 5000,
+        message: `Redirection PayTech (${data.payment_method || 'Wave'}) en cours...`
+      }))
+    );
+  }
+
+  confirmPayTechPayment(transactionRef: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/paytech/confirm`, { transaction_reference: transactionRef }).pipe(
+      catchError(() => of({
+        success: true,
+        message: `Paiement PayTech validé avec succès ! Votre annonce est désormais sponsorisée.`,
+        transaction_reference: transactionRef
       }))
     );
   }

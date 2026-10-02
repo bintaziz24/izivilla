@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'paytech' => [
+        'api_key' => env('PAYTECH_API_KEY', 'test_api_key_izivilla'),
+        'secret_key' => env('PAYTECH_SECRET_KEY', 'test_secret_key_izivilla'),
+        'env' => env('PAYTECH_ENV', 'test'),
+        'url' => env('PAYTECH_URL', 'https://paytech.sn/api/payment/request-payment'),
+    ],
+
 ];

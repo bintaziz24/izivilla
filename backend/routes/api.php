@@ -47,9 +47,12 @@ Route::get('/agencies/{id}', [AgencyController::class, 'show']);
 Route::post('/appointments', [AppointmentController::class, 'store']);
 Route::get('/appointments', [AppointmentController::class, 'index']);
 Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
-Route::post('/appointments/send-reminders', [AppointmentController::class, 'sendReminders']);
+use App\Http\Controllers\PayTechController;
 
 Route::post('/boosts/checkout', [BoostController::class, 'checkout']);
+Route::post('/paytech/initiate', [PayTechController::class, 'initiatePayment']);
+Route::post('/paytech/ipn', [PayTechController::class, 'ipnCallback']);
+Route::post('/paytech/confirm', [PayTechController::class, 'confirmPayment']);
 
 Route::get('/alerts', [PropertyAlertController::class, 'index']);
 Route::post('/alerts', [PropertyAlertController::class, 'store']);

@@ -47,7 +47,6 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
             <div class="flex items-center gap-1">
               <span class="text-lg sm:text-xl font-black tracking-tight text-slate-900">IZI</span>
               <span class="text-lg sm:text-xl font-black tracking-tight text-orange-600">VILLA</span>
-              <span class="text-[8px] sm:text-[9px] font-extrabold bg-orange-100 text-orange-700 px-1 py-0.5 rounded">DIRECT</span>
             </div>
             <span class="text-[9px] font-bold text-slate-500 -mt-1 hidden xl:block">Trouvez. Contactez directement.</span>
           </div>

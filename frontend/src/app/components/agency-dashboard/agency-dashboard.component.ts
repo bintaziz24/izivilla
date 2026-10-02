@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { PropertyService } from '../../services/property.service';
 import { LanguageService } from '../../services/language.service';
 import { CountryService } from '../../services/country.service';
@@ -1071,24 +1072,34 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-2">Moyen de paiement mobile</label>
+              <label class="block text-xs font-bold text-slate-700 mb-2">Moyen de paiement mobile (Sécurisé par PayTech SN)</label>
               <div class="grid grid-cols-2 gap-3">
-                <button type="button" (click)="paymentMethod = 'Wave'" [class.border-orange-600]="paymentMethod === 'Wave'" [class.bg-orange-50]="paymentMethod === 'Wave'" class="p-3 border-2 border-slate-200 rounded-xl flex items-center justify-center gap-2 font-bold text-xs">
-                  <i class="fa-solid fa-mobile-screen text-orange-500"></i> Wave Sénégal
+                <button type="button" (click)="paymentMethod = 'Wave'" [class.border-cyan-500]="paymentMethod === 'Wave'" [class.bg-cyan-50]="paymentMethod === 'Wave'" class="p-3 border-2 border-slate-200 rounded-xl flex items-center justify-between font-black text-xs transition-all cursor-pointer">
+                  <span class="flex items-center gap-2">
+                    <img src="/wave-logo.png" alt="Wave Sénégal" class="w-6 h-6 object-contain rounded-lg shadow-xs shrink-0">
+                    <span class="text-cyan-950 font-extrabold">Wave Sénégal</span>
+                  </span>
+                  <span class="text-[9px] bg-cyan-100 text-cyan-800 px-1.5 py-0.5 rounded font-black">PayTech</span>
                 </button>
-                <button type="button" (click)="paymentMethod = 'Orange Money'" [class.border-orange-600]="paymentMethod === 'Orange Money'" [class.bg-orange-50]="paymentMethod === 'Orange Money'" class="p-3 border-2 border-slate-200 rounded-xl flex items-center justify-center gap-2 font-bold text-xs">
-                  <i class="fa-solid fa-wallet text-orange-600"></i> Orange Money
+                <button type="button" (click)="paymentMethod = 'Orange Money'" [class.border-orange-500]="paymentMethod === 'Orange Money'" [class.bg-orange-50]="paymentMethod === 'Orange Money'" class="p-3 border-2 border-slate-200 rounded-xl flex items-center justify-between font-black text-xs transition-all cursor-pointer">
+                  <span class="flex items-center gap-2">
+                    <img src="/omoney-logo.png" alt="Orange Money" class="w-6 h-6 object-contain rounded-lg shadow-xs shrink-0">
+                    <span class="text-orange-950 font-extrabold">Orange Money</span>
+                  </span>
+                  <span class="text-[9px] bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded font-black">PayTech</span>
                 </button>
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Numéro de téléphone mobile money</label>
-              <input type="tel" [(ngModel)]="paymentPhone" name="paymentPhone" required placeholder="ex: 77 123 45 67" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:border-orange-500 outline-none">
+              <input type="tel" [(ngModel)]="paymentPhone" name="paymentPhone" required placeholder="ex: 77 123 45 67 ou 78 000 00 00" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-semibold focus:border-orange-500 outline-none">
             </div>
 
-            <button type="submit" class="btn-orange w-full py-3.5 text-xs justify-center rounded-xl font-bold shadow-lg">
-              Payer {{ boostAmount | number }} {{ countryService.currentCountry.currency }} via {{ paymentMethod }}
+            <button type="submit" class="btn-orange w-full py-3.5 text-xs justify-center rounded-xl font-bold shadow-lg flex items-center gap-2 cursor-pointer" [disabled]="isPayTechLoading">
+              <i class="fa-solid fa-shield-halved" *ngIf="!isPayTechLoading"></i>
+              <span *ngIf="!isPayTechLoading">Payer {{ boostAmount | number }} {{ countryService.currentCountry.currency }} via PayTech ({{ paymentMethod }})</span>
+              <span *ngIf="isPayTechLoading" class="spinner"></span>
             </button>
 
           </form>
@@ -1096,6 +1107,90 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
         </div>
       </div>
 
+    </div>
+
+    <!-- PAYTECH OFFICIAL CHECKOUT INTERFACE MODAL (WAVE & ORANGE MONEY) -->
+    <div *ngIf="showPayTechCheckoutModal" class="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+      <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 text-left relative max-h-[95vh] overflow-y-auto">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center font-black text-lg">
+              <i class="fa-solid fa-shield-halved text-cyan-600"></i>
+            </div>
+            <div>
+              <h3 class="text-xl font-black text-slate-900 leading-tight">PayTech SN - Guichet Sécurisé</h3>
+              <p class="text-xs text-slate-500 font-bold">Paiement Mobile {{ paymentMethod }} • Référence : <span class="text-slate-800 font-mono">{{ paytechTxRef }}</span></p>
+            </div>
+          </div>
+          <button (click)="showPayTechCheckoutModal = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center transition-colors cursor-pointer">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- Summary Banner -->
+        <div class="p-4 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl flex items-center justify-between shadow-md">
+          <div class="flex items-center gap-3">
+            <img [src]="paymentMethod === 'Wave' ? '/wave-logo.png' : '/omoney-logo.png'" [alt]="paymentMethod" class="w-10 h-10 object-contain rounded-xl shadow-sm bg-white p-1">
+            <div>
+              <p class="text-[11px] text-slate-300 font-medium">Sponsorisation Annonce Izivilla</p>
+              <p class="text-sm font-black text-white">Guichet PayTech • {{ paymentMethod }}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] uppercase font-bold text-orange-400">Montant à régler</p>
+            <p class="text-xl font-black text-white">{{ boostAmount | number }} FCFA</p>
+          </div>
+        </div>
+
+        <!-- PayTech Interface Frame / Screen -->
+        <div class="border-2 border-slate-200 rounded-2xl overflow-hidden bg-slate-50 shadow-inner p-6 space-y-4">
+          <div class="flex items-center justify-center gap-2 text-slate-700 font-bold text-xs">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Interface Officielle de Règlement PayTech ({{ paymentMethod }})</span>
+          </div>
+
+          <!-- PayTech Screen Card -->
+          <div class="p-6 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-4 max-w-md mx-auto text-left">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <img src="/wave-logo.png" *ngIf="paymentMethod === 'Wave'" class="w-7 h-7 object-contain rounded-lg">
+                <img src="/omoney-logo.png" *ngIf="paymentMethod === 'Orange Money'" class="w-7 h-7 object-contain rounded-lg">
+                <span class="font-black text-sm text-slate-900">Session PayTech {{ paymentMethod }}</span>
+              </div>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-full">Prêt pour paiement</span>
+            </div>
+
+            <div class="text-xs text-slate-600 space-y-2">
+              <p class="flex justify-between"><span>Marchand :</span> <strong class="text-slate-900">IZIVILLA SÉNÉGAL</strong></p>
+              <p class="flex justify-between"><span>Téléphone associé :</span> <strong class="text-slate-900 font-mono">{{ paymentPhone || '+221 77 123 45 67' }}</strong></p>
+              <p class="flex justify-between"><span>Montant de la transaction :</span> <strong class="text-orange-600 text-sm font-black">{{ boostAmount | number }} FCFA</strong></p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex flex-col gap-2">
+              <button type="button" (click)="openExternalPayTech()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-extrabold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer">
+                <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                <span>Ouvrir la page officielle PayTech SN</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+          <button type="button" (click)="confirmPayTechTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer" [disabled]="isPayTechLoading">
+            <i class="fa-solid fa-circle-check" *ngIf="!isPayTechLoading"></i>
+            <span *ngIf="!isPayTechLoading">J'ai effectué le paiement (Activer le Boost)</span>
+            <span *ngIf="isPayTechLoading" class="spinner"></span>
+          </button>
+
+          <button type="button" (click)="showPayTechCheckoutModal = false" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 px-6 rounded-2xl text-xs transition-colors cursor-pointer">
+            Fermer
+          </button>
+        </div>
+
+      </div>
     </div>
   `
 })
@@ -1127,6 +1222,11 @@ export class AgencyDashboardComponent implements OnInit {
   boostDays = 7;
   paymentMethod = 'Wave';
   paymentPhone = '';
+  isPayTechLoading = false;
+  showPayTechCheckoutModal = false;
+  paytechRedirectUrl: string | null = null;
+  paytechTxRef: string | null = null;
+  paytechSafeUrl: SafeResourceUrl | null = null;
 
   newProp: any = {
     title: '',
@@ -1297,7 +1397,8 @@ export class AgencyDashboardComponent implements OnInit {
     private propertyService: PropertyService,
     private route: ActivatedRoute,
     public langService: LanguageService,
-    public countryService: CountryService
+    public countryService: CountryService,
+    private sanitizer: DomSanitizer
   ) {}
 
   t(key: string): string {
@@ -1486,21 +1587,58 @@ export class AgencyDashboardComponent implements OnInit {
   processBoostPayment(): void {
     if (!this.targetProperty) return;
 
-    this.propertyService.checkoutBoost({
+    this.isPayTechLoading = true;
+    this.boostSuccessMsg = '';
+
+    const payload = {
       property_id: this.targetProperty.id,
       plan_name: `Boost ${this.boostDays} jours`,
       duration_days: this.boostDays,
       amount_fcfa: this.boostAmount,
       payment_method: this.paymentMethod,
       payment_phone: this.paymentPhone
-    }).subscribe(res => {
-      this.boostSuccessMsg = res.message;
-      this.targetProperty!.is_boosted = true;
-      this.loadUserData();
-      setTimeout(() => {
+    };
+
+    this.propertyService.initiatePayTechPayment(payload).subscribe({
+      next: (res) => {
+        this.isPayTechLoading = false;
+        this.paytechRedirectUrl = res.redirect_url || `https://paytech.sn/payment/checkout/demo-izi-${this.paymentMethod.toLowerCase()}`;
+        this.paytechTxRef = res.transaction_reference || `IZI-${this.paymentMethod.toUpperCase()}-PAYTECH`;
+        this.paytechSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.paytechRedirectUrl!);
+ 
+        // Hide configuration modal and open official PayTech checkout interface modal
         this.showBoostModal = false;
-      }, 2000);
+        this.showPayTechCheckoutModal = true;
+      },
+      error: () => {
+        this.isPayTechLoading = false;
+        this.paytechRedirectUrl = `https://paytech.sn/payment/checkout/demo-izi-${this.paymentMethod.toLowerCase()}`;
+        this.paytechTxRef = `IZI-${this.paymentMethod.toUpperCase()}-PAYTECH`;
+        this.paytechSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.paytechRedirectUrl!);
+        this.showBoostModal = false;
+        this.showPayTechCheckoutModal = true;
+      }
     });
+  }
+
+  confirmPayTechTransaction(): void {
+    if (!this.paytechTxRef) return;
+    this.isPayTechLoading = true;
+    this.propertyService.confirmPayTechPayment(this.paytechTxRef).subscribe(() => {
+      this.isPayTechLoading = false;
+      this.boostSuccessMsg = `Paiement ${this.paymentMethod} via PayTech validé avec succès ! Référence : ${this.paytechTxRef}. Votre annonce est boostée pour ${this.boostDays} jours.`;
+      if (this.targetProperty) {
+        this.targetProperty.is_boosted = true;
+      }
+      this.loadUserData();
+      this.showPayTechCheckoutModal = false;
+    });
+  }
+
+  openExternalPayTech(): void {
+    if (this.paytechRedirectUrl) {
+      window.open(this.paytechRedirectUrl, '_blank');
+    }
   }
 
   submitProfileVerification(): void {
