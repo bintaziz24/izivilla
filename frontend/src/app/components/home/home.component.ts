@@ -25,7 +25,7 @@ declare var L: any; // Leaflet JS
         <!-- Slogan & Headlines -->
         <div class="max-w-4xl mx-auto space-y-4">
           <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-orange-400 text-xs font-black uppercase tracking-wider mb-2 shadow-inner">
-            <i class="fa-solid fa-shield-halved text-emerald-400"></i> Plateforme Immobilière Directe
+            <i class="fa-solid fa-shield-halved text-emerald-400"></i> PLATEFORME IMMOBILIÈRE N°1 {{ countryService.currentCountry.preposition | uppercase }} {{ countryService.currentCountry.name | uppercase }}
           </div>
           
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
@@ -103,7 +103,7 @@ declare var L: any; // Leaflet JS
             <div class="lg:col-span-3">
               <label class="block text-[11px] font-black uppercase text-slate-400 tracking-wider mb-1">Ville / Région</label>
               <select [(ngModel)]="searchCity" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-extrabold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
-                <option value="">Toutes les zones (Sénégal)</option>
+                <option value="">Toutes les zones ({{ countryService.currentCountry.name }})</option>
                 <option value="Dakar">Dakar (Almadies, Mermoz, Ngor...)</option>
                 <option value="Saly">Saly & Petite Côte</option>
                 <option value="Thiès">Thiès</option>
@@ -400,7 +400,7 @@ declare var L: any; // Leaflet JS
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-8 gap-4">
           <div>
-            <span class="text-xs font-black uppercase text-orange-500 tracking-wider">Carte Interactive Sénégal</span>
+            <span class="text-xs font-black uppercase text-orange-500 tracking-wider">Carte Interactive {{ countryService.currentCountry.name }}</span>
             <h2 class="text-3xl font-black text-white mt-1">Localisez les biens à Dakar, Saly et Thiès</h2>
           </div>
           <a routerLink="/annonces" class="btn-orange text-xs px-5 py-2.5">Ouvrir la carte de recherche</a>
