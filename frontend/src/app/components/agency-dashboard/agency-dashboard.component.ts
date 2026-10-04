@@ -441,8 +441,8 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
                   <span>🚀 Envoyer la relance par notification & email</span>
                 </button>
 
-                <a *ngIf="selectedFollowupProspect.client_phone" [href]="getWhatsAppFollowupUrl(selectedFollowupProspect)" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl text-xs shadow-md transition-all flex items-center justify-center gap-2">
-                  <i class="fa-brands fa-whatsapp text-base"></i> Relancer via WhatsApp Direct
+                <a *ngIf="selectedFollowupProspect.client_phone" [href]="getWhatsAppFollowupUrl(selectedFollowupProspect)" target="_blank" class="w-full bg-black hover:bg-slate-900 text-white border border-orange-500/40 font-extrabold py-3 px-4 rounded-2xl text-xs shadow-md transition-all flex items-center justify-center gap-2">
+                  <i class="fa-brands fa-whatsapp text-base text-orange-500"></i> Relancer via WhatsApp Direct
                 </a>
               </div>
 
@@ -451,29 +451,29 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
           </div>
         </div>
 
-        <!-- TAB: GESTION DES VISITES (ÉTAPE E - PRIORITÉS 6, 7 & 8) -->
+        <!-- TAB: GESTION DES VISITES -->
         <div *ngIf="activeTab === 'appointments'" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-4">
           <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 class="font-extrabold text-slate-900 text-lg flex items-center gap-2">
-                <i class="fa-solid fa-calendar-check text-blue-600"></i> Gestion des demandes de visite
+                <i class="fa-solid fa-calendar-check text-orange-600"></i> Gestion des demandes de visite
               </h3>
               <p class="text-slate-500 text-xs mt-0.5">Consultez les créneaux demandés par les prospects et répondez : Accepter, Proposer autre date ou Refuser.</p>
             </div>
 
-            <button (click)="triggerVisitReminders()" class="bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 shrink-0">
+            <button (click)="triggerVisitReminders()" class="bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 shrink-0">
               <i class="fa-solid fa-bell"></i>
               <span>Tester les Rappels de Visite (24h / 2h)</span>
             </button>
           </div>
 
-          <div *ngIf="visitReminderSuccessMsg" class="mx-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+          <div *ngIf="visitReminderSuccessMsg" class="mx-6 p-4 bg-orange-50 border border-orange-200 text-orange-950 rounded-xl text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-orange-600 text-lg"></i>
             <span>{{ visitReminderSuccessMsg }}</span>
           </div>
 
           <div *ngIf="appointments.length === 0" class="p-12 text-center text-slate-500 space-y-3">
-            <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl mx-auto">
+            <div class="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-2xl mx-auto">
               <i class="fa-solid fa-calendar-xmark"></i>
             </div>
             <h4 class="font-black text-slate-800 text-base">Aucune demande de visite enregistrée</h4>
@@ -502,8 +502,8 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
                       </div>
                       <span>{{ apt.tenant_name }}</span>
                     </div>
-                    <p class="text-[11px] text-slate-500 font-medium mt-0.5"><i class="fa-solid fa-phone text-emerald-600 mr-1"></i> {{ apt.tenant_phone }}</p>
-                    <p class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-envelope text-blue-500 mr-1"></i> {{ apt.tenant_email }}</p>
+                    <p class="text-[11px] text-slate-500 font-medium mt-0.5"><i class="fa-solid fa-phone text-orange-500 mr-1"></i> {{ apt.tenant_phone }}</p>
+                    <p class="text-[11px] text-slate-400 font-medium"><i class="fa-solid fa-envelope text-orange-500 mr-1"></i> {{ apt.tenant_email }}</p>
                   </td>
 
                   <td class="py-4 px-6">
@@ -513,22 +513,22 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
 
                   <td class="py-4 px-6 whitespace-nowrap">
                     <div class="font-extrabold text-slate-900 bg-slate-100 px-3 py-1.5 rounded-xl inline-block border border-slate-200">
-                      <i class="fa-solid fa-calendar-day text-blue-600 mr-1.5"></i>
+                      <i class="fa-solid fa-calendar-day text-orange-600 mr-1.5"></i>
                       <span>{{ (apt.rescheduled_date || apt.preferred_date) | date:'EEEE d MMMM yyyy à HH:mm':'UTC' }}</span>
                     </div>
                   </td>
 
                   <td class="py-4 px-6 max-w-xs">
                     <p class="text-slate-700 italic truncate font-normal">« {{ apt.message || 'Souhaite effectuer une visite.' }} »</p>
-                    <p *ngIf="apt.advertiser_comment" class="text-[11px] text-purple-700 font-bold mt-1">Note : {{ apt.advertiser_comment }}</p>
+                    <p *ngIf="apt.advertiser_comment" class="text-[11px] text-orange-600 font-bold mt-1">Note : {{ apt.advertiser_comment }}</p>
                   </td>
 
                   <td class="py-4 px-6">
                     <span [ngClass]="{
-                      'bg-amber-100 text-amber-800 border-amber-300': apt.status === 'pending',
-                      'bg-emerald-600 text-white border-emerald-700': apt.status === 'confirmed',
-                      'bg-purple-100 text-purple-800 border-purple-300': apt.status === 'rescheduled',
-                      'bg-red-100 text-red-800 border-red-300': apt.status === 'cancelled'
+                      'bg-orange-100 text-orange-800 border-orange-300': apt.status === 'pending',
+                      'bg-orange-600 text-white border-orange-700': apt.status === 'confirmed',
+                      'bg-slate-900 text-white border-slate-700': apt.status === 'rescheduled',
+                      'bg-slate-100 text-slate-700 border-slate-300': apt.status === 'cancelled'
                     }" class="px-3 py-1 rounded-full text-[11px] font-black uppercase border inline-flex items-center gap-1.5">
                       <i *ngIf="apt.status === 'pending'" class="fa-solid fa-clock"></i>
                       <i *ngIf="apt.status === 'confirmed'" class="fa-solid fa-circle-check"></i>
@@ -541,18 +541,18 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
                   <td class="py-4 px-6 text-right whitespace-nowrap">
                     <div class="flex items-center justify-end gap-1.5">
                       
-                      <!-- ACCEPTER BUTTON (PRIORITÉ 6 & 7) -->
-                      <button *ngIf="apt.status !== 'confirmed'" (click)="acceptVisit(apt)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1">
+                      <!-- ACCEPTER BUTTON -->
+                      <button *ngIf="apt.status !== 'confirmed'" (click)="acceptVisit(apt)" class="bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1">
                         <i class="fa-solid fa-check"></i> Accepter
                       </button>
 
-                      <!-- PROPOSER AUTRE DATE BUTTON (PRIORITÉ 6) -->
-                      <button (click)="openRescheduleModal(apt)" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1">
-                        <i class="fa-solid fa-clock"></i> Proposer autre date
+                      <!-- PROPOSER AUTRE DATE BUTTON -->
+                      <button (click)="openRescheduleModal(apt)" class="bg-slate-900 hover:bg-black text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1">
+                        <i class="fa-solid fa-clock text-orange-400"></i> Proposer autre date
                       </button>
 
-                      <!-- REFUSER BUTTON (PRIORITÉ 6) -->
-                      <button *ngIf="apt.status !== 'cancelled'" (click)="refuseVisit(apt)" class="bg-red-100 hover:bg-red-200 text-red-700 font-extrabold text-[11px] px-2.5 py-1.5 rounded-xl transition-colors flex items-center gap-1">
+                      <!-- REFUSER BUTTON -->
+                      <button *ngIf="apt.status !== 'cancelled'" (click)="refuseVisit(apt)" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-[11px] px-2.5 py-1.5 rounded-xl transition-colors flex items-center gap-1">
                         <i class="fa-solid fa-xmark"></i> Refuser
                       </button>
 
@@ -565,7 +565,7 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
           </div>
         </div>
 
-        <!-- RESCHEDULE VISIT MODAL (PRIORITÉ 6) -->
+        <!-- RESCHEDULE VISIT MODAL -->
         <div *ngIf="showRescheduleModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-6 text-left relative">
             <button (click)="showRescheduleModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold">
@@ -573,7 +573,7 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
             </button>
 
             <div class="space-y-1">
-              <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-bold mb-3">
+              <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold mb-3">
                 <i class="fa-solid fa-calendar-plus"></i>
               </div>
               <h3 class="text-2xl font-black text-slate-900">Proposer une autre date</h3>
@@ -584,20 +584,20 @@ import { Property, VerificationRequest, PropertyRequest } from '../../models/pro
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">Nouvelle Date *</label>
-                  <input type="date" [(ngModel)]="rescheduleForm.date" name="reschedule_date" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-500 shadow-sm">
+                  <input type="date" [(ngModel)]="rescheduleForm.date" name="reschedule_date" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">Nouvelle Heure *</label>
-                  <input type="time" [(ngModel)]="rescheduleForm.time" name="reschedule_time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-500 shadow-sm">
+                  <input type="time" [(ngModel)]="rescheduleForm.time" name="reschedule_time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
                 </div>
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Note pour le client (Optionnel)</label>
-                <textarea [(ngModel)]="rescheduleForm.comment" name="reschedule_comment" rows="2" placeholder="Ex: Désolé, je suis indisponible samedi. Je vous propose dimanche après-midi." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-500 shadow-sm"></textarea>
+                <textarea [(ngModel)]="rescheduleForm.comment" name="reschedule_comment" rows="2" placeholder="Ex: Désolé, je suis indisponible samedi. Je vous propose dimanche après-midi." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm"></textarea>
               </div>
 
-              <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-purple-600/20 transition-all">
+              <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all">
                 Envoyer la nouvelle date au client
               </button>
             </form>

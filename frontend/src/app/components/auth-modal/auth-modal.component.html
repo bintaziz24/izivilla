@@ -21,8 +21,8 @@
     </div>
 
     <!-- Success Alert -->
-    <div *ngIf="successMessage" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
-      <i class="fa-solid fa-circle-check text-emerald-600 text-lg shrink-0 mt-0.5"></i>
+    <div *ngIf="successMessage" class="p-4 bg-orange-50 border border-orange-200 text-orange-950 rounded-2xl text-xs font-bold flex items-start gap-3 shadow-sm">
+      <i class="fa-solid fa-circle-check text-orange-600 text-lg shrink-0 mt-0.5"></i>
       <span class="leading-relaxed">{{ successMessage }}</span>
     </div>
 
@@ -188,25 +188,25 @@
           type="button" 
           (click)="setOtpChannel('phone')" 
           [class.bg-white]="otpChannel === 'phone'" 
-          [class.text-emerald-600]="otpChannel === 'phone'" 
+          [class.text-orange-600]="otpChannel === 'phone'" 
           [class.shadow-sm]="otpChannel === 'phone'" 
           class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1.5">
-          <i class="fa-brands fa-whatsapp text-sm text-emerald-500"></i> WhatsApp / SMS
+          <i class="fa-brands fa-whatsapp text-sm text-orange-500"></i> WhatsApp / SMS
         </button>
       </div>
 
       <!-- Channel Recipient Banner -->
       <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-700 font-medium flex items-center gap-2">
-        <i class="fa-solid" [ngClass]="otpChannel === 'email' ? 'fa-envelope text-orange-500' : 'fa-mobile-screen-button text-emerald-500'"></i>
+        <i class="fa-solid" [ngClass]="otpChannel === 'email' ? 'fa-envelope text-orange-500' : 'fa-mobile-screen-button text-orange-500'"></i>
         <span>
           Code envoyé à <strong class="text-slate-900">{{ otpChannel === 'email' ? targetEmail : targetPhone }}</strong>
         </span>
       </div>
 
       <!-- Code de test (Mode Dev) -->
-      <div *ngIf="debugCode" (click)="fillDebugCode()" class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center justify-between cursor-pointer hover:bg-amber-100 transition-colors shadow-sm" title="Cliquer pour remplir le code de test">
+      <div *ngIf="debugCode" (click)="fillDebugCode()" class="p-3 bg-orange-50 border border-orange-200 rounded-2xl text-xs text-orange-950 flex items-center justify-between cursor-pointer hover:bg-orange-100 transition-colors shadow-sm" title="Cliquer pour remplir le code de test">
         <span class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-key text-orange-500"></i> Code de test rapide :</span>
-        <span class="font-mono text-sm font-black bg-white px-2.5 py-1 rounded-xl border border-amber-200 tracking-widest text-orange-600 shadow-sm hover:scale-105 transition-transform">{{ debugCode }}</span>
+        <span class="font-mono text-sm font-black bg-white px-2.5 py-1 rounded-xl border border-orange-200 tracking-widest text-orange-600 shadow-sm hover:scale-105 transition-transform">{{ debugCode }}</span>
       </div>
 
       <!-- Saisie des 6 chiffres OTP -->

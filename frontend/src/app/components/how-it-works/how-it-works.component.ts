@@ -33,11 +33,11 @@ import { PropertyService } from '../../services/property.service';
             <span class="px-5 py-2.5 bg-slate-900 border border-slate-700 rounded-2xl text-orange-400 flex items-center gap-2 shadow-sm">
               <i class="fa-solid fa-phone-volume text-orange-500"></i> DIRECT
             </span>
-            <span class="px-5 py-2.5 bg-slate-900 border border-slate-700 rounded-2xl text-emerald-400 flex items-center gap-2 shadow-sm">
-              <i class="fa-solid fa-shield-check text-emerald-500"></i> IDENTIFIÉ
+            <span class="px-5 py-2.5 bg-slate-900 border border-slate-700 rounded-2xl text-white flex items-center gap-2 shadow-sm">
+              <i class="fa-solid fa-shield-check text-orange-500"></i> IDENTIFIÉ
             </span>
-            <span class="px-5 py-2.5 bg-slate-900 border border-slate-700 rounded-2xl text-sky-400 flex items-center gap-2 shadow-sm">
-              <i class="fa-solid fa-bolt text-sky-500"></i> SIMPLE
+            <span class="px-5 py-2.5 bg-slate-900 border border-slate-700 rounded-2xl text-orange-400 flex items-center gap-2 shadow-sm">
+              <i class="fa-solid fa-bolt text-orange-500"></i> SIMPLE
             </span>
           </div>
         </div>
@@ -82,56 +82,56 @@ import { PropertyService } from '../../services/property.service';
             <!-- PATH 2: PROPRIÉTAIRES -->
             <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all space-y-6 flex flex-col justify-between">
               <div class="space-y-4">
-                <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl font-black">
+                <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-2xl font-black">
                   <i class="fa-solid fa-user-shield"></i>
                 </div>
                 <h3 class="text-xl font-extrabold text-slate-900">Pour les Propriétaires Directs</h3>
                 <ul class="space-y-3 text-xs text-slate-600 font-medium">
                   <li class="flex items-start gap-2.5">
-                    <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
+                    <i class="fa-solid fa-check text-orange-500 mt-0.5"></i>
                     <span><strong>1. Déposez votre bien en 6 étapes simple</strong> (photos, localisation, prix, équipements).</span>
                   </li>
                   <li class="flex items-start gap-2.5">
-                    <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
+                    <i class="fa-solid fa-check text-orange-500 mt-0.5"></i>
                     <span><strong>2. Obtenez le badge "Propriétaire vérifié"</strong> en fournissant une pièce justificative.</span>
                   </li>
                   <li class="flex items-start gap-2.5">
-                    <i class="fa-solid fa-check text-emerald-500 mt-0.5"></i>
+                    <i class="fa-solid fa-check text-orange-500 mt-0.5"></i>
                     <span><strong>3. Recevez les appels directs des clients</strong> sans payer aucune commission.</span>
                   </li>
                 </ul>
               </div>
 
               <button (click)="onPublishClick()" class="btn-dark text-xs py-3 w-full justify-center rounded-xl font-extrabold cursor-pointer">
-                <i class="fa-solid fa-plus-circle"></i> Déposer une annonce
+                <i class="fa-solid fa-plus-circle text-orange-500"></i> Déposer une annonce
               </button>
             </div>
 
             <!-- PATH 3: AGENCIES -->
             <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-xl transition-all space-y-6 flex flex-col justify-between">
               <div class="space-y-4">
-                <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-2xl font-black">
-                  <i class="fa-solid fa-building-shield"></i>
+                <div class="w-14 h-14 bg-slate-900 text-white rounded-2xl flex items-center justify-center text-2xl font-black">
+                  <i class="fa-solid fa-building-shield text-orange-500"></i>
                 </div>
                 <h3 class="text-xl font-extrabold text-slate-900">Pour les Agences Immobilières</h3>
                 <ul class="space-y-3 text-xs text-slate-600 font-medium">
                   <li class="flex items-start gap-2.5">
-                    <i class="fa-solid fa-check text-sky-500 mt-0.5"></i>
+                    <i class="fa-solid fa-check text-orange-500 mt-0.5"></i>
                     <span><strong>1. Affichez votre badge "Agence vérifiée"</strong> avec numéro NINEA et logo officiel.</span>
                   </li>
                   <li class="flex items-start gap-2.5">
-                    <i class="fa-solid fa-check text-sky-500 mt-0.5"></i>
+                    <i class="fa-solid fa-check text-orange-500 mt-0.5"></i>
                     <span><strong>2. Publiez l'ensemble de votre catalogue</strong> de vente ou location.</span>
                   </li>
                   <li class="flex items-start gap-2.5">
-                    <i class="fa-solid fa-check text-sky-500 mt-0.5"></i>
+                    <i class="fa-solid fa-check text-orange-500 mt-0.5"></i>
                     <span><strong>3. Boostez la visibilité de vos exclusivités</strong> par paiement mobile Wave & Orange Money.</span>
                   </li>
                 </ul>
               </div>
 
-              <button (click)="onAgencyClick()" class="bg-sky-600 hover:bg-sky-700 text-white text-xs py-3 w-full justify-center rounded-xl font-extrabold inline-flex items-center gap-2 transition-colors cursor-pointer">
-                <i class="fa-solid fa-briefcase"></i> Espace Pro Agence
+              <button (click)="onAgencyClick()" class="bg-slate-950 hover:bg-black text-white text-xs py-3 w-full justify-center rounded-xl font-extrabold inline-flex items-center gap-2 transition-colors cursor-pointer border border-orange-500/40">
+                <i class="fa-solid fa-briefcase text-orange-400"></i> Espace Pro Agence
               </button>
             </div>
 
@@ -154,19 +154,19 @@ import { PropertyService } from '../../services/property.service';
             </div>
 
             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
-              <div class="text-red-600 text-xl font-bold"><i class="fa-solid fa-flag"></i></div>
+              <div class="text-orange-600 text-xl font-bold"><i class="fa-solid fa-flag"></i></div>
               <h4 class="font-extrabold text-slate-900 text-sm">Signalement Facile</h4>
               <p class="text-slate-500 leading-relaxed">Le bouton "Signaler cette annonce" permet à la communauté d'alerter si un bien n'existe pas.</p>
             </div>
 
             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
-              <div class="text-emerald-600 text-xl font-bold"><i class="fa-solid fa-comments"></i></div>
+              <div class="text-orange-600 text-xl font-bold"><i class="fa-solid fa-comments"></i></div>
               <h4 class="font-extrabold text-slate-900 text-sm">Contact Direct</h4>
               <p class="text-slate-500 leading-relaxed">Vous échangez directement sur WhatsApp ou par téléphone sans frais cachés.</p>
             </div>
 
             <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
-              <div class="text-sky-600 text-xl font-bold"><i class="fa-solid fa-lock"></i></div>
+              <div class="text-orange-600 text-xl font-bold"><i class="fa-solid fa-lock"></i></div>
               <h4 class="font-extrabold text-slate-900 text-sm">Données Protégées</h4>
               <p class="text-slate-500 leading-relaxed">Vos informations personnelles sont sécurisées et restent confidentielles.</p>
             </div>

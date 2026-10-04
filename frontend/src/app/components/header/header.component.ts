@@ -24,7 +24,7 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
         
         <div class="flex items-center gap-3 text-slate-400 font-medium text-[11px]">
           <span class="text-slate-400 font-bold hidden sm:inline">
-            <i class="fa-solid fa-shield-check text-emerald-400 mr-1"></i> Espace Sécurisé
+            <i class="fa-solid fa-shield-check text-orange-400 mr-1"></i> Espace Sécurisé
           </span>
 
           <button (click)="toggleLanguage()" class="hover:text-white font-bold transition-colors whitespace-nowrap">
@@ -198,14 +198,14 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
             </ng-container>
 
             <ng-container *ngIf="isUserLoggedIn">
-              <a *ngIf="currentRole === 'admin'" routerLink="/admin" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-red-50 text-red-600 rounded-xl border border-red-200 hover:bg-red-100 transition-all shrink-0 whitespace-nowrap">
-                <i class="fa-solid fa-user-shield mr-1"></i> Admin
+              <a *ngIf="currentRole === 'admin'" routerLink="/admin" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-black text-white rounded-xl border border-orange-500 hover:bg-slate-900 transition-all shrink-0 whitespace-nowrap">
+                <i class="fa-solid fa-user-shield mr-1 text-orange-400"></i> Admin
               </a>
-              <a *ngIf="currentRole === 'agency'" routerLink="/dashboard" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-blue-50 text-blue-600 rounded-xl border border-blue-200 hover:bg-blue-100 transition-all shrink-0 whitespace-nowrap">
+              <a *ngIf="currentRole === 'agency'" routerLink="/dashboard" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-orange-50 text-orange-600 rounded-xl border border-orange-200 hover:bg-orange-100 transition-all shrink-0 whitespace-nowrap">
                 <i class="fa-solid fa-building mr-1"></i> Agence
               </a>
-              <a *ngIf="currentRole === 'owner'" routerLink="/dashboard" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-all shrink-0 whitespace-nowrap">
-                <i class="fa-solid fa-user-check mr-1"></i> Propriétaire
+              <a *ngIf="currentRole === 'owner'" routerLink="/dashboard" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-slate-900 text-white rounded-xl border border-slate-700 hover:bg-black transition-all shrink-0 whitespace-nowrap">
+                <i class="fa-solid fa-user-check mr-1 text-orange-400"></i> Propriétaire
               </a>
               <a *ngIf="currentRole === 'tenant'" routerLink="/espace-locataire" class="px-2 py-1.5 text-[10px] sm:text-[11px] font-black bg-orange-50 text-orange-600 rounded-xl border border-orange-200 hover:bg-orange-100 transition-all shrink-0 whitespace-nowrap">
                 <i class="fa-solid fa-user mr-1"></i> Chercheur

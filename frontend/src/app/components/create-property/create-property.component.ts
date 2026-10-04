@@ -44,21 +44,21 @@ import { CountryService } from '../../services/country.service';
           </div>
 
           <!-- Success Banner -->
-          <div *ngIf="successMessage" class="p-8 bg-emerald-50 border-2 border-emerald-300 text-emerald-950 rounded-3xl space-y-3 text-center">
-            <div class="w-16 h-16 rounded-full bg-emerald-600 text-white flex items-center justify-center text-3xl font-black mx-auto shadow-lg">
+          <div *ngIf="successMessage" class="p-8 bg-orange-50 border-2 border-orange-300 text-orange-950 rounded-3xl space-y-3 text-center">
+            <div class="w-16 h-16 rounded-full bg-orange-600 text-white flex items-center justify-center text-3xl font-black mx-auto shadow-lg">
               <i class="fa-solid fa-check"></i>
             </div>
             <h3 class="font-black text-xl">Félicitations ! Votre bien est en ligne sur Izivilla.</h3>
-            <p class="text-xs font-medium text-emerald-800">Les utilisateurs intéressés pourront vous contacter directement sur votre téléphone et WhatsApp.</p>
+            <p class="text-xs font-medium text-orange-900">Les utilisateurs intéressés pourront vous contacter directement sur votre téléphone et WhatsApp.</p>
           </div>
 
           <!-- Tenant Blocked Banner -->
-          <div *ngIf="isTenantBlocked" class="p-8 bg-amber-50 border-2 border-amber-300 text-amber-950 rounded-3xl space-y-4 text-center">
-            <div class="w-16 h-16 rounded-full bg-amber-500 text-white flex items-center justify-center text-3xl font-black mx-auto shadow-lg">
-              <i class="fa-solid fa-user-lock"></i>
+          <div *ngIf="isTenantBlocked" class="p-8 bg-orange-50 border-2 border-orange-300 text-orange-950 rounded-3xl space-y-4 text-center">
+            <div class="w-16 h-16 rounded-full bg-slate-900 text-white flex items-center justify-center text-3xl font-black mx-auto shadow-lg">
+              <i class="fa-solid fa-user-lock text-orange-400"></i>
             </div>
             <h3 class="font-black text-xl">Accès restreint — Compte Chercheur</h3>
-            <p class="text-xs font-semibold text-amber-900 max-w-lg mx-auto leading-relaxed">
+            <p class="text-xs font-semibold text-orange-900 max-w-lg mx-auto leading-relaxed">
               Les comptes « Chercheur » ne peuvent pas publier d'annonces sur Izivilla. Seuls les Propriétaires directs et les Agences immobilières peuvent ajouter des biens.
             </p>
             <button (click)="switchToOwnerAcc()" class="px-6 py-3 bg-slate-950 hover:bg-slate-900 text-white text-xs font-black rounded-2xl shadow-md transition-all cursor-pointer">
@@ -264,7 +264,7 @@ import { CountryService } from '../../services/country.service';
                     <p>{{ newProp.owner_name }}</p>
                     <span class="text-[10px] text-slate-500 font-bold">{{ newProp.owner_type }}</span>
                   </div>
-                  <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded"><i class="fa-solid fa-shield-check"></i> Verified</span>
+                  <span class="bg-orange-100 text-orange-950 border border-orange-200 text-[10px] font-black px-2 py-0.5 rounded"><i class="fa-solid fa-shield-check text-orange-600"></i> Verified</span>
                 </div>
               </div>
             </div>
@@ -280,7 +280,7 @@ import { CountryService } from '../../services/country.service';
                 Continuer (Étape {{ currentStep + 1 }})
               </button>
 
-              <button type="submit" *ngIf="currentStep === 6" class="px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl shadow-emerald-600/30 transition-all">
+              <button type="submit" *ngIf="currentStep === 6" class="px-8 py-3.5 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-sm shadow-xl shadow-orange-600/30 transition-all">
                 <i class="fa-solid fa-rocket mr-1"></i> Publier mon bien sur Izivilla
               </button>
             </div>

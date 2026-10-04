@@ -113,13 +113,12 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
 
                 <span [ngClass]="{
                   'bg-orange-100 text-orange-800 border-orange-300': req.status === 'NOUVEAU',
-                  'bg-amber-100 text-amber-800 border-amber-300': req.status === 'CONTACTÉ',
-                  'bg-purple-100 text-purple-800 border-purple-300': req.status === 'INTÉRESSÉ',
-                  'bg-cyan-100 text-cyan-800 border-cyan-300': req.status === 'VISITE',
-                  'bg-indigo-100 text-indigo-800 border-indigo-300': req.status === 'NÉGOCIATION',
-                  'bg-emerald-100 text-emerald-800 border-emerald-300': req.status === 'CONCLU',
-                  'bg-rose-100 text-rose-800 border-rose-300': req.status === 'PERDU',
-                  'bg-slate-100 text-slate-700 border-slate-300': req.status === 'ANNULÉ'
+                  'bg-orange-50 text-orange-900 border-orange-200': req.status === 'CONTACTÉ',
+                  'bg-slate-900 text-white border-slate-700': req.status === 'INTÉRESSÉ',
+                  'bg-orange-600 text-white border-orange-700': req.status === 'VISITE',
+                  'bg-slate-950 text-orange-400 border-orange-500': req.status === 'NÉGOCIATION',
+                  'bg-black text-white border-slate-800': req.status === 'CONCLU',
+                  'bg-slate-100 text-slate-700 border-slate-300': req.status === 'PERDU' || req.status === 'ANNULÉ'
                 }" class="px-3 py-1 rounded-full text-[10px] font-black uppercase border inline-flex items-center gap-1 shadow-sm">
                   <span>{{ req.status }}</span>
                 </span>
@@ -160,7 +159,7 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
                   <h4 class="font-extrabold text-slate-900 text-base mt-0.5">Contact avec l'annonceur</h4>
                   <p class="text-[11px] text-slate-400 font-semibold">{{ msg.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
                 </div>
-                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+                <span class="bg-orange-100 text-orange-950 text-[10px] font-black px-2.5 py-1 rounded-full uppercase border border-orange-200">
                   Transmis à l'annonceur
                 </span>
               </div>
@@ -172,7 +171,7 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
 
               <div class="flex items-center justify-between text-xs pt-2">
                 <span class="text-slate-500 font-semibold"><i class="fa-solid fa-user mr-1 text-orange-500"></i> {{ msg.sender_name }}</span>
-                <span class="text-slate-500 font-semibold"><i class="fa-solid fa-phone mr-1 text-emerald-500"></i> {{ msg.sender_phone }}</span>
+                <span class="text-slate-500 font-semibold"><i class="fa-solid fa-phone mr-1 text-orange-500"></i> {{ msg.sender_phone }}</span>
               </div>
             </div>
           </div>
@@ -196,10 +195,10 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
                 <div class="flex justify-between items-start gap-4 border-b border-slate-100 pb-4">
                   <div>
                     <span [ngClass]="{
-                      'bg-amber-100 text-amber-800 border-amber-300': app.status === 'pending',
-                      'bg-emerald-600 text-white border-emerald-700': app.status === 'confirmed',
-                      'bg-purple-100 text-purple-800 border-purple-300': app.status === 'rescheduled',
-                      'bg-red-100 text-red-800 border-red-300': app.status === 'cancelled'
+                      'bg-orange-100 text-orange-800 border-orange-300': app.status === 'pending',
+                      'bg-orange-600 text-white border-orange-700': app.status === 'confirmed',
+                      'bg-slate-900 text-white border-slate-700': app.status === 'rescheduled',
+                      'bg-slate-100 text-slate-700 border-slate-300': app.status === 'cancelled'
                     }" class="px-3 py-1 rounded-full text-[11px] font-black uppercase border inline-flex items-center gap-1.5">
                       <i *ngIf="app.status === 'pending'" class="fa-solid fa-clock"></i>
                       <i *ngIf="app.status === 'confirmed'" class="fa-solid fa-circle-check"></i>
@@ -215,13 +214,13 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
                   </span>
                 </div>
 
-                <!-- PRIORITÉ 7 FORMATTED CONFIRMED BANNER -->
-                <div *ngIf="app.status === 'confirmed'" class="bg-slate-950 text-white p-5 rounded-2xl border-2 border-emerald-500 shadow-lg space-y-2">
+                <!-- CONFIRMED BANNER -->
+                <div *ngIf="app.status === 'confirmed'" class="bg-slate-950 text-white p-5 rounded-2xl border-2 border-orange-500 shadow-lg space-y-2">
                   <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span class="text-xs font-black uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                      <i class="fa-solid fa-circle-check text-emerald-500"></i> Visite confirmée
+                    <span class="text-xs font-black uppercase tracking-wider text-orange-400 flex items-center gap-1.5">
+                      <i class="fa-solid fa-circle-check text-orange-500"></i> Visite confirmée
                     </span>
-                    <span class="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">Rendez-vous acté</span>
+                    <span class="text-[10px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full">Rendez-vous acté</span>
                   </div>
 
                   <div class="space-y-1 text-xs">
@@ -234,12 +233,12 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
                   </div>
                 </div>
 
-                <!-- RESCHEDULED NOTICE IF ADVERTISER PROPOSED ANOTHER DATE -->
-                <div *ngIf="app.status === 'rescheduled'" class="bg-purple-50 border border-purple-200 text-purple-900 p-4 rounded-2xl text-xs font-medium space-y-1">
-                  <p class="font-black text-purple-900 flex items-center gap-1.5">
-                    <i class="fa-solid fa-calendar-day text-purple-600"></i> Nouvelle date proposée par l'annonceur :
+                <!-- RESCHEDULED NOTICE -->
+                <div *ngIf="app.status === 'rescheduled'" class="bg-orange-50 border border-orange-200 text-orange-950 p-4 rounded-2xl text-xs font-medium space-y-1">
+                  <p class="font-black text-orange-950 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-day text-orange-600"></i> Nouvelle date proposée par l'annonceur :
                   </p>
-                  <p class="font-extrabold text-purple-700 text-sm">{{ app.rescheduled_date | date:'EEEE d MMMM yyyy à HH:mm':'UTC' }}</p>
+                  <p class="font-extrabold text-orange-700 text-sm">{{ app.rescheduled_date | date:'EEEE d MMMM yyyy à HH:mm':'UTC' }}</p>
                   <p *ngIf="app.advertiser_comment" class="italic text-slate-600">« {{ app.advertiser_comment }} »</p>
                 </div>
 
@@ -263,8 +262,8 @@ import { Property, PropertyAlert, AppointmentRequest, DirectMessage, PropertyReq
                 <span class="text-xs font-semibold text-slate-300">
                   <i class="fa-solid fa-user-check text-orange-500 mr-1"></i> {{ app.property?.owner_name || 'Annonceur Direct' }}
                 </span>
-                <a [href]="getWhatsAppUrl(app.property)" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
-                  <i class="fa-brands fa-whatsapp"></i> WhatsApp Direct
+                <a [href]="getWhatsAppUrl(app.property)" target="_blank" class="bg-black border border-orange-500/40 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors">
+                  <i class="fa-brands fa-whatsapp text-orange-500"></i> WhatsApp Direct
                 </a>
               </div>
 

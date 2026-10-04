@@ -33,16 +33,16 @@ import { PropertyService } from '../../services/property.service';
             </p>
 
             <div class="flex items-center gap-3 text-slate-400 pt-2">
-              <a href="https://whatsapp.com" target="_blank" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white flex items-center justify-center transition-colors">
+              <a href="https://whatsapp.com" target="_blank" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
                 <i class="fa-brands fa-whatsapp text-lg"></i>
               </a>
-              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-blue-600 text-white flex items-center justify-center transition-colors">
+              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
                 <i class="fa-brands fa-facebook-f text-base"></i>
               </a>
-              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-pink-600 text-white flex items-center justify-center transition-colors">
+              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
                 <i class="fa-brands fa-instagram text-base"></i>
               </a>
-              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-blue-700 text-white flex items-center justify-center transition-colors">
+              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
                 <i class="fa-brands fa-linkedin-in text-base"></i>
               </a>
             </div>

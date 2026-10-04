@@ -29,20 +29,20 @@ declare var L: any;
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2 mb-2">
-              <span [class.bg-emerald-600]="property.transaction_type === 'sale'" [class.bg-orange-600]="property.transaction_type === 'rent'" class="text-white text-xs font-black px-3 py-1 rounded-xl uppercase">
+              <span [class.bg-slate-900]="property.transaction_type === 'sale'" [class.bg-orange-600]="property.transaction_type === 'rent'" class="text-white text-xs font-black px-3 py-1 rounded-xl uppercase">
                 {{ property.transaction_type === 'sale' ? 'À vendre' : 'À louer' }}
               </span>
               <span class="text-xs font-black text-slate-700 uppercase bg-slate-100 px-3 py-1 rounded-xl">{{ property.property_type }}</span>
               <span *ngIf="property.is_furnished" class="bg-slate-900 text-white text-[11px] font-bold px-2.5 py-1 rounded-xl">Meublé</span>
               
-              <!-- STATUS AVAILABILITY BADGES (PRIORITÉ 11) -->
-              <span *ngIf="property.status === 'rented'" class="bg-amber-500 text-white text-xs font-black px-3 py-1 rounded-xl uppercase flex items-center gap-1">
+              <!-- STATUS AVAILABILITY BADGES -->
+              <span *ngIf="property.status === 'rented'" class="bg-slate-800 text-white text-xs font-black px-3 py-1 rounded-xl uppercase flex items-center gap-1">
                 <i class="fa-solid fa-lock"></i> LOUÉ
               </span>
-              <span *ngIf="property.status === 'sold'" class="bg-purple-600 text-white text-xs font-black px-3 py-1 rounded-xl uppercase flex items-center gap-1">
+              <span *ngIf="property.status === 'sold'" class="bg-black text-orange-400 border border-orange-500 text-xs font-black px-3 py-1 rounded-xl uppercase flex items-center gap-1">
                 <i class="fa-solid fa-circle-check"></i> VENDU
               </span>
-              <span *ngIf="property.status === 'paused'" class="bg-rose-600 text-white text-xs font-black px-3 py-1 rounded-xl uppercase flex items-center gap-1">
+              <span *ngIf="property.status === 'paused'" class="bg-slate-900 text-slate-300 text-xs font-black px-3 py-1 rounded-xl uppercase flex items-center gap-1">
                 <i class="fa-solid fa-pause-circle"></i> INDISPONIBLE / EN PAUSE
               </span>
             </div>
@@ -122,7 +122,7 @@ declare var L: any;
                 <h4 class="text-xs font-black uppercase text-slate-400 mb-3">Équipements & Caractéristiques</h4>
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <div *ngFor="let eq of property.equipments" class="flex items-center gap-2 text-xs font-bold text-slate-700 bg-slate-50 px-3 py-2 rounded-xl">
-                    <i class="fa-solid fa-check text-emerald-500"></i> {{ eq }}
+                    <i class="fa-solid fa-check text-orange-500"></i> {{ eq }}
                   </div>
                 </div>
               </div>
@@ -138,7 +138,7 @@ declare var L: any;
 
             <!-- Signalement (Prompt Section 23 Requirement) -->
             <div class="pt-4 text-center">
-              <button (click)="showReportModal = true" class="text-xs font-bold text-red-600 hover:underline flex items-center justify-center gap-1.5 mx-auto">
+              <button (click)="showReportModal = true" class="text-xs font-bold text-slate-500 hover:text-orange-600 hover:underline flex items-center justify-center gap-1.5 mx-auto">
                 <i class="fa-solid fa-triangle-exclamation"></i> Signaler cette annonce
               </button>
             </div>
@@ -156,7 +156,7 @@ declare var L: any;
                 <h3 class="text-xl font-black text-white mt-1">{{ property.owner_name }}</h3>
                 
                 <!-- Badge Validation -->
-                <div class="mt-2 inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-black">
+                <div class="mt-2 inline-flex items-center gap-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 px-3 py-1 rounded-full text-xs font-black">
                   <i class="fa-solid fa-shield-check"></i>
                   <span>{{ property.owner_type === 'Propriétaire' || property.owner_type === 'owner' ? 'Propriétaire vérifié' : 'Agence vérifiée' }}</span>
                 </div>
@@ -185,8 +185,8 @@ declare var L: any;
               <!-- Action Direct Buttons (Prompt Section 13 & 34 Requirements & Priorité 11) -->
               <div class="space-y-3 pt-2">
                 <!-- UNAVAILABILITY WARNING BANNER -->
-                <div *ngIf="property.status && property.status !== 'available'" class="p-3.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 rounded-2xl text-xs font-bold space-y-1">
-                  <p class="flex items-center gap-1.5 font-black text-amber-200">
+                <div *ngIf="property.status && property.status !== 'available'" class="p-3.5 bg-orange-500/20 border border-orange-500/40 text-orange-300 rounded-2xl text-xs font-bold space-y-1">
+                  <p class="flex items-center gap-1.5 font-black text-orange-200">
                     <i class="fa-solid fa-lock"></i> Logement actuellement non disponible
                   </p>
                   <p class="text-[11px] text-slate-300 font-medium">
@@ -194,7 +194,7 @@ declare var L: any;
                   </p>
                 </div>
 
-                <button *ngIf="property.status === 'available'" (click)="openVisitModal()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-blue-600/30 transition-all">
+                <button *ngIf="property.status === 'available'" (click)="openVisitModal()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-orange-600/30 transition-all">
                   <i class="fa-solid fa-calendar-check text-base"></i> Je souhaite visiter
                 </button>
 
@@ -202,12 +202,12 @@ declare var L: any;
                   <i class="fa-solid fa-calendar-xmark text-base"></i> Visites indisponibles ({{ property.status === 'rented' ? 'Bien Loué' : (property.status === 'sold' ? 'Bien Vendu' : 'En Pause') }})
                 </button>
 
-                <button (click)="openDirectContactModal()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-orange-600/30 transition-all">
-                  <i class="fa-solid fa-comments text-base"></i> Contacter l’annonceur
+                <button (click)="openDirectContactModal()" class="w-full bg-slate-900 hover:bg-black text-white border border-slate-700 font-black py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg transition-all">
+                  <i class="fa-solid fa-comments text-base text-orange-400"></i> Contacter l’annonceur
                 </button>
 
-                <a [href]="getWhatsAppUrl()" target="_blank" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg shadow-emerald-600/30 transition-all">
-                  <i class="fa-brands fa-whatsapp text-lg"></i> Échanger sur WhatsApp
+                <a [href]="getWhatsAppUrl()" target="_blank" class="w-full bg-black hover:bg-slate-900 text-white border border-orange-500/40 font-black py-3.5 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs shadow-lg transition-all">
+                  <i class="fa-brands fa-whatsapp text-lg text-orange-500"></i> Échanger sur WhatsApp
                 </a>
 
                 <a [href]="'tel:' + (property.owner_phone || '+221 77 645 12 34')" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-extrabold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 text-xs transition-colors">
@@ -239,8 +239,8 @@ declare var L: any;
           <p class="text-xs text-slate-500 font-medium">Votre message parviendra directement sur la messagerie de l'annonceur.</p>
         </div>
 
-        <div *ngIf="messageSuccessMsg" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-center gap-2">
-          <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+        <div *ngIf="messageSuccessMsg" class="p-4 bg-orange-50 border border-orange-200 text-orange-950 rounded-2xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-orange-600 text-lg"></i>
           <span>{{ messageSuccessMsg }}</span>
         </div>
 
@@ -274,7 +274,7 @@ declare var L: any;
       </div>
     </div>
 
-    <!-- DEMANDE DE VISITE MODAL (PRIORITÉ 6 - ÉTAPE E) -->
+    <!-- DEMANDE DE VISITE MODAL -->
     <div *ngIf="showVisitModal" class="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
       <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 space-y-5 text-left relative max-h-[88vh] overflow-y-auto">
         <button (click)="showVisitModal = false" class="absolute top-6 right-6 text-slate-400 hover:text-slate-900 text-xl font-bold">
@@ -283,7 +283,7 @@ declare var L: any;
 
         <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <div class="w-10 h-10 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
+            <div class="w-10 h-10 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-bold">
               <i class="fa-solid fa-calendar-check"></i>
             </div>
           </div>
@@ -291,41 +291,41 @@ declare var L: any;
           <p class="text-xs text-slate-500 font-medium">Planifiez votre visite avec {{ property.owner_name }}.</p>
         </div>
 
-        <div *ngIf="visitSuccessMsg" class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-bold flex items-center gap-2">
-          <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+        <div *ngIf="visitSuccessMsg" class="p-4 bg-orange-50 border border-orange-200 text-orange-950 rounded-2xl text-xs font-bold flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-orange-600 text-lg"></i>
           <span>{{ visitSuccessMsg }}</span>
         </div>
 
         <form *ngIf="!visitSuccessMsg" (ngSubmit)="submitVisitForm()" class="space-y-4">
           
           <!-- LIVE REALTIME SLOT PREVIEW CARD -->
-          <div class="p-3.5 bg-blue-50/90 border border-blue-200 rounded-2xl text-xs font-bold text-blue-900 space-y-1 shadow-sm">
+          <div class="p-3.5 bg-orange-50/90 border border-orange-200 rounded-2xl text-xs font-bold text-orange-950 space-y-1 shadow-sm">
             <div class="flex items-center justify-between">
-              <span class="text-[10px] uppercase font-black text-blue-700 flex items-center gap-1">
-                <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Créneau Sélectionné
+              <span class="text-[10px] uppercase font-black text-orange-700 flex items-center gap-1">
+                <i class="fa-solid fa-clock-rotate-left text-orange-600"></i> Créneau Sélectionné
               </span>
             </div>
             <p class="text-xs font-black text-slate-900">
               📍 {{ property.title }}
             </p>
-            <p class="text-sm font-black text-blue-700">
+            <p class="text-sm font-black text-orange-600">
               📅 {{ getFormattedRealtimeSlot() }}
             </p>
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Votre Nom complet *</label>
-            <input type="text" [(ngModel)]="visitForm.tenant_name" name="tenant_name" required placeholder="ex: Abdou Diop" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm">
+            <input type="text" [(ngModel)]="visitForm.tenant_name" name="tenant_name" required placeholder="ex: Abdou Diop" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Votre Email *</label>
-            <input type="email" [(ngModel)]="visitForm.tenant_email" name="tenant_email" required placeholder="abdou.diop@client.sn" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm">
+            <input type="email" [(ngModel)]="visitForm.tenant_email" name="tenant_email" required placeholder="abdou.diop@client.sn" class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone *</label>
-            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-blue-500 shadow-sm">
+            <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 shadow-sm">
               <select [(ngModel)]="visitPhonePrefix" name="visitPhonePrefix" class="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer py-2 pr-1 border-r border-slate-200 max-w-[140px] truncate">
                 <option *ngFor="let c of countryService.countries" [value]="c.phonePrefix">
                   {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }})
@@ -340,40 +340,40 @@ declare var L: any;
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                  <i class="fa-solid fa-calendar-day text-blue-600"></i> Date *
+                  <i class="fa-solid fa-calendar-day text-orange-600"></i> Date *
                 </label>
-                <input type="date" [min]="minVisitDate" [(ngModel)]="visitForm.preferred_date_day" name="preferred_date_day" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm">
+                <input type="date" [min]="minVisitDate" [(ngModel)]="visitForm.preferred_date_day" name="preferred_date_day" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                  <i class="fa-solid fa-clock text-blue-600"></i> Heure *
+                  <i class="fa-solid fa-clock text-orange-600"></i> Heure *
                 </label>
-                <input type="time" [(ngModel)]="visitForm.preferred_date_time" name="preferred_date_time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm">
+                <input type="time" [(ngModel)]="visitForm.preferred_date_time" name="preferred_date_time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
               </div>
             </div>
 
             <!-- QUICK CHIPS -->
             <div class="flex flex-wrap items-center gap-1.5 pt-1">
               <span class="text-[10px] font-black uppercase text-slate-400 mr-1">Raccourcis :</span>
-              <button type="button" (click)="setQuickDate('today')" [class.bg-blue-600]="isQuickDateSelected('today')" [class.text-white]="isQuickDateSelected('today')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+              <button type="button" (click)="setQuickDate('today')" [class.bg-orange-600]="isQuickDateSelected('today')" [class.text-white]="isQuickDateSelected('today')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
                 Aujourd'hui
               </button>
-              <button type="button" (click)="setQuickDate('tomorrow')" [class.bg-blue-600]="isQuickDateSelected('tomorrow')" [class.text-white]="isQuickDateSelected('tomorrow')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+              <button type="button" (click)="setQuickDate('tomorrow')" [class.bg-orange-600]="isQuickDateSelected('tomorrow')" [class.text-white]="isQuickDateSelected('tomorrow')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
                 Demain
               </button>
-              <button type="button" (click)="setQuickDate('saturday')" [class.bg-blue-600]="isQuickDateSelected('saturday')" [class.text-white]="isQuickDateSelected('saturday')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+              <button type="button" (click)="setQuickDate('saturday')" [class.bg-orange-600]="isQuickDateSelected('saturday')" [class.text-white]="isQuickDateSelected('saturday')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
                 Samedi
               </button>
 
               <span class="text-slate-300">|</span>
 
-              <button type="button" (click)="setQuickTime('10:00')" [class.bg-blue-600]="visitForm.preferred_date_time === '10:00'" [class.text-white]="visitForm.preferred_date_time === '10:00'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
+              <button type="button" (click)="setQuickTime('10:00')" [class.bg-orange-600]="visitForm.preferred_date_time === '10:00'" [class.text-white]="visitForm.preferred_date_time === '10:00'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
                 10h
               </button>
-              <button type="button" (click)="setQuickTime('15:00')" [class.bg-blue-600]="visitForm.preferred_date_time === '15:00'" [class.text-white]="visitForm.preferred_date_time === '15:00'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
+              <button type="button" (click)="setQuickTime('15:00')" [class.bg-orange-600]="visitForm.preferred_date_time === '15:00'" [class.text-white]="visitForm.preferred_date_time === '15:00'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
                 15h
               </button>
-              <button type="button" (click)="setQuickTime('17:30')" [class.bg-blue-600]="visitForm.preferred_date_time === '17:30'" [class.text-white]="visitForm.preferred_date_time === '17:30'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
+              <button type="button" (click)="setQuickTime('17:30')" [class.bg-orange-600]="visitForm.preferred_date_time === '17:30'" [class.text-white]="visitForm.preferred_date_time === '17:30'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
                 17h30
               </button>
             </div>
@@ -381,10 +381,10 @@ declare var L: any;
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Commentaire (Optionnel)</label>
-            <textarea [(ngModel)]="visitForm.message" name="visit_message" rows="2" placeholder="Ex: Je suis disponible de préférence dans l'après-midi..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm"></textarea>
+            <textarea [(ngModel)]="visitForm.message" name="visit_message" rows="2" placeholder="Ex: Je suis disponible de préférence dans l'après-midi..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm"></textarea>
           </div>
 
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2">
+          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
             <span>Transmettre la demande de visite</span>
           </button>
         </form>

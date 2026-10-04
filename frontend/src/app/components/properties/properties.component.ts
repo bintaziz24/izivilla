@@ -127,8 +127,8 @@ import { Property, PropertyFilter } from '../../models/property.model';
               <!-- 6. Vérifié Uniquement (Section 11) -->
               <div class="pt-2 border-t border-slate-100">
                 <label class="flex items-center gap-2 cursor-pointer text-xs font-black text-slate-800">
-                  <input type="checkbox" [(ngModel)]="filter.verified_only" (change)="applyFilters()" class="w-4 h-4 accent-emerald-600 rounded">
-                  <span class="flex items-center gap-1 text-emerald-700">
+                  <input type="checkbox" [(ngModel)]="filter.verified_only" (change)="applyFilters()" class="w-4 h-4 accent-orange-600 rounded">
+                  <span class="flex items-center gap-1 text-orange-600">
                     <i class="fa-solid fa-shield-check"></i> Annonceurs vérifiés uniquement
                   </span>
                 </label>
@@ -177,7 +177,7 @@ import { Property, PropertyFilter } from '../../models/property.model';
                   <img [src]="getPrimaryImage(prop)" [alt]="prop.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                   
                   <div class="absolute top-3 left-3 flex gap-2">
-                    <span [class.bg-emerald-600]="prop.transaction_type === 'sale'" [class.bg-orange-600]="prop.transaction_type === 'rent'" class="text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg shadow uppercase">
+                    <span [class.bg-slate-900]="prop.transaction_type === 'sale'" [class.bg-orange-600]="prop.transaction_type === 'rent'" class="text-white text-[10px] font-black px-2.5 py-0.5 rounded-lg shadow uppercase">
                       {{ prop.transaction_type === 'sale' ? 'Vente' : 'Location' }}
                     </span>
                     <span *ngIf="prop.is_furnished" class="bg-slate-950/80 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-lg">Meublé</span>
@@ -221,7 +221,7 @@ import { Property, PropertyFilter } from '../../models/property.model';
                         <span class="text-[9px] font-bold text-slate-500">{{ prop.owner_type }}</span>
                       </div>
                     </div>
-                    <span class="text-[10px] font-black text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded"><i class="fa-solid fa-check"></i> Vérifié</span>
+                    <span class="text-[10px] font-black text-orange-950 bg-orange-100 px-1.5 py-0.5 rounded border border-orange-200"><i class="fa-solid fa-check text-orange-600"></i> Vérifié</span>
                   </div>
 
                   <a [routerLink]="['/annonces', prop.id]" class="w-full bg-slate-950 hover:bg-slate-900 text-white text-xs font-extrabold py-2.5 rounded-2xl flex items-center justify-center gap-1.5 shadow">
@@ -241,7 +241,7 @@ import { Property, PropertyFilter } from '../../models/property.model';
                 
                 <div class="sm:w-64 h-48 sm:h-auto relative bg-slate-950 flex-shrink-0">
                   <img [src]="getPrimaryImage(prop)" [alt]="prop.title" class="w-full h-full object-cover">
-                  <span [class.bg-emerald-600]="prop.transaction_type === 'sale'" [class.bg-orange-600]="prop.transaction_type === 'rent'" class="absolute top-2 left-2 text-white font-black text-[10px] px-2 py-0.5 rounded shadow uppercase">
+                  <span [class.bg-slate-900]="prop.transaction_type === 'sale'" [class.bg-orange-600]="prop.transaction_type === 'rent'" class="absolute top-2 left-2 text-white font-black text-[10px] px-2 py-0.5 rounded shadow uppercase">
                     {{ prop.transaction_type === 'sale' ? 'Vente' : 'Location' }}
                   </span>
                 </div>
@@ -267,7 +267,7 @@ import { Property, PropertyFilter } from '../../models/property.model';
                   <div class="pt-4 mt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
                     <div class="flex items-center gap-3 text-xs font-bold text-slate-700">
                       <span><i class="fa-solid fa-user text-orange-500"></i> {{ prop.owner_name }} ({{ prop.owner_type }})</span>
-                      <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-black text-[10px]"><i class="fa-solid fa-shield-check"></i> Vérifié</span>
+                      <span class="text-orange-600 bg-orange-50 border border-orange-200 px-2 py-0.5 rounded font-black text-[10px]"><i class="fa-solid fa-shield-check"></i> Vérifié</span>
                     </div>
 
                     <a [routerLink]="['/annonces', prop.id]" class="bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl shadow">
@@ -324,8 +324,8 @@ import { Property, PropertyFilter } from '../../models/property.model';
             </div>
           </div>
 
-          <div *ngIf="alertSuccessMsg" class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-extrabold flex items-center gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+          <div *ngIf="alertSuccessMsg" class="p-3.5 bg-orange-50 border border-orange-200 text-orange-950 rounded-2xl text-xs font-extrabold flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-orange-600 text-base"></i>
             <span>{{ alertSuccessMsg }}</span>
           </div>
 

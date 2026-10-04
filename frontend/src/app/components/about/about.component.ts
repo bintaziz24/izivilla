@@ -42,7 +42,7 @@ import { LanguageService } from '../../services/language.service';
           </div>
 
           <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-4">
-            <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-black">
+            <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-xl font-black">
               <i class="fa-solid fa-shield-heart"></i>
             </div>
             <h3 class="text-2xl font-black text-slate-900">Notre Promesse</h3>

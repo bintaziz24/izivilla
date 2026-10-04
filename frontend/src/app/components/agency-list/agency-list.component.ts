@@ -16,8 +16,8 @@ import { Agency } from '../../models/property.model';
         
         <!-- Top Pill & Title Header -->
         <div class="text-center max-w-3xl mx-auto mb-10 space-y-3">
-          <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 text-xs font-extrabold shadow-sm">
-            <i class="fa-solid fa-circle-check text-blue-500"></i>
+          <div class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-100 text-xs font-extrabold shadow-sm">
+            <i class="fa-solid fa-circle-check text-orange-500"></i>
             <span>{{ t('agency.verified') }}</span>
           </div>
 
@@ -38,12 +38,12 @@ import { Agency } from '../../models/property.model';
             <input type="text" 
                    [(ngModel)]="searchTerm" 
                    [placeholder]="t('agency.search')" 
-                   class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-800 focus:outline-none focus:border-blue-500 shadow-sm">
+                   class="w-full bg-white border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-sm font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
           </div>
 
           <!-- City Dropdown -->
           <div class="relative w-full sm:w-48">
-            <select [(ngModel)]="selectedCity" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800 focus:outline-none focus:border-blue-500 appearance-none cursor-pointer shadow-sm pr-10">
+            <select [(ngModel)]="selectedCity" class="w-full bg-white border border-slate-200 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800 focus:outline-none focus:border-orange-500 appearance-none cursor-pointer shadow-sm pr-10">
               <option value="">{{ t('props.allCities') }}</option>
               <option value="Dakar">Dakar</option>
               <option value="Saly">Saly / Mbour</option>
@@ -70,7 +70,7 @@ import { Agency } from '../../models/property.model';
                     <h3 class="font-extrabold text-slate-900 text-lg leading-tight truncate">
                       {{ agency.name }}
                     </h3>
-                    <i *ngIf="agency.is_verified" class="fa-solid fa-circle-check text-blue-500 text-sm" title="Vérifiée"></i>
+                    <i *ngIf="agency.is_verified" class="fa-solid fa-circle-check text-orange-500 text-sm" title="Vérifiée"></i>
                   </div>
                   
                   <p class="text-xs text-slate-500 font-semibold mt-0.5 flex items-center gap-1">
@@ -79,12 +79,12 @@ import { Agency } from '../../models/property.model';
 
                   <!-- Rating & Listings count -->
                   <div class="flex items-center gap-2 mt-1 text-xs">
-                    <span class="font-bold text-amber-500 flex items-center gap-1">
+                    <span class="font-bold text-orange-500 flex items-center gap-1">
                       <i class="fa-solid fa-star"></i> {{ agency.rating || '4.8' }}
                     </span>
                     <span class="text-slate-400 font-medium">({{ agency.reviews_count || '24' }} avis)</span>
                     <span class="text-slate-300">•</span>
-                    <a routerLink="/annonces" [queryParams]="{agency: agency.id}" class="text-blue-600 font-bold hover:underline">
+                    <a routerLink="/annonces" [queryParams]="{agency: agency.id}" class="text-orange-600 font-bold hover:underline">
                       {{ agency.active_listings_count }} {{ t('agency.activeListings') }}
                     </a>
                   </div>
@@ -103,7 +103,7 @@ import { Agency } from '../../models/property.model';
                 <span><i class="fa-solid fa-phone text-slate-400 mr-1"></i> {{ agency.phone_whatsapp || '+221 33 800 00 00' }}</span>
               </div>
 
-              <a routerLink="/annonces" [queryParams]="{agency: agency.id}" class="text-blue-600 hover:text-blue-700 font-extrabold flex items-center gap-1 group">
+              <a routerLink="/annonces" [queryParams]="{agency: agency.id}" class="text-orange-600 hover:text-orange-700 font-extrabold flex items-center gap-1 group">
                 {{ t('agency.viewProperties') }} <i class="fa-solid fa-arrow-right transition-transform group-hover:translate-x-1"></i>
               </a>
             </div>

@@ -18,14 +18,14 @@ declare var L: any; // Leaflet JS
       
       <!-- Background Ambient Glows -->
       <div class="absolute -top-40 -right-40 w-96 h-96 bg-orange-600/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         
         <!-- Slogan & Headlines -->
         <div class="max-w-4xl mx-auto space-y-4">
           <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-orange-400 text-xs font-black uppercase tracking-wider mb-2 shadow-inner">
-            <i class="fa-solid fa-shield-halved text-emerald-400"></i> PLATEFORME IMMOBILIÈRE N°1 {{ countryService.currentCountry.preposition | uppercase }} {{ countryService.currentCountry.name | uppercase }}
+            <i class="fa-solid fa-shield-halved text-orange-400"></i> PLATEFORME IMMOBILIÈRE N°1 {{ countryService.currentCountry.preposition | uppercase }} {{ countryService.currentCountry.name | uppercase }}
           </div>
           
           <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight">
@@ -47,7 +47,7 @@ declare var L: any; // Leaflet JS
             <i class="fa-solid fa-house-circle-check"></i> 2. TROUVER
           </span>
           <i class="fa-solid fa-arrow-right text-slate-600"></i>
-          <span class="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+          <span class="bg-orange-500/20 border border-orange-500/40 text-orange-400 px-3 py-1.5 rounded-xl flex items-center gap-1.5">
             <i class="fa-solid fa-comments"></i> 3. CONTACTER DIRECTEMENT
           </span>
         </div>
@@ -175,14 +175,14 @@ declare var L: any; // Leaflet JS
           </div>
 
           <!-- Card 2: Je suis propriétaire -->
-          <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 hover:border-emerald-500 shadow-sm hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative">
+          <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 hover:border-orange-500 shadow-sm hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative">
             
-            <div class="absolute top-6 right-6 bg-emerald-100 text-emerald-800 text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1 border border-emerald-300">
-              <i class="fa-solid fa-circle-check text-emerald-600"></i> Propriétaire vérifié
+            <div class="absolute top-6 right-6 bg-orange-100 text-orange-950 text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1 border border-orange-300">
+              <i class="fa-solid fa-circle-check text-orange-600"></i> Propriétaire vérifié
             </div>
 
             <div class="space-y-3">
-              <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold">
+              <div class="w-14 h-14 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center text-2xl font-bold">
                 <i class="fa-solid fa-key"></i>
               </div>
               <h3 class="text-xl font-black text-slate-900">Je suis propriétaire</h3>
@@ -191,22 +191,22 @@ declare var L: any; // Leaflet JS
               </p>
             </div>
 
-            <button (click)="onPublishPropertyClick()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 shadow shadow-emerald-600/20 transition-all cursor-pointer">
+            <button (click)="onPublishPropertyClick()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 shadow shadow-orange-600/20 transition-all cursor-pointer">
               <span>Publier mon bien</span>
               <i class="fa-solid fa-plus text-[10px]"></i>
             </button>
           </div>
 
           <!-- Card 3: Je suis une agence -->
-          <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 hover:border-blue-500 shadow-sm hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative">
+          <div class="bg-slate-50 rounded-3xl p-8 border border-slate-200 hover:border-orange-500 shadow-sm hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative">
             
-            <div class="absolute top-6 right-6 bg-blue-100 text-blue-800 text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1 border border-blue-300">
-              <i class="fa-solid fa-shield-halved text-blue-600"></i> Agence vérifiée
+            <div class="absolute top-6 right-6 bg-slate-900 text-white text-[10px] font-black px-3 py-1 rounded-full flex items-center gap-1 border border-slate-700">
+              <i class="fa-solid fa-shield-halved text-orange-400"></i> Agence vérifiée
             </div>
 
             <div class="space-y-3">
-              <div class="w-14 h-14 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-bold">
-                <i class="fa-solid fa-building text-blue-600"></i>
+              <div class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl font-bold">
+                <i class="fa-solid fa-building text-orange-500"></i>
               </div>
               <h3 class="text-xl font-black text-slate-900">Je suis une agence</h3>
               <p class="text-xs text-slate-600 leading-relaxed font-medium">
@@ -214,7 +214,7 @@ declare var L: any; // Leaflet JS
               </p>
             </div>
 
-            <button (click)="onCreateSpaceClick()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold py-3 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 shadow shadow-blue-600/20 transition-all cursor-pointer">
+            <button (click)="onCreateSpaceClick()" class="w-full bg-slate-950 hover:bg-slate-900 text-white font-extrabold py-3 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 shadow shadow-slate-950/20 transition-all cursor-pointer">
               <span>Créer mon espace</span>
               <i class="fa-solid fa-chart-line text-[10px]"></i>
             </button>
@@ -257,7 +257,7 @@ declare var L: any; // Leaflet JS
 
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 relative overflow-hidden">
             <span class="text-4xl font-black text-orange-500/20 absolute top-4 right-4">03</span>
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold">
+            <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-lg font-bold">
               <i class="fa-solid fa-user-check"></i>
             </div>
             <h4 class="text-lg font-extrabold text-white">03 — Identifier</h4>
@@ -265,8 +265,8 @@ declare var L: any; // Leaflet JS
           </div>
 
           <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-3 relative overflow-hidden">
-            <span class="text-4xl font-black text-emerald-500/20 absolute top-4 right-4">04</span>
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold">
+            <span class="text-4xl font-black text-orange-500/20 absolute top-4 right-4">04</span>
+            <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center text-lg font-bold">
               <i class="fa-solid fa-phone"></i>
             </div>
             <h4 class="text-lg font-extrabold text-white">04 — Contacter</h4>
@@ -313,7 +313,7 @@ declare var L: any; // Leaflet JS
 
               <!-- Badge Vente ou Location -->
               <div class="absolute top-4 left-4 flex gap-2">
-                <span [class.bg-emerald-600]="prop.transaction_type === 'sale'" [class.bg-orange-600]="prop.transaction_type === 'rent'" class="text-white text-[11px] font-black px-3 py-1 rounded-xl shadow uppercase">
+                <span [class.bg-slate-900]="prop.transaction_type === 'sale'" [class.bg-orange-600]="prop.transaction_type === 'rent'" class="text-white text-[11px] font-black px-3 py-1 rounded-xl shadow uppercase">
                   {{ prop.transaction_type === 'sale' ? 'Vente' : 'Location' }}
                 </span>
                 <span *ngIf="prop.is_furnished" class="bg-slate-900/90 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-xl backdrop-blur">
@@ -375,8 +375,8 @@ declare var L: any; // Leaflet JS
                 </div>
 
                 <!-- Verified Badge -->
-                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
-                  <i class="fa-solid fa-shield-check text-emerald-600"></i> Vérifié
+                <span class="bg-orange-100 text-orange-950 text-[10px] font-black px-2 py-0.5 rounded-md flex items-center gap-1 border border-orange-200">
+                  <i class="fa-solid fa-shield-check text-orange-600"></i> Vérifié
                 </span>
               </div>
 
