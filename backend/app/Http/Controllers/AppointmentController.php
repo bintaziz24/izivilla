@@ -21,6 +21,24 @@ class AppointmentController extends Controller
             'message' => 'nullable|string',
         ]);
 
+        $requestedDt = Carbon::parse($validated['preferred_date']);
+        $requestedDateStr = $requestedDt->format('Y-m-d');
+        $requestedTimeStr = $requestedDt->format('H:i');
+
+        // Vérifier si un créneau identique existe déjà sur ce bien pour ce jour et cette heure
+        $conflict = Appointment::where('property_id', $validated['property_id'])
+            ->whereNotIn('status', ['cancelled', 'refused'])
+            ->whereRaw("DATE(preferred_date) = ?", [$requestedDateStr])
+            ->whereRaw("TIME_FORMAT(preferred_date, '%H:%i') = ?", [$requestedTimeStr])
+            ->first();
+
+        if ($conflict) {
+            $formattedConflictTime = $requestedDt->format('H\hi');
+            return response()->json([
+                'message' => "Le créneau horaire de {$formattedConflictTime} est déjà réservé par un autre visiteur pour ce bien à cette date. Veuillez choisir une autre heure."
+            ], 422);
+        }
+
         $property = Property::with('agency')->findOrFail($validated['property_id']);
         $advertiserEmail = $property->owner_email ?: ($property->agency ? $property->agency->email : 'contact@izivilla.sn');
 
@@ -71,6 +89,28 @@ class AppointmentController extends Controller
             'message' => 'Votre demande de visite a été transmise avec succès à l\'annonceur !',
             'appointment' => $appointment->load('property'),
         ], 201);
+    }
+
+    public function getBookedSlots(Request $request)
+    {
+        $propertyId = $request->query('property_id');
+        $date = $request->query('date');
+
+        if (!$propertyId || !$date) {
+            return response()->json([]);
+        }
+
+        $bookedSlots = Appointment::where('property_id', $propertyId)
+            ->whereNotIn('status', ['cancelled', 'refused'])
+            ->whereRaw("DATE(preferred_date) = ?", [$date])
+            ->get()
+            ->map(function ($apt) {
+                return Carbon::parse($apt->preferred_date)->format('H:i');
+            })
+            ->unique()
+            ->values();
+
+        return response()->json($bookedSlots);
     }
 
     public function index(Request $request)

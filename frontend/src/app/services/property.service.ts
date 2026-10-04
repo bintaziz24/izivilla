@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, of, Subject, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { Property, PropertyFilter, Agency, DirectMessage, PropertyReport, VerificationRequest, PropertyRequest, AppNotification } from '../models/property.model';
 
@@ -841,9 +841,58 @@ export class PropertyService {
     return of({ success: true, message: 'Demande de vérification refusée par l\'Admin.' });
   }
 
+  getBookedSlots(propertyId: number, dateStr: string): Observable<string[]> {
+    const localSlots = this.localAppointments
+      .filter(apt => {
+        if (Number(apt.property_id) !== Number(propertyId)) return false;
+        if (apt.status === 'cancelled' || apt.status === 'refused') return false;
+        try {
+          const dt = new Date(apt.preferred_date);
+          const aptDate = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+          return aptDate === dateStr;
+        } catch {
+          return false;
+        }
+      })
+      .map(apt => {
+        const dt = new Date(apt.preferred_date);
+        return `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+      });
+
+    return this.http.get<string[]>(`${this.apiUrl}/appointments/booked-slots?property_id=${propertyId}&date=${dateStr}`).pipe(
+      map(remote => Array.from(new Set([...localSlots, ...(remote || [])]))),
+      catchError(() => of(localSlots))
+    );
+  }
+
   submitAppointment(data: any): Observable<any> {
     const prop = this.getAllPropertiesCombined().find(p => p.id === data.property_id);
     const advertiserEmail = prop?.owner_email || prop?.agency?.email || 'amadou.sow@izivilla.sn';
+
+    // Conflict check in local appointments
+    const reqDt = new Date(data.preferred_date);
+    const reqDateStr = `${reqDt.getFullYear()}-${String(reqDt.getMonth() + 1).padStart(2, '0')}-${String(reqDt.getDate()).padStart(2, '0')}`;
+    const reqTimeStr = `${String(reqDt.getHours()).padStart(2, '0')}:${String(reqDt.getMinutes()).padStart(2, '0')}`;
+
+    const conflict = this.localAppointments.find(apt => {
+      if (Number(apt.property_id) !== Number(data.property_id)) return false;
+      if (apt.status === 'cancelled' || apt.status === 'refused') return false;
+      try {
+        const dt = new Date(apt.preferred_date);
+        const aptDate = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+        const aptTime = `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+        return aptDate === reqDateStr && aptTime === reqTimeStr;
+      } catch {
+        return false;
+      }
+    });
+
+    if (conflict) {
+      return throwError(() => ({
+        status: 422,
+        error: { message: `Le créneau de ${reqTimeStr.replace(':', 'h')} est déjà réservé par une autre personne pour cette propriété le ${reqDateStr}. Veuillez choisir une autre heure.` }
+      }));
+    }
 
     const newAppointment = {
       id: Date.now(),
@@ -890,7 +939,15 @@ export class PropertyService {
     this.unreadNotificationsCount$.next(this.notifications$.getValue().filter(n => !n.is_read).length);
 
     return this.http.post<any>(`${this.apiUrl}/appointments`, data).pipe(
-      catchError(() => of({ message: 'Demande de visite transmise avec succès à l\'annonceur !', appointment: newAppointment }))
+      catchError((err) => {
+        if (err && err.status === 422) {
+          // Remove optimistic appointment if backend rejected conflict
+          const idx = this.localAppointments.indexOf(newAppointment);
+          if (idx > -1) this.localAppointments.splice(idx, 1);
+          return throwError(() => err);
+        }
+        return of({ message: 'Demande de visite transmise avec succès à l\'annonceur !', appointment: newAppointment });
+      })
     );
   }
 

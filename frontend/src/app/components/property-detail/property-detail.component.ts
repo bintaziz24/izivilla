@@ -296,6 +296,14 @@ declare var L: any;
           <span>{{ visitSuccessMsg }}</span>
         </div>
 
+        <div *ngIf="visitErrorMsg" class="p-3.5 bg-red-50 border border-red-200 text-red-700 rounded-2xl text-xs font-bold flex items-center justify-between gap-2 shadow-sm">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-red-600 text-base"></i>
+            <span>{{ visitErrorMsg }}</span>
+          </div>
+          <button type="button" (click)="visitErrorMsg = ''" class="text-red-400 hover:text-red-700 text-sm">✕</button>
+        </div>
+
         <form *ngIf="!visitSuccessMsg" (ngSubmit)="submitVisitForm()" class="space-y-4">
           
           <!-- LIVE REALTIME SLOT PREVIEW CARD -->
@@ -304,12 +312,18 @@ declare var L: any;
               <span class="text-[10px] uppercase font-black text-orange-700 flex items-center gap-1">
                 <i class="fa-solid fa-clock-rotate-left text-orange-600"></i> Créneau Sélectionné
               </span>
+              <span *ngIf="isCurrentTimeSlotBooked()" class="bg-red-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase">
+                Réservé / Indisponible
+              </span>
             </div>
             <p class="text-xs font-black text-slate-900">
               📍 {{ property.title }}
             </p>
-            <p class="text-sm font-black text-orange-600">
+            <p class="text-sm font-black text-orange-600" [class.text-red-600]="isCurrentTimeSlotBooked()">
               📅 {{ getFormattedRealtimeSlot() }}
+            </p>
+            <p *ngIf="isCurrentTimeSlotBooked()" class="text-[11px] font-bold text-red-600 flex items-center gap-1 pt-1">
+              <i class="fa-solid fa-circle-exclamation"></i> Un autre client a déjà réservé cette heure pour ce bien. Veuillez choisir une autre heure.
             </p>
           </div>
 
@@ -342,40 +356,50 @@ declare var L: any;
                 <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                   <i class="fa-solid fa-calendar-day text-orange-600"></i> Date *
                 </label>
-                <input type="date" [min]="minVisitDate" [(ngModel)]="visitForm.preferred_date_day" name="preferred_date_day" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+                <input type="date" [min]="minVisitDate" [(ngModel)]="visitForm.preferred_date_day" (change)="onVisitDateChange()" name="preferred_date_day" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
               </div>
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
                   <i class="fa-solid fa-clock text-orange-600"></i> Heure *
                 </label>
-                <input type="time" [(ngModel)]="visitForm.preferred_date_time" name="preferred_date_time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm">
+                <input type="time" [(ngModel)]="visitForm.preferred_date_time" (change)="onVisitTimeChange()" name="preferred_date_time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-3 py-2.5 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm" [class.border-red-500]="isCurrentTimeSlotBooked()">
               </div>
             </div>
 
             <!-- QUICK CHIPS -->
-            <div class="flex flex-wrap items-center gap-1.5 pt-1">
-              <span class="text-[10px] font-black uppercase text-slate-400 mr-1">Raccourcis :</span>
-              <button type="button" (click)="setQuickDate('today')" [class.bg-orange-600]="isQuickDateSelected('today')" [class.text-white]="isQuickDateSelected('today')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
-                Aujourd'hui
-              </button>
-              <button type="button" (click)="setQuickDate('tomorrow')" [class.bg-orange-600]="isQuickDateSelected('tomorrow')" [class.text-white]="isQuickDateSelected('tomorrow')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
-                Demain
-              </button>
-              <button type="button" (click)="setQuickDate('saturday')" [class.bg-orange-600]="isQuickDateSelected('saturday')" [class.text-white]="isQuickDateSelected('saturday')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
-                Samedi
-              </button>
+            <div class="space-y-1.5 pt-1">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-black uppercase text-slate-400 mr-1">Jour :</span>
+                <button type="button" (click)="setQuickDate('today')" [class.bg-orange-600]="isQuickDateSelected('today')" [class.text-white]="isQuickDateSelected('today')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+                  Aujourd'hui
+                </button>
+                <button type="button" (click)="setQuickDate('tomorrow')" [class.bg-orange-600]="isQuickDateSelected('tomorrow')" [class.text-white]="isQuickDateSelected('tomorrow')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+                  Demain
+                </button>
+                <button type="button" (click)="setQuickDate('saturday')" [class.bg-orange-600]="isQuickDateSelected('saturday')" [class.text-white]="isQuickDateSelected('saturday')" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg transition-colors">
+                  Samedi
+                </button>
+              </div>
 
-              <span class="text-slate-300">|</span>
-
-              <button type="button" (click)="setQuickTime('10:00')" [class.bg-orange-600]="visitForm.preferred_date_time === '10:00'" [class.text-white]="visitForm.preferred_date_time === '10:00'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
-                10h
-              </button>
-              <button type="button" (click)="setQuickTime('15:00')" [class.bg-orange-600]="visitForm.preferred_date_time === '15:00'" [class.text-white]="visitForm.preferred_date_time === '15:00'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
-                15h
-              </button>
-              <button type="button" (click)="setQuickTime('17:30')" [class.bg-orange-600]="visitForm.preferred_date_time === '17:30'" [class.text-white]="visitForm.preferred_date_time === '17:30'" class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors">
-                17h30
-              </button>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[10px] font-black uppercase text-slate-400 mr-1">Créneaux :</span>
+                <button type="button" *ngFor="let slot of ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00', '17:30']"
+                        (click)="setQuickTime(slot)"
+                        [disabled]="isTimeSlotBooked(slot)"
+                        [class.bg-orange-600]="visitForm.preferred_date_time === slot && !isTimeSlotBooked(slot)"
+                        [class.text-white]="visitForm.preferred_date_time === slot && !isTimeSlotBooked(slot)"
+                        [class.bg-red-50]="isTimeSlotBooked(slot)"
+                        [class.text-red-500]="isTimeSlotBooked(slot)"
+                        [class.border]="isTimeSlotBooked(slot)"
+                        [class.border-red-200]="isTimeSlotBooked(slot)"
+                        [class.line-through]="isTimeSlotBooked(slot)"
+                        [class.opacity-60]="isTimeSlotBooked(slot)"
+                        [class.cursor-not-allowed]="isTimeSlotBooked(slot)"
+                        class="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg transition-colors inline-flex items-center gap-1">
+                  <span>{{ slot.replace(':', 'h') }}</span>
+                  <span *ngIf="isTimeSlotBooked(slot)" class="text-[8px] font-black text-red-600 uppercase no-underline">(Occupé)</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -384,7 +408,7 @@ declare var L: any;
             <textarea [(ngModel)]="visitForm.message" name="visit_message" rows="2" placeholder="Ex: Je suis disponible de préférence dans l'après-midi..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:border-orange-500 shadow-sm"></textarea>
           </div>
 
-          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
+          <button type="submit" [disabled]="isCurrentTimeSlotBooked()" [class.opacity-50]="isCurrentTimeSlotBooked()" [class.cursor-not-allowed]="isCurrentTimeSlotBooked()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2">
             <span>Transmettre la demande de visite</span>
           </button>
         </form>
@@ -448,6 +472,8 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
 
   showVisitModal = false;
   visitSuccessMsg = '';
+  visitErrorMsg = '';
+  bookedTimes: string[] = [];
   visitPhonePrefix = '+221';
   visitForm = {
     tenant_name: '',
@@ -555,9 +581,48 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
     return this.getLocalYYYYMMDD();
   }
 
+  loadBookedTimes(): void {
+    if (!this.property || !this.visitForm.preferred_date_day) {
+      this.bookedTimes = [];
+      return;
+    }
+    this.propertyService.getBookedSlots(this.property.id, this.visitForm.preferred_date_day).subscribe(slots => {
+      this.bookedTimes = slots || [];
+      this.checkCurrentTimeConflict();
+    });
+  }
+
+  isTimeSlotBooked(time: string): boolean {
+    if (!time || !this.bookedTimes || this.bookedTimes.length === 0) return false;
+    const formatted = time.length === 5 ? time : time.padStart(5, '0');
+    return this.bookedTimes.some(b => b === formatted || b.startsWith(formatted));
+  }
+
+  isCurrentTimeSlotBooked(): boolean {
+    return this.isTimeSlotBooked(this.visitForm.preferred_date_time);
+  }
+
+  checkCurrentTimeConflict(): void {
+    if (this.isCurrentTimeSlotBooked()) {
+      this.visitErrorMsg = `⚠️ Le créneau de ${this.visitForm.preferred_date_time.replace(':', 'h')} est déjà réservé par un autre visiteur le ${this.visitForm.preferred_date_day}. Veuillez choisir une autre heure.`;
+    } else {
+      this.visitErrorMsg = '';
+    }
+  }
+
+  onVisitDateChange(): void {
+    this.visitErrorMsg = '';
+    this.loadBookedTimes();
+  }
+
+  onVisitTimeChange(): void {
+    this.checkCurrentTimeConflict();
+  }
+
   openVisitModal(): void {
     const user = this.propertyService.getCurrentUser();
     this.visitSuccessMsg = '';
+    this.visitErrorMsg = '';
 
     const now = new Date();
     const todayStr = this.getLocalYYYYMMDD(now);
@@ -588,6 +653,7 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
       message: 'Je souhaite effectuer une visite du bien.'
     };
     this.showVisitModal = true;
+    this.loadBookedTimes();
   }
 
   setQuickDate(type: 'today' | 'tomorrow' | 'saturday'): void {
@@ -600,6 +666,7 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
       d.setDate(diff);
     }
     this.visitForm.preferred_date_day = this.getLocalYYYYMMDD(d);
+    this.onVisitDateChange();
   }
 
   isQuickDateSelected(type: 'today' | 'tomorrow' | 'saturday'): boolean {
@@ -616,6 +683,7 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
 
   setQuickTime(time: string): void {
     this.visitForm.preferred_date_time = time;
+    this.checkCurrentTimeConflict();
   }
 
   getFormattedRealtimeSlot(): string {
@@ -648,6 +716,11 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
   submitVisitForm(): void {
     if (!this.visitForm.tenant_name || !this.visitForm.tenant_email || !this.visitForm.preferred_date_day) return;
 
+    if (this.isCurrentTimeSlotBooked()) {
+      this.visitErrorMsg = `Le créneau de ${this.visitForm.preferred_date_time.replace(':', 'h')} est déjà réservé par un autre utilisateur pour cette date. Veuillez choisir une autre heure.`;
+      return;
+    }
+
     let fullPhone = (this.visitForm.tenant_phone || '').trim();
     if (fullPhone && !fullPhone.startsWith('+')) {
       fullPhone = (this.visitPhonePrefix || '+221') + ' ' + fullPhone;
@@ -656,6 +729,7 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
     const timePart = this.visitForm.preferred_date_time || '15:00';
     const fullDateTime = `${this.visitForm.preferred_date_day}T${timePart}:00`;
 
+    this.visitErrorMsg = '';
     this.propertyService.submitAppointment({
       property_id: this.property.id,
       tenant_name: this.visitForm.tenant_name,
@@ -663,12 +737,19 @@ export class PropertyDetailComponent implements OnInit, AfterViewInit {
       tenant_phone: fullPhone,
       preferred_date: fullDateTime,
       message: this.visitForm.message || 'Je souhaite effectuer une visite du bien.'
-    }).subscribe(res => {
-      this.visitSuccessMsg = res.message || 'Votre demande de visite a bien été transmise à l\'annonceur !';
-      setTimeout(() => {
-        this.showVisitModal = false;
-        this.visitSuccessMsg = '';
-      }, 3500);
+    }).subscribe({
+      next: (res) => {
+        this.visitSuccessMsg = res.message || 'Votre demande de visite a bien été transmise à l\'annonceur !';
+        this.loadBookedTimes();
+        setTimeout(() => {
+          this.showVisitModal = false;
+          this.visitSuccessMsg = '';
+        }, 3500);
+      },
+      error: (err) => {
+        this.visitErrorMsg = err?.error?.message || 'Ce créneau horaire est déjà réservé par un autre utilisateur. Veuillez choisir une autre heure.';
+        this.loadBookedTimes();
+      }
     });
   }
 

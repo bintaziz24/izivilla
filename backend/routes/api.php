@@ -44,6 +44,7 @@ Route::post('/properties/{id}/confirm-availability', [PropertyController::class,
 Route::get('/agencies', [AgencyController::class, 'index']);
 Route::get('/agencies/{id}', [AgencyController::class, 'show']);
 
+Route::get('/appointments/booked-slots', [AppointmentController::class, 'getBookedSlots']);
 Route::post('/appointments', [AppointmentController::class, 'store']);
 Route::get('/appointments', [AppointmentController::class, 'index']);
 Route::patch('/appointments/{id}/status', [AppointmentController::class, 'updateStatus']);
