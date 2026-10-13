@@ -16,8 +16,8 @@ export class ThemeService {
 
   private initTheme(): void {
     const savedTheme = localStorage.getItem('izivilla_theme') as ThemeMode | null;
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme: ThemeMode = savedTheme || (prefersDark ? 'dark' : 'light');
+    // Default to clean luminous light mode (standard for modern real estate portals)
+    const initialTheme: ThemeMode = savedTheme || 'light';
     this.setTheme(initialTheme);
   }
 

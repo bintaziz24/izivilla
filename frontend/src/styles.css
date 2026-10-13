@@ -1,14 +1,14 @@
-/* IziVilla Senegal - Global Design System */
-/* Color Palette: Orange, Black, White */
+/* IziVilla - Global Design System */
+/* Modern Real Estate Aesthetic: Luminous, Warm, Architectural & Trustworthy */
 
 :root {
-  --primary-orange: #ea580c;
-  --primary-orange-hover: #c2410c;
-  --primary-orange-light: #fff7ed;
-  --primary-orange-glow: rgba(234, 88, 12, 0.25);
+  --primary-orange: #f95721;
+  --primary-orange-hover: #e04410;
+  --primary-orange-light: #fff3ec;
+  --primary-orange-glow: rgba(249, 87, 33, 0.22);
   
-  --dark-obsidian: #0f172a;
-  --dark-surface: #1e293b;
+  --dark-slate: #0f172a;
+  --dark-charcoal: #1e293b;
   --dark-border: #334155;
   
   --pure-white: #ffffff;
@@ -17,16 +17,19 @@
   
   --text-main: #0f172a;
   --text-muted: #64748b;
+  --text-light: #94a3b8;
   --text-white: #ffffff;
   
-  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
-  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.1);
-  --shadow-lg: 0 10px 30px rgba(15, 23, 42, 0.15);
-  --shadow-glow: 0 0 20px rgba(234, 88, 12, 0.3);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 16px rgba(15, 23, 42, 0.07);
+  --shadow-card: 0 10px 30px -5px rgba(15, 23, 42, 0.07), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+  --shadow-float: 0 25px 55px -12px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 0 25px rgba(249, 87, 33, 0.25);
 
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-full: 9999px;
 }
 
@@ -37,15 +40,21 @@
 }
 
 html, body {
-  font-family: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Outfit', system-ui, -apple-system, sans-serif;
   background-color: var(--light-bg);
   color: var(--text-main);
-  line-height: 1.5;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
   position: relative;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 app-root {
@@ -54,7 +63,6 @@ app-root {
   max-width: 100%;
   overflow-x: hidden;
 }
-
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -71,36 +79,35 @@ app-root {
   background: var(--primary-orange);
 }
 
-/* Buttons System */
+/* Modern Buttons System */
 .btn-orange {
-  background-color: var(--primary-orange);
+  background: linear-gradient(135deg, #f95721 0%, #ea580c 100%);
   color: #ffffff;
   font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
+  padding: 0.75rem 1.6rem;
+  border-radius: var(--radius-full);
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px rgba(249, 87, 33, 0.3);
   text-decoration: none;
 }
 
 .btn-orange:hover {
-  background-color: var(--primary-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(234, 88, 12, 0.35);
+  box-shadow: 0 8px 22px rgba(249, 87, 33, 0.4);
 }
 
 .btn-dark {
-  background-color: var(--dark-obsidian);
+  background-color: var(--dark-slate);
   color: #ffffff;
   font-weight: 700;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--dark-obsidian);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--dark-slate);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -110,17 +117,17 @@ app-root {
 }
 
 .btn-dark:hover {
-  background-color: #1e293b;
+  background-color: var(--dark-charcoal);
   transform: translateY(-2px);
 }
 
 .btn-outline-orange {
   background-color: transparent;
   color: var(--primary-orange);
-  border: 2px solid var(--primary-orange);
+  border: 1.5px solid var(--primary-orange);
   font-weight: 700;
   padding: 0.65rem 1.35rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -136,137 +143,110 @@ app-root {
 
 .btn-white {
   background-color: #ffffff;
-  color: var(--dark-obsidian);
+  color: var(--dark-slate);
   font-weight: 700;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   border: 1px solid var(--card-border);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   transition: all 0.2s ease-in-out;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-white:hover {
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
 }
 
 /* Badges */
 .badge-boosted {
-  background: linear-gradient(135deg, #ea580c, #f97316);
+  background: linear-gradient(135deg, #f95721, #ea580c);
   color: #ffffff;
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 0.25rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.75rem;
   border-radius: var(--radius-full);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.4);
+  box-shadow: 0 3px 10px rgba(249, 87, 33, 0.35);
 }
 
 .badge-furnished {
-  background-color: var(--dark-obsidian);
+  background-color: #ffffff;
   color: var(--primary-orange);
-  border: 1px solid var(--primary-orange);
-  font-size: 0.75rem;
+  border: 1px solid rgba(249, 87, 33, 0.3);
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.25rem 0.65rem;
+  padding: 0.3rem 0.75rem;
   border-radius: var(--radius-full);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 }
 
 .badge-dark {
-  background-color: var(--dark-obsidian);
+  background-color: var(--dark-slate);
   color: #ffffff;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.25rem 0.65rem;
+  padding: 0.3rem 0.75rem;
   border-radius: var(--radius-full);
+}
+
+/* Floating Glass Cards */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: var(--shadow-float);
+}
+
+/* Floating Search Bar Segmented Box */
+.search-field-segment {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border-radius: 18px;
+}
+
+.search-field-segment:hover {
+  background-color: #f8fafc;
 }
 
 /* Leaflet Map Custom Marker Styling */
 .custom-leaflet-pin {
-  background-color: var(--dark-obsidian);
+  background-color: #ffffff;
   color: var(--primary-orange);
   border: 2px solid var(--primary-orange);
   font-weight: 800;
   font-size: 0.8rem;
-  padding: 4px 8px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  padding: 5px 10px;
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
   white-space: nowrap;
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 4px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
-/* ==========================================================================
-   Dark Mode Theme System Overrides
-   ========================================================================== */
+/* Subtle Dark Mode (Non-destructive, respectful) */
 html.dark {
   color-scheme: dark;
 }
 
 html.dark body {
-  background-color: #0b1329;
+  background-color: #0c121e;
   color: #f1f5f9;
 }
 
-html.dark .bg-white {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
+html.dark .glass-panel {
+  background: rgba(18, 25, 41, 0.94);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5);
 }
-
-html.dark .bg-slate-50 {
-  background-color: #0f172a !important;
-  color: #f1f5f9 !important;
-}
-
-html.dark .bg-slate-100 {
-  background-color: #1a2436 !important;
-  color: #f1f5f9 !important;
-}
-
-html.dark .text-slate-900 {
-  color: #f8fafc !important;
-}
-
-html.dark .text-slate-800,
-html.dark .text-slate-700 {
-  color: #e2e8f0 !important;
-}
-
-html.dark .text-slate-600,
-html.dark .text-slate-500 {
-  color: #94a3b8 !important;
-}
-
-html.dark .border-slate-100,
-html.dark .border-slate-200 {
-  border-color: #334155 !important;
-}
-
-html.dark input,
-html.dark select,
-html.dark textarea {
-  background-color: #0f172a !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-html.dark ::-webkit-scrollbar-track {
-  background: #0f172a;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
-

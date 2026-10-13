@@ -8,42 +8,37 @@ import { PropertyService } from '../../services/property.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <footer class="bg-slate-950 text-white pt-16 pb-12 border-t-4 border-orange-600">
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-12 border-t border-slate-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
           
           <!-- Column 1: Brand & Slogan -->
           <div class="lg:col-span-2 space-y-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-orange-600 text-white rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">
-                <i class="fa-solid fa-house-chimney"></i>
-              </div>
-              <div>
-                <span class="text-2xl font-black tracking-tight text-white">IZI<span class="text-orange-500">VILLA</span></span>
-              </div>
-            </div>
+            <a routerLink="/" class="inline-block group">
+              <img src="/images/logo-white.png" alt="IziVilla" class="h-9 sm:h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-105">
+            </a>
             
-            <p class="text-orange-400 font-extrabold text-sm tracking-wide">
-              « Zéro intermédiaire inutile. »
+            <p class="text-amber-400 font-bold text-xs uppercase tracking-wider">
+              « Zéro intermédiaire inutile · Contact direct »
             </p>
 
-            <p class="text-slate-400 text-xs leading-relaxed max-w-sm font-medium">
-              Plateforme immobilière directe. Trouvez votre bien et contactez directement le véritable propriétaire ou l'agence certifiée sans frais cachés.
+            <p class="text-slate-400 text-xs leading-relaxed max-w-sm">
+              Plateforme immobilière directe de référence au Sénégal. Trouvez votre bien et échangez directement avec les propriétaires vérifiés et agences certifiées.
             </p>
 
-            <div class="flex items-center gap-3 text-slate-400 pt-2">
-              <a href="https://whatsapp.com" target="_blank" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
-                <i class="fa-brands fa-whatsapp text-lg"></i>
+            <div class="flex items-center gap-2 text-slate-400 pt-2">
+              <a href="https://whatsapp.com" target="_blank" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
+                <i class="fa-brands fa-whatsapp text-base"></i>
               </a>
-              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
-                <i class="fa-brands fa-facebook-f text-base"></i>
+              <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
+                <i class="fa-brands fa-facebook-f text-sm"></i>
               </a>
-              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
-                <i class="fa-brands fa-instagram text-base"></i>
+              <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
+                <i class="fa-brands fa-instagram text-sm"></i>
               </a>
-              <a href="#" class="w-9 h-9 rounded-xl bg-slate-900 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
-                <i class="fa-brands fa-linkedin-in text-base"></i>
+              <a href="#" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-orange-600 text-white flex items-center justify-center transition-colors">
+                <i class="fa-brands fa-linkedin-in text-sm"></i>
               </a>
             </div>
           </div>
