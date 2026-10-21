@@ -29,10 +29,20 @@ export class PropertyService {
   public isLoggedIn$ = new BehaviorSubject<boolean>(localStorage.getItem('izivilla_logged_in') === 'true' && !!this.getStoredUser());
 
   // Modal Request Subject for unauthenticated user prompts
-  public authModalRequest$ = new Subject<{ mode: 'login' | 'register'; message?: string; targetUrl?: string }>();
+  public authModalRequest$ = new Subject<{
+    mode: 'login' | 'register';
+    message?: string;
+    targetUrl?: string;
+    role?: 'tenant' | 'owner' | 'agency';
+  }>();
 
-  openAuthModal(mode: 'login' | 'register' = 'login', message?: string, targetUrl?: string): void {
-    this.authModalRequest$.next({ mode, message, targetUrl });
+  openAuthModal(
+    mode: 'login' | 'register' = 'login',
+    message?: string,
+    targetUrl?: string,
+    role?: 'tenant' | 'owner' | 'agency'
+  ): void {
+    this.authModalRequest$.next({ mode, message, targetUrl, role });
   }
 
   // Favorites session state

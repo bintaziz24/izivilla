@@ -206,6 +206,8 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
     <app-auth-modal 
       [isOpen]="showAuthOTPModal" 
       [initialMode]="authOTPModalMode"
+      [initialRole]="selectedAuthRole"
+      [noticeMessage]="authNoticeMessage"
       (close)="showAuthOTPModal = false"
       (authenticated)="onUserAuthenticated($event)">
     </app-auth-modal>
@@ -221,6 +223,7 @@ export class HeaderComponent implements OnInit {
   showRegisterModal = false;
   showAuthOTPModal = false;
   authOTPModalMode: 'login' | 'register' | 'verify' = 'register';
+  selectedAuthRole: 'tenant' | 'owner' | 'agency' = 'tenant';
   showCountryDropdown = false;
   showNotificationsDropdown = false;
 
@@ -260,13 +263,21 @@ export class HeaderComponent implements OnInit {
     this.propertyService.notifications$.subscribe(n => this.notifications = n);
     this.propertyService.unreadNotificationsCount$.subscribe(c => this.unreadCount = c);
 
-    this.propertyService.authModalRequest$.subscribe((req: { mode: 'login' | 'register'; message?: string; targetUrl?: string }) => {
+    this.propertyService.authModalRequest$.subscribe((req: {
+      mode: 'login' | 'register';
+      message?: string;
+      targetUrl?: string;
+      role?: 'tenant' | 'owner' | 'agency';
+    }) => {
       this.authNoticeMessage = req.message || '';
       this.pendingTargetUrl = req.targetUrl || null;
+      if (req.role) {
+        this.selectedAuthRole = req.role;
+      }
       if (req.mode === 'register') {
-        this.openRegisterModal();
+        this.openRegisterModal(req.role);
       } else {
-        this.openLoginModal();
+        this.openLoginModal(req.role);
       }
     });
 
@@ -331,12 +342,18 @@ export class HeaderComponent implements OnInit {
     this.langService.setLanguage(nextLang);
   }
 
-  openLoginModal(): void {
+  openLoginModal(role?: 'tenant' | 'owner' | 'agency'): void {
+    if (role) {
+      this.selectedAuthRole = role;
+    }
     this.authOTPModalMode = 'login';
     this.showAuthOTPModal = true;
   }
 
-  openRegisterModal(): void {
+  openRegisterModal(role?: 'tenant' | 'owner' | 'agency'): void {
+    if (role) {
+      this.selectedAuthRole = role;
+    }
     this.authOTPModalMode = 'register';
     this.showAuthOTPModal = true;
   }
@@ -382,7 +399,7 @@ export class HeaderComponent implements OnInit {
         this.authNoticeMessage = 'Les comptes "Chercheur" ne peuvent pas publier d\'annonces. Veuillez vous connecter ou créer un compte Propriétaire ou Agence.';
         this.pendingTargetUrl = '/deposer-annonce';
         this.registerType = 'owner';
-        this.openRegisterModal();
+        this.openRegisterModal('owner');
       } else {
         this.router.navigate(['/deposer-annonce']);
       }
@@ -390,7 +407,7 @@ export class HeaderComponent implements OnInit {
       this.authNoticeMessage = 'Veuillez créer un compte Propriétaire ou Agence (ou vous connecter) pour publier votre bien.';
       this.pendingTargetUrl = '/deposer-annonce';
       this.registerType = 'owner';
-      this.openRegisterModal();
+      this.openRegisterModal('owner');
     }
   }
 

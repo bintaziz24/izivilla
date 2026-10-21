@@ -24,7 +24,8 @@ export const authGuard: CanActivateFn = (route, state) => {
     propertyService.openAuthModal(
       'register',
       'Les comptes "Chercheur" ne peuvent pas publier d\'annonces. Veuillez créer ou vous connecter à un compte Propriétaire ou Agence.',
-      '/deposer-annonce'
+      '/deposer-annonce',
+      'owner'
     );
     return false;
   }

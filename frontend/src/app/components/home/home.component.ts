@@ -213,10 +213,10 @@ declare var L: any; // Leaflet JS
               </p>
             </div>
 
-            <a routerLink="/annonces" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-full text-xs flex items-center justify-center gap-2 shadow-sm transition-all">
+            <button (click)="onSearchPropertyClick()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 px-4 rounded-full text-xs flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
               <span>Rechercher un bien</span>
               <i class="fa-solid fa-arrow-right text-[10px]"></i>
-            </a>
+            </button>
           </div>
 
           <!-- Card 2: Je suis propriétaire -->
@@ -495,26 +495,43 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onPublishPropertyClick(): void {
+  onSearchPropertyClick(): void {
     if (this.propertyService.isLoggedIn$.getValue()) {
+      this.router.navigate(['/annonces']);
+    } else {
+      this.propertyService.openAuthModal(
+        'register',
+        'Créez votre compte chercheur pour enregistrer vos alertes, favoris et contacter directement les propriétaires.',
+        '/annonces',
+        'tenant'
+      );
+    }
+  }
+
+  onPublishPropertyClick(): void {
+    const user = this.propertyService.getCurrentUser();
+    if (this.propertyService.isLoggedIn$.getValue() && user && user.role !== 'tenant') {
       this.router.navigate(['/deposer-annonce']);
     } else {
       this.propertyService.openAuthModal(
         'register',
         'Veuillez créer votre compte propriétaire ou vous connecter pour publier votre bien.',
-        '/deposer-annonce'
+        '/deposer-annonce',
+        'owner'
       );
     }
   }
 
   onCreateSpaceClick(): void {
-    if (this.propertyService.isLoggedIn$.getValue()) {
+    const user = this.propertyService.getCurrentUser();
+    if (this.propertyService.isLoggedIn$.getValue() && user && (user.role === 'agency' || user.role === 'owner')) {
       this.router.navigate(['/dashboard']);
     } else {
       this.propertyService.openAuthModal(
         'register',
-        'Veuillez créer votre compte agence / propriétaire ou vous connecter pour accéder à votre espace pro.',
-        '/dashboard'
+        'Veuillez créer votre compte agence / professionnel ou vous connecter pour accéder à votre espace pro.',
+        '/dashboard',
+        'agency'
       );
     }
   }

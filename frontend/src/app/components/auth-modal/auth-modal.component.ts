@@ -15,6 +15,8 @@ import { CountryService } from '../../services/country.service';
 export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
   @Input() isOpen = false;
   @Input() initialMode: 'login' | 'register' | 'verify' = 'register';
+  @Input() initialRole: 'tenant' | 'owner' | 'agency' = 'tenant';
+  @Input() noticeMessage = '';
   @Input() prefilledEmail = '';
   
   @Output() close = new EventEmitter<void>();
@@ -55,10 +57,31 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   setOtpChannel(channel: 'email' | 'phone'): void {
+    if (this.otpChannel === channel) return;
     this.otpChannel = channel;
     this.errorMessage = '';
     const destination = channel === 'email' ? (this.targetEmail || 'votre email') : (this.targetPhone || 'votre téléphone');
-    this.successMessage = `Mode de réception changé : Le code est envoyé par ${channel === 'email' ? 'email' : 'WhatsApp/SMS'} à ${destination}.`;
+    const target = channel === 'email' ? this.targetEmail : this.targetPhone;
+
+    if (target && this.mode === 'verify') {
+      this.isLoading = true;
+      this.authService.resendCode(target, channel === 'phone' ? 'whatsapp' : 'email').subscribe({
+        next: (res) => {
+          this.isLoading = false;
+          if (res.code_debug) {
+            this.debugCode = res.code_debug;
+          }
+          this.successMessage = res.message || `Code envoyé par ${channel === 'email' ? 'email' : 'WhatsApp / SMS'} à ${destination}.`;
+          this.startResendTimer(60);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = typeof err === 'string' ? err : (err?.message || 'Erreur lors de l\'envoi du code.');
+        }
+      });
+    } else {
+      this.successMessage = `Mode de réception : ${channel === 'email' ? 'Email' : 'WhatsApp / SMS'}.`;
+    }
   }
 
   // UI state
@@ -78,6 +101,10 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit(): void {
     this.mode = this.initialMode;
+    if (this.initialRole) {
+      this.role = this.initialRole;
+      this.loginType = this.initialRole;
+    }
     if (this.prefilledEmail) {
       this.email = this.prefilledEmail;
       this.pendingEmail = this.prefilledEmail;
@@ -88,17 +115,47 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen'] && changes['isOpen'].currentValue) {
       this.mode = this.initialMode;
+      if (this.initialRole) {
+        this.role = this.initialRole;
+        this.loginType = this.initialRole;
+      }
       this.errorMessage = '';
       this.successMessage = '';
       this.isLoading = false;
+      this.focusActiveRoleTab();
     } else if (changes['initialMode'] && changes['initialMode'].currentValue) {
       this.mode = changes['initialMode'].currentValue;
     }
+
+    if (changes['initialRole'] && changes['initialRole'].currentValue) {
+      this.role = changes['initialRole'].currentValue;
+      this.loginType = changes['initialRole'].currentValue;
+      if (this.isOpen) {
+        this.focusActiveRoleTab();
+      }
+    }
+
     if (changes['prefilledEmail'] && changes['prefilledEmail'].currentValue) {
       this.email = changes['prefilledEmail'].currentValue;
       this.pendingEmail = changes['prefilledEmail'].currentValue;
       this.loginEmail = changes['prefilledEmail'].currentValue;
     }
+  }
+
+  selectRole(newRole: 'tenant' | 'owner' | 'agency'): void {
+    this.role = newRole;
+    this.loginType = newRole;
+    this.focusActiveRoleTab();
+  }
+
+  focusActiveRoleTab(): void {
+    setTimeout(() => {
+      const activeId = this.mode === 'login' ? `login-tab-${this.loginType}` : `register-tab-${this.role}`;
+      const el = document.getElementById(activeId);
+      if (el) {
+        el.focus();
+      }
+    }, 100);
   }
 
   ngOnDestroy(): void {
@@ -107,9 +164,15 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
 
   switchMode(newMode: 'login' | 'register' | 'verify'): void {
     this.mode = newMode;
+    if (newMode === 'login') {
+      this.loginType = this.role;
+    } else if (newMode === 'register') {
+      this.role = this.loginType;
+    }
     this.errorMessage = '';
     this.successMessage = '';
     this.isLoading = false;
+    this.focusActiveRoleTab();
   }
 
   closeModal(): void {
@@ -137,8 +200,7 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
     this.pendingEmail = this.email;
 
     // Instant zero-delay transition to OTP Verification mode
-    const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
-    this.debugCode = generatedCode;
+    this.debugCode = '';
     this.isLoading = false;
     this.startResendTimer(60);
     this.mode = 'verify';
@@ -150,7 +212,8 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
       email: this.email,
       password: this.password,
       phone: fullPhone,
-      role: this.role
+      role: this.role,
+      channel: this.otpChannel === 'phone' ? 'whatsapp' : 'email'
     }).subscribe({
       next: (res) => {
         if (res.code_debug) {
@@ -275,46 +338,21 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const target = this.otpChannel === 'email' ? this.targetEmail : this.targetPhone;
-
     const emitUserAndClose = (userObj: User) => {
       this.isLoading = false;
       this.successMessage = 'Votre compte a été vérifié avec succès !';
       this.authenticated.emit(userObj);
       setTimeout(() => {
         this.closeModal();
-      }, 800);
+      }, 600);
     };
 
-    // Safety fallback timer for verification
-    const safetyTimer = setTimeout(() => {
-      if (this.isLoading && this.mode === 'verify') {
-        const fallbackUser: User = {
-          name: this.name || 'Utilisateur',
-          email: this.targetEmail || 'utilisateur@izivilla.sn',
-          phone: this.targetPhone,
-          role: this.role || 'tenant'
-        };
-        emitUserAndClose(fallbackUser);
-      }
-    }, 1000);
+    const targetEmail = this.targetEmail;
+    const targetPhone = this.targetPhone;
 
-    // Code de vérification accepté immédiatement si égal au code de démo généré, 123456 ou 000000
-    if ((this.debugCode && code === this.debugCode) || code === '123456' || code === '000000') {
-      clearTimeout(safetyTimer);
-      const fallbackUser: User = {
-        name: this.name || 'Utilisateur',
-        email: this.targetEmail || 'utilisateur@izivilla.sn',
-        phone: this.targetPhone,
-        role: this.role || 'tenant'
-      };
-      emitUserAndClose(fallbackUser);
-      return;
-    }
-
-    this.authService.verifyCode(target, code).subscribe({
+    // Envoi au backend avec vérification stricte du code reçu
+    this.authService.verifyCode(targetEmail, code, targetPhone).subscribe({
       next: (res) => {
-        clearTimeout(safetyTimer);
         if (res.success !== false) {
           const validatedUser: User = res.user || {
             name: this.name || 'Utilisateur',
@@ -325,18 +363,12 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
           emitUserAndClose(validatedUser);
         } else {
           this.isLoading = false;
-          this.errorMessage = res.message || 'Code de vérification invalide.';
+          this.errorMessage = res.message || 'Code de vérification incorrect.';
         }
       },
       error: (err) => {
-        clearTimeout(safetyTimer);
-        const fallbackUser: User = {
-          name: this.name || 'Utilisateur',
-          email: this.targetEmail,
-          phone: this.targetPhone,
-          role: this.role || 'tenant'
-        };
-        emitUserAndClose(fallbackUser);
+        this.isLoading = false;
+        this.errorMessage = typeof err === 'string' ? err : (err?.message || 'Le code saisi est incorrect ou a expiré.');
       }
     });
   }
@@ -349,20 +381,21 @@ export class AuthModalComponent implements OnInit, OnChanges, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.authService.resendCode(target).subscribe({
+    const channel = this.otpChannel === 'phone' ? 'whatsapp' : 'email';
+
+    this.authService.resendCode(target, channel).subscribe({
       next: (res) => {
         this.isLoading = false;
-        this.debugCode = res.code_debug || Math.floor(100000 + Math.random() * 900000).toString();
+        if (res.code_debug) {
+          this.debugCode = res.code_debug;
+        }
         const destination = this.otpChannel === 'email' ? `email (${this.targetEmail})` : `WhatsApp / SMS (${this.targetPhone})`;
         this.successMessage = res.message || `Un nouveau code a été envoyé par ${destination}.`;
         this.startResendTimer(60);
       },
       error: (err) => {
         this.isLoading = false;
-        this.debugCode = Math.floor(100000 + Math.random() * 900000).toString();
-        const destination = this.otpChannel === 'email' ? `email (${this.targetEmail})` : `WhatsApp / SMS (${this.targetPhone})`;
-        this.successMessage = `Un nouveau code (Mode démo) a été généré ci-dessus pour ${destination}.`;
-        this.startResendTimer(60);
+        this.errorMessage = typeof err === 'string' ? err : (err?.message || 'Erreur lors du renvoi du code.');
       }
     });
   }

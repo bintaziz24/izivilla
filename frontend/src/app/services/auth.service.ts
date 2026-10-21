@@ -76,9 +76,9 @@ export class AuthService {
   /**
    * Inscription d'un utilisateur
    */
-  register(data: { name: string; email: string; password: string; phone?: string; role?: string }): Observable<AuthResponse> {
+  register(data: { name: string; email: string; password: string; phone?: string; role?: string; channel?: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
-      timeout(3000),
+      timeout(5000),
       catchError(err => this.handleAuthError(err, 'Erreur lors de l\'inscription.'))
     );
   }
@@ -86,24 +86,32 @@ export class AuthService {
   /**
    * Validation du code OTP à 6 chiffres
    */
-  verifyCode(email: string, code: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-code`, { email, code }).pipe(
-      timeout(3000),
+  verifyCode(email: string, code: string, phone?: string): Observable<AuthResponse> {
+    const payload: { email: string; code: string; phone?: string } = { email, code };
+    if (phone) {
+      payload.phone = phone;
+    }
+    return this.http.post<AuthResponse>(`${this.apiUrl}/verify-code`, payload).pipe(
+      timeout(5000),
       tap(res => {
         if (res.success && res.user) {
           this.setSession(res.user);
         }
       }),
-      catchError(err => this.handleAuthError(err, 'Code de vérification invalide.'))
+      catchError(err => this.handleAuthError(err, 'Code de vérification incorrect ou expiré.'))
     );
   }
 
   /**
-   * Renvoi d'un nouveau code OTP par email
+   * Renvoi d'un nouveau code OTP par email ou SMS / WhatsApp
    */
-  resendCode(email: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/resend-code`, { email }).pipe(
-      timeout(3000),
+  resendCode(target: string, channel: 'email' | 'phone' | 'whatsapp' = 'email'): Observable<AuthResponse> {
+    const payload: { email?: string; phone?: string; channel: string } = {
+      channel,
+      ...(target.includes('@') ? { email: target } : { phone: target })
+    };
+    return this.http.post<AuthResponse>(`${this.apiUrl}/resend-code`, payload).pipe(
+      timeout(5000),
       catchError(err => this.handleAuthError(err, 'Erreur lors du renvoi du code.'))
     );
   }

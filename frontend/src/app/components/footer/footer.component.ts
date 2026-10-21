@@ -102,13 +102,15 @@ export class FooterComponent {
   ) {}
 
   onPublishClick(): void {
-    if (this.propertyService.isLoggedIn$.getValue()) {
+    const user = this.propertyService.getCurrentUser();
+    if (this.propertyService.isLoggedIn$.getValue() && user && user.role !== 'tenant') {
       this.router.navigate(['/deposer-annonce']);
     } else {
       this.propertyService.openAuthModal(
         'register',
-        'Veuillez vous connecter ou créer un compte pour publier votre annonce.',
-        '/deposer-annonce'
+        'Veuillez vous connecter ou créer votre compte propriétaire pour publier votre annonce.',
+        '/deposer-annonce',
+        'owner'
       );
     }
   }

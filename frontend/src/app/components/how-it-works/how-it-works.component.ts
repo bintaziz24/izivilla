@@ -74,9 +74,9 @@ import { PropertyService } from '../../services/property.service';
                 </ul>
               </div>
 
-              <a routerLink="/annonces" class="btn-orange text-xs py-3 w-full justify-center rounded-xl font-extrabold">
+              <button (click)="onSearchClick()" class="btn-orange text-xs py-3 w-full justify-center rounded-xl font-extrabold cursor-pointer">
                 <i class="fa-solid fa-search"></i> Chercher un bien
-              </a>
+              </button>
             </div>
 
             <!-- PATH 2: PROPRIÉTAIRES -->
@@ -185,26 +185,43 @@ export class HowItWorksComponent {
     private router: Router
   ) {}
 
-  onPublishClick(): void {
+  onSearchClick(): void {
     if (this.propertyService.isLoggedIn$.getValue()) {
+      this.router.navigate(['/annonces']);
+    } else {
+      this.propertyService.openAuthModal(
+        'register',
+        'Créez votre profil chercheur pour enregistrer vos alertes et contacter directement les propriétaires.',
+        '/annonces',
+        'tenant'
+      );
+    }
+  }
+
+  onPublishClick(): void {
+    const user = this.propertyService.getCurrentUser();
+    if (this.propertyService.isLoggedIn$.getValue() && user && user.role !== 'tenant') {
       this.router.navigate(['/deposer-annonce']);
     } else {
       this.propertyService.openAuthModal(
         'register',
-        'Veuillez vous connecter ou créer un compte pour déposer votre annonce.',
-        '/deposer-annonce'
+        'Veuillez vous connecter ou créer un compte propriétaire pour déposer votre annonce.',
+        '/deposer-annonce',
+        'owner'
       );
     }
   }
 
   onAgencyClick(): void {
-    if (this.propertyService.isLoggedIn$.getValue()) {
+    const user = this.propertyService.getCurrentUser();
+    if (this.propertyService.isLoggedIn$.getValue() && user && (user.role === 'agency' || user.role === 'owner')) {
       this.router.navigate(['/dashboard']);
     } else {
       this.propertyService.openAuthModal(
         'register',
-        'Veuillez vous connecter ou créer un compte pour accéder à l\'Espace Pro Agence.',
-        '/dashboard'
+        'Veuillez vous connecter ou créer un compte agence pour accéder à l\'Espace Pro Agence.',
+        '/dashboard',
+        'agency'
       );
     }
   }
