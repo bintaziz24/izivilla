@@ -20,7 +20,6 @@ export class CountryService {
     { code: 'SN', name: 'Sénégal', preposition: 'au', flag: '🇸🇳', flagUrl: 'https://flagcdn.com/w40/sn.png', currency: 'FCFA', phonePrefix: '+221', rateFromFcfa: 1 },
     { code: 'CI', name: 'Côte d’Ivoire', preposition: 'en', flag: '🇨🇮', flagUrl: 'https://flagcdn.com/w40/ci.png', currency: 'FCFA', phonePrefix: '+225', rateFromFcfa: 1 },
     { code: 'CM', name: 'Cameroun', preposition: 'au', flag: '🇨🇲', flagUrl: 'https://flagcdn.com/w40/cm.png', currency: 'FCFA', phonePrefix: '+237', rateFromFcfa: 1 },
-    { code: 'MR', name: 'Mauritanie', preposition: 'en', flag: '🇲🇷', flagUrl: 'https://flagcdn.com/w40/mr.png', currency: 'MRU', phonePrefix: '+222', rateFromFcfa: 0.0667 },
     { code: 'CV', name: 'Cap-Vert', preposition: 'au', flag: '🇨🇻', flagUrl: 'https://flagcdn.com/w40/cv.png', currency: 'CVE', phonePrefix: '+238', rateFromFcfa: 0.1667 },
     { code: 'CD', name: 'RDC', preposition: 'en', flag: '🇨🇩', flagUrl: 'https://flagcdn.com/w40/cd.png', currency: 'USD', phonePrefix: '+243', rateFromFcfa: 0.001667 },
     { code: 'NG', name: 'Nigeria', preposition: 'au', flag: '🇳🇬', flagUrl: 'https://flagcdn.com/w40/ng.png', currency: 'NGN', phonePrefix: '+234', rateFromFcfa: 2.5 },
