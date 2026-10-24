@@ -105,11 +105,14 @@ export class AuthService {
   /**
    * Renvoi d'un nouveau code OTP par email ou SMS / WhatsApp
    */
-  resendCode(target: string, channel: 'email' | 'phone' | 'whatsapp' = 'email'): Observable<AuthResponse> {
+  resendCode(target: string, channel: 'email' | 'phone' | 'whatsapp' = 'email', emailFallback?: string): Observable<AuthResponse> {
     const payload: { email?: string; phone?: string; channel: string } = {
       channel,
       ...(target.includes('@') ? { email: target } : { phone: target })
     };
+    if (emailFallback && !payload.email) {
+      payload.email = emailFallback;
+    }
     return this.http.post<AuthResponse>(`${this.apiUrl}/resend-code`, payload).pipe(
       timeout(5000),
       catchError(err => this.handleAuthError(err, 'Erreur lors du renvoi du code.'))

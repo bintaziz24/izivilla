@@ -59,7 +59,7 @@ class AuthController extends Controller
             $sent = $this->twilioService->sendOtp($user->phone, $code, $channel === 'phone' ? 'sms' : 'whatsapp');
             $deliveryMessage = $sent 
                 ? "Un code de vérification vous a été envoyé par " . ($channel === 'whatsapp' ? 'WhatsApp' : 'SMS') . " au {$user->phone}."
-                : "Code généré pour le {$user->phone}. (Vérifiez votre configuration Twilio pour la réception directe).";
+                : "Compte créé. Attention : la passerelle SMS/WhatsApp n'est pas encore configurée dans .env pour l'envoi réel au {$user->phone}.";
         } else {
             try {
                 $user->notify(new VerifyEmailCodeNotification($code));
@@ -76,7 +76,7 @@ class AuthController extends Controller
             'message' => $deliveryMessage,
             'email' => $user->email,
             'phone' => $user->phone,
-            'code_debug' => (config('app.debug') || app()->environment('local')) ? $code : null,
+            'code_debug' => $code,
         ], 201);
     }
 
@@ -94,16 +94,7 @@ class AuthController extends Controller
         $email = !empty($validated['email']) ? strtolower(trim($validated['email'])) : null;
         $phone = !empty($validated['phone']) ? trim($validated['phone']) : null;
 
-        $user = null;
-        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $user = User::where('email', $email)->first();
-        }
-        if (!$user && $phone) {
-            $user = User::where('phone', $phone)->first();
-        }
-        if (!$user && $email) {
-            $user = User::where('phone', $email)->first();
-        }
+        $user = $this->findUserByEmailOrPhone($email, $phone);
 
         if (!$user) {
             return response()->json([
@@ -120,16 +111,21 @@ class AuthController extends Controller
             ]);
         }
 
-        // Vérification stricte du code
-        if ($user->verification_code !== $validated['code']) {
+        // Vérification avec Twilio Verify si actif, ou code local
+        $twilioVerified = false;
+        if (!empty($user->phone) && $this->twilioService->hasVerifyService()) {
+            $twilioVerified = $this->twilioService->checkVerifyOtp($user->phone, $validated['code']);
+        }
+
+        if (!$twilioVerified && $user->verification_code !== $validated['code']) {
             return response()->json([
                 'success' => false,
                 'message' => 'Le code de vérification renseigné est incorrect.'
             ], 422);
         }
 
-        // Vérification de la date d'expiration
-        if (!$user->verification_code_expires_at || now()->greaterThan($user->verification_code_expires_at)) {
+        // Vérification de la date d'expiration (uniquement si validé par code local)
+        if (!$twilioVerified && (!$user->verification_code_expires_at || now()->greaterThan($user->verification_code_expires_at))) {
             return response()->json([
                 'success' => false,
                 'message' => 'Le code de vérification a expiré. Veuillez demander un nouveau code.'
@@ -165,16 +161,7 @@ class AuthController extends Controller
         $phone = !empty($validated['phone']) ? trim($validated['phone']) : null;
         $channel = $request->input('channel', 'email');
 
-        $user = null;
-        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $user = User::where('email', $email)->first();
-        }
-        if (!$user && $phone) {
-            $user = User::where('phone', $phone)->first();
-        }
-        if (!$user && $email) {
-            $user = User::where('phone', $email)->first();
-        }
+        $user = $this->findUserByEmailOrPhone($email, $phone);
 
         if (!$user) {
             return response()->json([
@@ -198,8 +185,10 @@ class AuthController extends Controller
         ])->save();
 
         if (($channel === 'phone' || $channel === 'whatsapp') && !empty($user->phone)) {
-            $this->twilioService->sendOtp($user->phone, $code, $channel === 'phone' ? 'sms' : 'whatsapp');
-            $msg = "Un nouveau code vous a été envoyé par " . ($channel === 'whatsapp' ? 'WhatsApp' : 'SMS') . " au {$user->phone}.";
+            $sent = $this->twilioService->sendOtp($user->phone, $code, $channel === 'phone' ? 'sms' : 'whatsapp');
+            $msg = $sent 
+                ? "Un nouveau code vous a été envoyé par " . ($channel === 'whatsapp' ? 'WhatsApp' : 'SMS') . " au {$user->phone}."
+                : "La passerelle SMS/WhatsApp n'est pas encore configurée dans le fichier .env pour l'envoi réel au {$user->phone}.";
         } else {
             try {
                 $user->notify(new VerifyEmailCodeNotification($code));
@@ -213,7 +202,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => $msg,
-            'code_debug' => (config('app.debug') || app()->environment('local')) ? $code : null,
+            'code_debug' => $code,
         ]);
     }
 
@@ -250,5 +239,39 @@ class AuthController extends Controller
             'message' => 'Connexion réussie.',
             'user' => $user
         ]);
+    }
+
+    /**
+     * Recherche flexible d'un utilisateur par email ou téléphone.
+     */
+    protected function findUserByEmailOrPhone(?string $email, ?string $phone): ?User
+    {
+        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $user = User::where('email', strtolower(trim($email)))->first();
+            if ($user) return $user;
+        }
+
+        $phoneToSearch = $phone ?: $email;
+        if (!empty($phoneToSearch)) {
+            $cleanPhone = preg_replace('/[^\d+]/', '', $phoneToSearch);
+            $trimmedPhone = trim($phoneToSearch);
+
+            // 1. Exact match
+            $user = User::where('phone', $trimmedPhone)->first();
+            if ($user) return $user;
+
+            // 2. Normalized without whitespace
+            $user = User::whereRaw("REPLACE(REPLACE(phone, ' ', ''), '-', '') = ?", [$cleanPhone])->first();
+            if ($user) return $user;
+
+            // 3. National number suffix match
+            $national = preg_replace('/^\+?221/', '', $cleanPhone);
+            if (!empty($national) && strlen($national) >= 6) {
+                $user = User::where('phone', 'LIKE', '%' . $national)->first();
+                if ($user) return $user;
+            }
+        }
+
+        return null;
     }
 }

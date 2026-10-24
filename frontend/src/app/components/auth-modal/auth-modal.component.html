@@ -242,55 +242,44 @@
       </div>
 
       <!-- Selector: Email vs WhatsApp / SMS -->
-      <div class="grid grid-cols-2 gap-1.5 p-1.5 bg-slate-100 rounded-2xl text-[11px] font-bold">
+      <div class="grid grid-cols-2 gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-[11px] font-bold">
         <button 
           type="button" 
           (click)="setOtpChannel('email')" 
           [class.bg-white]="otpChannel === 'email'" 
+          [class.dark:bg-slate-700]="otpChannel === 'email'" 
           [class.text-orange-600]="otpChannel === 'email'" 
           [class.shadow-sm]="otpChannel === 'email'" 
-          class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1.5">
+          class="py-2.5 rounded-xl text-slate-500 dark:text-slate-300 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer">
           <i class="fa-solid fa-envelope text-xs"></i> Email
+          <span *ngIf="isResending && otpChannel === 'email'" class="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin ml-1"></span>
         </button>
         <button 
           type="button" 
           (click)="setOtpChannel('phone')" 
           [class.bg-white]="otpChannel === 'phone'" 
+          [class.dark:bg-slate-700]="otpChannel === 'phone'" 
           [class.text-orange-600]="otpChannel === 'phone'" 
           [class.shadow-sm]="otpChannel === 'phone'" 
-          class="py-2.5 rounded-xl text-slate-500 transition-all text-center flex items-center justify-center gap-1.5">
+          class="py-2.5 rounded-xl text-slate-500 dark:text-slate-300 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer">
           <i class="fa-brands fa-whatsapp text-sm text-orange-500"></i> WhatsApp / SMS
+          <span *ngIf="isResending && otpChannel === 'phone'" class="w-3 h-3 border-2 border-orange-500 border-t-transparent rounded-full animate-spin ml-1"></span>
         </button>
       </div>
 
       <!-- Channel Recipient Banner -->
-      <div class="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-700 font-medium flex items-center gap-2">
-        <i class="fa-solid" [ngClass]="otpChannel === 'email' ? 'fa-envelope text-orange-500' : 'fa-mobile-screen-button text-orange-500'"></i>
-        <span>
-          Code envoyé à <strong class="text-slate-900">{{ otpChannel === 'email' ? targetEmail : targetPhone }}</strong>
+      <div class="p-3 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs text-slate-700 dark:text-slate-300 font-medium flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid" [ngClass]="otpChannel === 'email' ? 'fa-envelope text-orange-500' : 'fa-mobile-screen-button text-orange-500'"></i>
+          <span>
+            Code envoyé à <strong class="text-slate-900 dark:text-white">{{ otpChannel === 'email' ? targetEmail : targetPhone }}</strong>
+          </span>
+        </div>
+        <span *ngIf="isResending" class="text-[10px] text-orange-600 font-bold flex items-center gap-1">
+          <span class="w-2.5 h-2.5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin"></span> Envoi...
         </span>
       </div>
 
-      <!-- Test / Local Mode Code Helper -->
-      <div *ngIf="debugCode" class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 flex items-center justify-between shadow-sm">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-sm font-bold shrink-0">
-            <i class="fa-solid fa-key"></i>
-          </div>
-          <div>
-            <div class="font-bold text-slate-900 text-[11px] sm:text-xs">
-              Code de test : <span class="tracking-widest font-black text-amber-700 text-sm ml-1">{{ debugCode }}</span>
-            </div>
-            <div class="text-[10px] text-slate-500">Mode dev local (simulation SMS / Email)</div>
-          </div>
-        </div>
-        <button 
-          type="button" 
-          (click)="fillDebugCode()" 
-          class="bg-amber-500 hover:bg-amber-600 active:scale-95 text-white font-extrabold py-1.5 px-3 rounded-xl text-[11px] transition-all shadow-sm cursor-pointer shrink-0">
-          Insérer
-        </button>
-      </div>
 
 
       <!-- Saisie des 6 chiffres OTP -->
@@ -314,16 +303,17 @@
         Saisissez le code à 6 chiffres reçu pour activer votre compte.
       </p>
 
-      <button type="button" (click)="onVerifySubmit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2" [disabled]="isLoading || fullOtpCode.length < 6">
+      <button type="button" (click)="onVerifySubmit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-3.5 px-4 rounded-2xl text-xs shadow-lg shadow-orange-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed" [disabled]="isLoading || fullOtpCode.length < 6">
         <i class="fa-solid fa-check-circle" *ngIf="!isLoading"></i>
         <span *ngIf="!isLoading">Valider mon compte</span>
         <span *ngIf="isLoading" class="spinner"></span>
       </button>
 
       <div class="text-center">
-        <button type="button" (click)="onResendCode()" [disabled]="resendCountdown > 0 || isLoading" class="text-xs font-bold text-orange-600 hover:underline disabled:text-slate-400 disabled:no-underline">
-          <span *ngIf="resendCountdown === 0">Renvoyer un nouveau code par {{ otpChannel === 'email' ? 'Email' : 'WhatsApp / SMS' }}</span>
-          <span *ngIf="resendCountdown > 0">Renvoyer le code dans {{ resendCountdown }}s</span>
+        <button type="button" (click)="onResendCode()" [disabled]="resendCountdown > 0 || isResending" class="text-xs font-bold text-orange-600 hover:underline disabled:text-slate-400 disabled:no-underline cursor-pointer">
+          <span *ngIf="resendCountdown === 0 && !isResending">Renvoyer un nouveau code par {{ otpChannel === 'email' ? 'Email' : 'WhatsApp / SMS' }}</span>
+          <span *ngIf="isResending">Génération du code...</span>
+          <span *ngIf="resendCountdown > 0 && !isResending">Renvoyer le code dans {{ resendCountdown }}s</span>
         </button>
       </div>
 

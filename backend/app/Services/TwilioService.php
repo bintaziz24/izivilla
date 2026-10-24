@@ -11,6 +11,7 @@ class TwilioService
     protected ?string $token;
     protected ?string $fromSms;
     protected ?string $fromWhatsApp;
+    protected ?string $verifyServiceSid;
 
     public function __construct()
     {
@@ -18,6 +19,12 @@ class TwilioService
         $this->token = config('services.twilio.auth_token') ?: env('TWILIO_AUTH_TOKEN');
         $this->fromSms = config('services.twilio.phone_number') ?: env('TWILIO_PHONE_NUMBER');
         $this->fromWhatsApp = config('services.twilio.whatsapp_number') ?: env('TWILIO_WHATSAPP_NUMBER', '+14155238886');
+        $this->verifyServiceSid = config('services.twilio.verify_service_sid') ?: env('TWILIO_VERIFY_SERVICE_SID');
+    }
+
+    public function hasVerifyService(): bool
+    {
+        return !empty($this->sid) && !empty($this->token) && !empty($this->verifyServiceSid);
     }
 
     /**
@@ -37,7 +44,77 @@ class TwilioService
     }
 
     /**
-     * Envoi du code OTP par SMS
+     * Envoi du code OTP officiel via Twilio Verify API (Recommandé, fonctionne sans restriction de template)
+     */
+    public function sendVerifyOtp(string $to, string $channel = 'sms'): bool
+    {
+        if (!$this->hasVerifyService()) {
+            return false;
+        }
+
+        $formattedTo = $this->formatPhoneNumber($to);
+        $verifyChannel = ($channel === 'whatsapp') ? 'whatsapp' : 'sms';
+
+        try {
+            $response = Http::withoutVerifying()
+                ->asForm()
+                ->withBasicAuth($this->sid, $this->token)
+                ->post("https://verify.twilio.com/v2/Services/{$this->verifyServiceSid}/Verifications", [
+                    'To'      => $formattedTo,
+                    'Channel' => $verifyChannel,
+                ]);
+
+            if ($response->successful()) {
+                Log::info("Code Twilio Verify envoyé avec succès ({$verifyChannel}) à {$formattedTo}");
+                return true;
+            }
+
+            Log::error("Échec Twilio Verify à {$formattedTo}: " . $response->body());
+            return false;
+        } catch (\Throwable $e) {
+            Log::error("Exception Twilio Verify: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Vérification du code saisi auprès de Twilio Verify API
+     */
+    public function checkVerifyOtp(string $to, string $code): bool
+    {
+        if (!$this->hasVerifyService()) {
+            return false;
+        }
+
+        $formattedTo = $this->formatPhoneNumber($to);
+
+        try {
+            $response = Http::withoutVerifying()
+                ->asForm()
+                ->withBasicAuth($this->sid, $this->token)
+                ->post("https://verify.twilio.com/v2/Services/{$this->verifyServiceSid}/VerificationCheck", [
+                    'To'   => $formattedTo,
+                    'Code' => trim($code),
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $approved = isset($data['status']) && $data['status'] === 'approved';
+                if ($approved) {
+                    Log::info("Code Twilio Verify validé avec succès pour {$formattedTo}");
+                }
+                return $approved;
+            }
+
+            return false;
+        } catch (\Throwable $e) {
+            Log::error("Exception Twilio VerificationCheck: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Envoi du code OTP par SMS standard
      */
     public function sendSms(string $to, string $code): bool
     {
@@ -50,7 +127,8 @@ class TwilioService
         $message = "Votre code de vérification Izivilla est : {$code}. Valide pendant 15 minutes.";
 
         try {
-            $response = Http::asForm()
+            $response = Http::withoutVerifying()
+                ->asForm()
                 ->withBasicAuth($this->sid, $this->token)
                 ->post("https://api.twilio.com/2010-04-01/Accounts/{$this->sid}/Messages.json", [
                     'From' => $this->fromSms,
@@ -87,7 +165,8 @@ class TwilioService
         $message = "Votre code de vérification Izivilla est : *{$code}*.\nCe code est valide pendant 15 minutes.";
 
         try {
-            $response = Http::asForm()
+            $response = Http::withoutVerifying()
+                ->asForm()
                 ->withBasicAuth($this->sid, $this->token)
                 ->post("https://api.twilio.com/2010-04-01/Accounts/{$this->sid}/Messages.json", [
                     'From' => $from,
@@ -111,8 +190,17 @@ class TwilioService
     /**
      * Envoi selon le canal désiré (whatsapp ou sms)
      */
-    public function sendOtp(string $to, string $code, string $preferredChannel = 'whatsapp'): bool
+    public function sendOtp(string $to, string $code, string $preferredChannel = 'sms'): bool
     {
+        // 1. Priorité à Twilio Verify (Gère l'OTP natif sans problème de template)
+        if ($this->hasVerifyService()) {
+            $sent = $this->sendVerifyOtp($to, $preferredChannel);
+            if ($sent) {
+                return true;
+            }
+        }
+
+        // 2. Secours par Programmable SMS / WhatsApp
         if ($preferredChannel === 'whatsapp') {
             $sent = $this->sendWhatsApp($to, $code);
             if (!$sent && !empty($this->fromSms)) {
