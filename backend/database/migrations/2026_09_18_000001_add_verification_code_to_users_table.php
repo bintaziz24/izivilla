@@ -12,10 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('verification_code', 6)->nullable()->after('remember_token');
-            $table->timestamp('verification_code_expires_at')->nullable()->after('verification_code');
-            $table->string('role')->default('user')->after('verification_code_expires_at');
-            $table->string('phone')->nullable()->after('role');
+            if (!Schema::hasColumn('users', 'verification_code')) {
+                $table->string('verification_code', 6)->nullable()->after('remember_token');
+            }
+            if (!Schema::hasColumn('users', 'verification_code_expires_at')) {
+                $table->timestamp('verification_code_expires_at')->nullable()->after('verification_code');
+            }
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->string('role')->default('user')->after('verification_code_expires_at');
+            }
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable()->after('role');
+            }
         });
     }
 

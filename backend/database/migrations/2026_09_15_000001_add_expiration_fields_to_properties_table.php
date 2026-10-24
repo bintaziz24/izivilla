@@ -9,10 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('properties', function (Blueprint $table) {
-            $table->dateTime('expires_at')->nullable()->after('status');
-            $table->dateTime('last_confirmed_at')->nullable()->after('expires_at');
-            $table->boolean('is_expiration_warning_sent')->default(false)->after('last_confirmed_at');
-            $table->boolean('is_inactivity_warning_sent')->default(false)->after('is_expiration_warning_sent');
+            if (!Schema::hasColumn('properties', 'expires_at')) {
+                $table->dateTime('expires_at')->nullable()->after('status');
+            }
+            if (!Schema::hasColumn('properties', 'last_confirmed_at')) {
+                $table->dateTime('last_confirmed_at')->nullable()->after('expires_at');
+            }
+            if (!Schema::hasColumn('properties', 'is_expiration_warning_sent')) {
+                $table->boolean('is_expiration_warning_sent')->default(false)->after('last_confirmed_at');
+            }
+            if (!Schema::hasColumn('properties', 'is_inactivity_warning_sent')) {
+                $table->boolean('is_inactivity_warning_sent')->default(false)->after('is_expiration_warning_sent');
+            }
         });
     }
 

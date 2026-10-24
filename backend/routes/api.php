@@ -10,6 +10,7 @@ use App\Http\Controllers\PropertyAlertController;
 use App\Http\Controllers\PropertyRequestController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,5 +71,39 @@ Route::post('/property-requests/{id}/send-followup', [PropertyRequestController:
 Route::get('/notifications', [NotificationController::class, 'index']);
 Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+
+// -------------------------------------------------------------
+// IZIVILLA Administration & Modération Routes
+// -------------------------------------------------------------
+Route::prefix('admin')->group(function () {
+    // 1. Tableau de bord général
+    Route::get('/dashboard-stats', [AdminController::class, 'dashboardStats']);
+    Route::get('/stats', [AdminController::class, 'dashboardStats']);
+
+    // 2. Gestion des annonces
+    Route::get('/properties', [AdminController::class, 'properties']);
+    Route::patch('/properties/{id}/status', [AdminController::class, 'updatePropertyStatus']);
+    Route::delete('/properties/{id}', [AdminController::class, 'deleteProperty']);
+
+    // 3. Gestion des utilisateurs
+    Route::get('/users', [AdminController::class, 'users']);
+    Route::patch('/users/{id}', [AdminController::class, 'updateUser']);
+
+    // 4. Vérification des propriétaires et agences
+    Route::get('/verifications', [AdminController::class, 'verifications']);
+    Route::post('/verifications/{id}/approve', [AdminController::class, 'approveVerification']);
+    Route::post('/verifications/{id}/reject', [AdminController::class, 'rejectVerification']);
+
+    // 5. Gestion des signalements
+    Route::get('/reports', [AdminController::class, 'reports']);
+    Route::patch('/reports/{id}/resolve', [AdminController::class, 'resolveReport']);
+
+    // 6. Journal d'activité & Notifications
+    Route::get('/activity-logs', [AdminController::class, 'activityLogs']);
+
+    // 7. Statistiques avancées
+    Route::get('/advanced-stats', [AdminController::class, 'advancedStats']);
+});
+
 
 

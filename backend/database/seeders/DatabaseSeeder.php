@@ -363,6 +363,112 @@ class DatabaseSeeder extends Seeder
             'status' => 'CONTACTÉ',
             'is_reminder_sent' => false,
         ]);
+
+        // 4. Initial Users
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@izivilla.com'],
+            [
+                'name' => 'Super Administrateur Izivilla',
+                'password' => \Illuminate\Support\Facades\Hash::make('Passer123!'),
+                'role' => 'admin',
+                'phone' => '+221 77 755 68 15',
+                'is_active' => true,
+                'is_verified' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'amadou.sow@izivilla.sn'],
+            [
+                'name' => 'Amadou Sow',
+                'password' => \Illuminate\Support\Facades\Hash::make('Passer123!'),
+                'role' => 'owner',
+                'phone' => '+221 77 845 12 34',
+                'is_active' => true,
+                'is_verified' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'contact@dakarprestige.sn'],
+            [
+                'name' => 'Dakar Prestige Immobilier',
+                'password' => \Illuminate\Support\Facades\Hash::make('Passer123!'),
+                'role' => 'agency',
+                'phone' => '+221 78 120 45 67',
+                'is_active' => true,
+                'is_verified' => true,
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // 5. Demandes de vérification en attente (Badges)
+        \App\Models\VerificationRequest::firstOrCreate(
+            ['document_number' => 'CNI-1755198900452'],
+            [
+                'user_name' => 'Cheikh Tidiane Diagne',
+                'user_email' => 'cheikh.diagne@gmail.com',
+                'user_phone' => '+221 77 340 55 12',
+                'user_type' => 'owner',
+                'document_type' => 'CNI Sénégalaise',
+                'document_number' => 'CNI-1755198900452',
+                'document_url' => 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
+                'status' => 'pending',
+            ]
+        );
+
+        \App\Models\VerificationRequest::firstOrCreate(
+            ['document_number' => 'RCCM-SN-DKR-2023-B-12904'],
+            [
+                'user_name' => 'Teranga Horizon Agency',
+                'user_email' => 'direction@terangahorizon.sn',
+                'user_phone' => '+221 78 901 23 45',
+                'user_type' => 'agency',
+                'document_type' => 'Registre de Commerce & NINEA',
+                'document_number' => 'RCCM-SN-DKR-2023-B-12904',
+                'document_url' => 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
+                'status' => 'pending',
+            ]
+        );
+
+        // 6. Signalements d'annonces
+        \App\Models\PropertyReport::firstOrCreate(
+            ['reporter_email' => 'moussa.fall@client.sn', 'property_id' => 2],
+            [
+                'property_id' => 2,
+                'reporter_name' => 'Moussa Fall',
+                'reporter_email' => 'moussa.fall@client.sn',
+                'reporter_phone' => '+221 77 111 22 33',
+                'reason' => 'Prix trompeur',
+                'details' => 'Le loyer indiqué est de 300 000 FCFA mais lors de mon appel téléphonique l\'annonceur demande 450 000 FCFA hors charges.',
+                'status' => 'pending',
+            ]
+        );
+
+        \App\Models\PropertyReport::firstOrCreate(
+            ['reporter_email' => 'awa.ba@client.sn', 'property_id' => 1],
+            [
+                'property_id' => 1,
+                'reporter_name' => 'Awa Bâ',
+                'reporter_email' => 'awa.ba@client.sn',
+                'reporter_phone' => '+221 76 999 88 77',
+                'reason' => 'Photos volées',
+                'details' => 'Les photos présentées sont celles d\'une résidence privée aux Almadies qui n\'est pas à louer actuellement.',
+                'status' => 'pending',
+            ]
+        );
+
+        // 7. Initial Admin Activity Logs
+        \App\Models\AdminActivityLog::create([
+            'admin_name' => 'Système Izivilla',
+            'action' => 'PLATFORM_INITIALIZATION',
+            'target_type' => 'system',
+            'target_id' => null,
+            'details' => 'Initialisation du centre de contrôle et modération Izivilla.',
+            'ip_address' => '127.0.0.1'
+        ]);
     }
 }
 

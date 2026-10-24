@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('property_alerts', function (Blueprint $table) {
-            $table->string('transaction_type')->nullable()->after('property_type');
-            $table->integer('bedrooms')->nullable()->after('transaction_type');
+            if (!Schema::hasColumn('property_alerts', 'transaction_type')) {
+                $table->string('transaction_type')->nullable()->after('property_type');
+            }
+            if (!Schema::hasColumn('property_alerts', 'bedrooms')) {
+                $table->integer('bedrooms')->nullable()->after('transaction_type');
+            }
         });
     }
 
