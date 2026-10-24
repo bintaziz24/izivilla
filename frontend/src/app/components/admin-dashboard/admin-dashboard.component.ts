@@ -86,8 +86,8 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
               <i class="fa-solid fa-house-chimney text-sm w-5 text-center"></i>
               <span>Gestion des annonces</span>
             </div>
-            <span *ngIf="data?.stats?.pending_properties" class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-amber-200">
-              {{ data?.stats?.pending_properties }}
+            <span *ngIf="data.stats.pending_properties" class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-amber-200">
+              {{ data.stats.pending_properties }}
             </span>
           </button>
 
@@ -121,8 +121,8 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
               <i class="fa-solid fa-shield-halved text-sm w-5 text-center"></i>
               <span>Vérification profils</span>
             </div>
-            <span *ngIf="data?.stats?.pending_verifications" class="bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-black px-2 py-0.5 rounded-full">
-              {{ data?.stats?.pending_verifications }}
+            <span *ngIf="data.stats.pending_verifications" class="bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-black px-2 py-0.5 rounded-full">
+              {{ data.stats.pending_verifications }}
             </span>
           </button>
 
@@ -140,8 +140,8 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
               <i class="fa-solid fa-triangle-exclamation text-sm w-5 text-center"></i>
               <span>Signalements</span>
             </div>
-            <span *ngIf="data?.stats?.pending_reports" class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
-              {{ data?.stats?.pending_reports }}
+            <span *ngIf="data.stats.pending_reports" class="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+              {{ data.stats.pending_reports }}
             </span>
           </button>
 
@@ -355,12 +355,12 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
                 </button>
               </div>
 
-              <div *ngIf="!data?.urgent_reports?.length" class="text-center py-8 text-slate-400 text-xs">
+              <div *ngIf="!data.urgent_reports.length" class="text-center py-8 text-slate-400 text-xs">
                 <i class="fa-solid fa-circle-check text-2xl text-emerald-500/60 mb-2 block"></i>
                 Aucun signalement en attente de traitement.
               </div>
 
-              <div *ngFor="let rep of data?.urgent_reports" class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-3 space-y-2">
+              <div *ngFor="let rep of data.urgent_reports" class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-3 space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="bg-red-100 text-red-700 border border-red-200 text-[10px] font-black uppercase px-2 py-0.5 rounded">
                     {{ rep.reason }}
@@ -399,12 +399,12 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
                 </button>
               </div>
 
-              <div *ngIf="!data?.urgent_verifications?.length" class="text-center py-8 text-slate-400 text-xs">
+              <div *ngIf="!data.urgent_verifications.length" class="text-center py-8 text-slate-400 text-xs">
                 <i class="fa-solid fa-circle-check text-2xl text-emerald-500/60 mb-2 block"></i>
                 Toutes les demandes de vérification ont été examinées.
               </div>
 
-              <div *ngFor="let verif of data?.urgent_verifications" class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-3 space-y-3">
+              <div *ngFor="let verif of data.urgent_verifications" class="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 mb-3 space-y-3">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2">
                     <span [class.bg-emerald-100]="verif.user_type === 'agency'" [class.text-emerald-800]="verif.user_type === 'agency'" [class.bg-orange-100]="verif.user_type === 'owner'" [class.text-orange-800]="verif.user_type === 'owner'" class="text-[10px] font-black uppercase px-2.5 py-0.5 rounded border border-slate-200">
@@ -460,7 +460,13 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
-                  <tr *ngFor="let prop of data?.recent_properties" class="hover:bg-slate-50/80 transition">
+                  <tr *ngIf="!data.recent_properties.length">
+                    <td colspan="6" class="py-8 text-center text-slate-400">
+                      <i class="fa-solid fa-house-chimney text-2xl text-slate-300 mb-2 block"></i>
+                      Aucune annonce enregistrée pour le moment.
+                    </td>
+                  </tr>
+                  <tr *ngFor="let prop of data.recent_properties" class="hover:bg-slate-50/80 transition">
                     <td class="py-3.5 px-4">
                       <div class="flex items-center gap-3">
                         <img [src]="prop.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=120&q=80'" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0" alt="photo">
@@ -591,6 +597,12 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
+                  <tr *ngIf="!propertiesList.length">
+                    <td colspan="6" class="py-12 text-center text-slate-400">
+                      <i class="fa-solid fa-house-chimney text-3xl text-slate-300 mb-2 block"></i>
+                      Aucune annonce enregistrée ou correspondant à vos critères.
+                    </td>
+                  </tr>
                   <tr *ngFor="let p of propertiesList" class="hover:bg-slate-50/70 transition">
                     <td class="py-4 px-6">
                       <div class="flex items-center gap-3">
@@ -711,6 +723,12 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-xs">
+                  <tr *ngIf="!usersList.length">
+                    <td colspan="6" class="py-12 text-center text-slate-400">
+                      <i class="fa-solid fa-users text-3xl text-slate-300 mb-2 block"></i>
+                      Aucun utilisateur trouvé.
+                    </td>
+                  </tr>
                   <tr *ngFor="let u of usersList" class="hover:bg-slate-50/70 transition">
                     <td class="py-4 px-6">
                       <div class="flex items-center gap-3">
@@ -777,6 +795,10 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
           </div>
 
           <div class="space-y-4">
+            <div *ngIf="!verificationsList.length" class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center text-slate-400 shadow-xs">
+              <i class="fa-solid fa-shield-halved text-3xl text-slate-300 mb-2 block"></i>
+              Aucune demande de vérification de profil pour le moment.
+            </div>
             <div *ngFor="let v of verificationsList" class="bg-white border border-slate-200/80 rounded-3xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xs">
               <div class="space-y-2.5">
                 <div class="flex items-center gap-2">
@@ -839,6 +861,10 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
           </div>
 
           <div class="space-y-4">
+            <div *ngIf="!reportsList.length" class="bg-white border border-slate-200/80 rounded-3xl p-12 text-center text-slate-400 shadow-xs">
+              <i class="fa-solid fa-triangle-exclamation text-3xl text-slate-300 mb-2 block"></i>
+              Aucun signalement d'annonce enregistré.
+            </div>
             <div *ngFor="let rep of reportsList" class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                 <div class="flex items-center gap-2">
@@ -903,7 +929,11 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
           </div>
 
           <div class="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-xs">
-            <div class="divide-y divide-slate-100">
+            <div *ngIf="!activityLogs.length" class="p-12 text-center text-slate-400">
+              <i class="fa-solid fa-clock-rotate-left text-3xl text-slate-300 mb-2 block"></i>
+              Aucune activité enregistrée dans le journal.
+            </div>
+            <div class="divide-y divide-slate-100" *ngIf="activityLogs.length">
               <div *ngFor="let log of activityLogs" class="p-4 hover:bg-slate-50/70 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div class="space-y-1">
                   <div class="flex items-center gap-2">
@@ -939,6 +969,7 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
             <div class="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
               <h3 class="font-extrabold text-slate-900 text-base">Répartition par Ville</h3>
               <div class="space-y-3">
+                <p *ngIf="!analyticsData?.by_city?.length" class="text-xs text-slate-400 py-4 text-center">Aucune donnée disponible pour le moment.</p>
                 <div *ngFor="let c of analyticsData?.by_city" class="space-y-1">
                   <div class="flex items-center justify-between text-xs">
                     <span class="font-bold text-slate-800">{{ c.city }}</span>
@@ -955,6 +986,7 @@ type AdminTab = 'dashboard' | 'properties' | 'users' | 'verifications' | 'report
             <div class="bg-white border border-slate-200/80 p-6 rounded-3xl shadow-xs space-y-4">
               <h3 class="font-extrabold text-slate-900 text-base">Répartition Location vs Vente</h3>
               <div class="space-y-3">
+                <p *ngIf="!analyticsData?.by_transaction?.length" class="text-xs text-slate-400 py-4 text-center">Aucune donnée disponible pour le moment.</p>
                 <div *ngFor="let t of analyticsData?.by_transaction" class="space-y-1">
                   <div class="flex items-center justify-between text-xs">
                     <span class="font-bold text-slate-800">{{ t.transaction_type === 'rent' ? 'Location' : 'Vente' }}</span>
@@ -1045,153 +1077,20 @@ export class AdminDashboardComponent implements OnInit {
   isMobileMenuOpen = false;
   isLoading = false;
 
-  // Initialisation par défaut avec de vraies données réalistes immédiates
+  // Initialisation par défaut avec données réelles (vide au démarrage avant chargement API)
   data: AdminDashboardData = {
     stats: {
-      total_users: 18,
-      total_owners_agencies: 12,
-      total_published_properties: 7,
-      pending_properties: 2,
-      pending_verifications: 2,
-      pending_reports: 2
+      total_users: 0,
+      total_owners_agencies: 0,
+      total_published_properties: 0,
+      pending_properties: 0,
+      pending_verifications: 0,
+      pending_reports: 0
     },
-    urgent_verifications: [
-      {
-        id: 1,
-        user_name: 'Cheikh Tidiane Diagne',
-        user_email: 'cheikh.diagne@gmail.com',
-        user_phone: '+221 77 340 55 12',
-        user_type: 'owner',
-        document_type: 'CNI Sénégalaise',
-        document_number: 'CNI-1755198900452',
-        document_url: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=800&q=80',
-        status: 'pending',
-        created_at: new Date().toISOString()
-      },
-      {
-        id: 2,
-        user_name: 'Teranga Horizon Agency',
-        user_email: 'direction@terangahorizon.sn',
-        user_phone: '+221 78 901 23 45',
-        user_type: 'agency',
-        document_type: 'Registre de Commerce & NINEA',
-        document_number: 'RCCM-SN-DKR-2023-B-12904',
-        document_url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=800&q=80',
-        status: 'pending',
-        created_at: new Date().toISOString()
-      }
-    ],
-    urgent_reports: [
-      {
-        id: 1,
-        property_id: 2,
-        reporter_name: 'Moussa Fall',
-        reporter_email: 'moussa.fall@client.sn',
-        reason: 'Prix trompeur',
-        details: 'Le loyer indiqué est de 300 000 FCFA mais lors de mon appel téléphonique l\'annonceur demande 450 000 FCFA hors charges.',
-        status: 'pending',
-        created_at: new Date().toISOString(),
-        property: {
-          id: 2,
-          title: 'Appartement Haut Standing F4 avec Balcon Vue Mer à Mermoz',
-          city: 'Dakar',
-          quartier: 'Mermoz',
-          price_fcfa: 750000,
-          status: 'available',
-          images: [{ image_url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&q=80' }]
-        }
-      },
-      {
-        id: 2,
-        property_id: 1,
-        reporter_name: 'Awa Bâ',
-        reporter_email: 'awa.ba@client.sn',
-        reason: 'Photos volées',
-        details: 'Les photos présentées sont celles d\'une résidence privée aux Almadies qui n\'est pas à louer actuellement.',
-        status: 'pending',
-        created_at: new Date().toISOString(),
-        property: {
-          id: 1,
-          title: 'Villa Contemporaine 5 Chambres avec Piscine aux Almadies',
-          city: 'Dakar',
-          quartier: 'Almadies',
-          price_fcfa: 350000000,
-          status: 'available',
-          images: [{ image_url: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=400&q=80' }]
-        }
-      }
-    ],
-    recent_properties: [
-      {
-        id: 1,
-        title: 'Villa Contemporaine 5 Chambres avec Piscine aux Almadies',
-        property_type: 'Villa',
-        transaction_type: 'sale',
-        price_fcfa: 350000000,
-        city: 'Dakar',
-        quartier: 'Almadies',
-        owner_name: 'Amadou Sow',
-        owner_phone: '+221 77 645 12 34',
-        is_verified: true,
-        status: 'available',
-        views_count: 1420,
-        images: [{ image_url: 'https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=400&q=80' }]
-      },
-      {
-        id: 2,
-        title: 'Appartement Haut Standing F4 avec Balcon Vue Mer à Mermoz',
-        property_type: 'Appartement',
-        transaction_type: 'rent',
-        price_fcfa: 750000,
-        city: 'Dakar',
-        quartier: 'Mermoz',
-        owner_name: 'Immo Conseil Sénégal',
-        owner_phone: '+221 33 869 40 40',
-        is_verified: true,
-        status: 'available',
-        views_count: 980,
-        images: [{ image_url: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&q=80' }]
-      },
-      {
-        id: 3,
-        title: 'Studio Cosy Meublé avec Wi-Fi & Smart TV à Sacré-Cœur 3',
-        property_type: 'Studio',
-        transaction_type: 'rent',
-        price_fcfa: 280000,
-        city: 'Dakar',
-        quartier: 'Sacré-Cœur',
-        owner_name: 'Fatou Kiné Ba',
-        owner_phone: '+221 77 312 88 99',
-        is_verified: true,
-        status: 'available',
-        views_count: 640,
-        images: [{ image_url: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=400&q=80' }]
-      },
-      {
-        id: 4,
-        title: 'Terrain Viabilisé Pieds dans l\'Eau de 600m² à Saly Portudal',
-        property_type: 'Terrain',
-        transaction_type: 'sale',
-        price_fcfa: 65000000,
-        city: 'Saly',
-        quartier: 'Saly Portudal',
-        owner_name: 'Babacar Ndiaye',
-        owner_phone: '+221 70 888 77 66',
-        is_verified: true,
-        status: 'available',
-        views_count: 2100,
-        images: [{ image_url: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=400&q=80' }]
-      }
-    ],
-    recent_logs: [
-      {
-        id: 1,
-        admin_name: 'Super Admin',
-        action: 'PLATFORM_INITIALIZATION',
-        details: 'Initialisation du centre de contrôle et modération Izivilla.',
-        created_at: new Date().toISOString()
-      }
-    ]
+    urgent_verifications: [],
+    urgent_reports: [],
+    recent_properties: [],
+    recent_logs: []
   };
 
   feedbackMessage = '';
@@ -1234,11 +1133,11 @@ export class AdminDashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.propertiesList = this.data.recent_properties;
-    this.propertiesTotal = this.data.recent_properties.length;
-    this.verificationsList = this.data.urgent_verifications;
-    this.reportsList = this.data.urgent_reports;
-    this.activityLogs = this.data.recent_logs;
+    this.propertiesList = [];
+    this.propertiesTotal = 0;
+    this.verificationsList = [];
+    this.reportsList = [];
+    this.activityLogs = [];
     this.loadDashboardData();
   }
 
@@ -1295,8 +1194,8 @@ export class AdminDashboardComponent implements OnInit {
       city: this.propFilterCity,
       property_type: this.propFilterType
     }).subscribe(res => {
-      this.propertiesList = res.data || this.data.recent_properties;
-      this.propertiesTotal = res.total || this.propertiesList.length;
+      this.propertiesList = res?.data || [];
+      this.propertiesTotal = res?.total !== undefined ? res.total : this.propertiesList.length;
     });
   }
 
