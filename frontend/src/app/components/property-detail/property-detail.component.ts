@@ -254,9 +254,16 @@ declare var L: any;
             <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone *</label>
             <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 shadow-sm">
               <select [(ngModel)]="msgPhonePrefix" name="phonePrefix" class="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer py-2 pr-1 border-r border-slate-200 max-w-[140px] truncate">
-                <option *ngFor="let c of countryService.countries" [value]="c.phonePrefix">
-                  {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }})
-                </option>
+                <optgroup label="Pays disponible">
+                  <option *ngFor="let c of countryService.availableCountries" [value]="c.phonePrefix">
+                    {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }})
+                  </option>
+                </optgroup>
+                <optgroup label="Autres pays (À venir)">
+                  <option *ngFor="let c of countryService.upcomingCountries" [value]="c.phonePrefix">
+                    {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }}) — À venir
+                  </option>
+                </optgroup>
               </select>
               <input type="tel" [(ngModel)]="msgForm.sender_phone" name="sender_phone" required autocomplete="off" placeholder="Numéro de téléphone" class="w-full bg-transparent px-2 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
             </div>
@@ -341,9 +348,16 @@ declare var L: any;
             <label class="block text-xs font-bold text-slate-700 mb-1">Téléphone *</label>
             <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-2xl px-2 py-1 focus-within:border-orange-500 shadow-sm">
               <select [(ngModel)]="visitPhonePrefix" name="visitPhonePrefix" class="bg-transparent text-xs font-extrabold text-slate-800 outline-none cursor-pointer py-2 pr-1 border-r border-slate-200 max-w-[140px] truncate">
-                <option *ngFor="let c of countryService.countries" [value]="c.phonePrefix">
-                  {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }})
-                </option>
+                <optgroup label="Pays disponible">
+                  <option *ngFor="let c of countryService.availableCountries" [value]="c.phonePrefix">
+                    {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }})
+                  </option>
+                </optgroup>
+                <optgroup label="Autres pays (À venir)">
+                  <option *ngFor="let c of countryService.upcomingCountries" [value]="c.phonePrefix">
+                    {{ c.flag }} {{ c.name }} ({{ c.phonePrefix }}) — À venir
+                  </option>
+                </optgroup>
               </select>
               <input type="tel" [(ngModel)]="visitForm.tenant_phone" name="tenant_phone" required placeholder="77 654 32 10" class="w-full bg-transparent px-2 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
             </div>

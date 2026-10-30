@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { PropertyService } from '../../services/property.service';
 import { LanguageService } from '../../services/language.service';
 import { ThemeService } from '../../services/theme.service';
-import { CountryService } from '../../services/country.service';
+import { CountryService, Country } from '../../services/country.service';
 import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
 @Component({
@@ -46,7 +46,7 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
           
           <!-- Country Selector Pill -->
           <div class="relative">
-            <button (click)="showCountryDropdown = !showCountryDropdown" class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-full px-2 sm:px-3 py-1.5 transition-all shadow-xs group cursor-pointer">
+            <button (click)="showCountryDropdown = !showCountryDropdown; showNotificationsDropdown = false" class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-full px-2 sm:px-3 py-1.5 transition-all shadow-xs group cursor-pointer" title="Pays & Devise">
               <img [src]="countryService.currentCountry.flagUrl" [alt]="countryService.currentCountry.name" class="w-4.5 h-3 sm:w-5 sm:h-3.5 object-cover rounded shadow-xs shrink-0">
               <div class="flex items-center gap-1 text-left leading-none hidden 2xl:flex">
                 <span class="text-xs font-semibold text-slate-800 group-hover:text-orange-600 transition-colors whitespace-nowrap">
@@ -59,27 +59,89 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
               <span class="text-[10px] font-bold text-orange-600 2xl:hidden uppercase">
                 {{ countryService.currentCountry.currency }}
               </span>
-              <i class="fa-solid fa-chevron-down text-[8px] text-slate-400 group-hover:text-orange-600 transition-colors"></i>
+              <i class="fa-solid fa-chevron-down text-[8px] text-slate-400 group-hover:text-orange-600 transition-transform" [class.rotate-180]="showCountryDropdown"></i>
             </button>
 
+            <!-- Backdrop to close dropdown -->
+            <div *ngIf="showCountryDropdown" (click)="showCountryDropdown = false" class="fixed inset-0 z-40 bg-transparent"></div>
+
             <!-- Country Dropdown Menu -->
-            <div *ngIf="showCountryDropdown" class="absolute right-0 top-full mt-2 bg-white border border-slate-100 rounded-3xl shadow-xl z-50 py-2 min-w-[240px] max-h-80 overflow-y-auto">
-              <div class="px-4 py-2 border-b border-slate-100 text-[10px] font-bold uppercase text-slate-400 tracking-wider flex items-center justify-between">
-                <span>Sélectionner un pays</span>
-                <i class="fa-solid fa-globe text-orange-500 text-xs"></i>
+            <div *ngIf="showCountryDropdown" class="absolute right-0 top-full mt-2 bg-white border border-slate-200/90 rounded-3xl shadow-2xl z-50 py-3 w-[290px] sm:w-[320px] max-h-[440px] overflow-y-auto">
+              <!-- Header info -->
+              <div class="px-4 pb-2.5 mb-1 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-extrabold uppercase text-slate-400 tracking-wider block">Sélection du pays</span>
+                  <span class="text-xs font-bold text-slate-800">Couverture IziVilla</span>
+                </div>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Sénégal actif
+                </span>
               </div>
-              <button *ngFor="let c of countryService.countries" (click)="selectCountry(c.code)" [class.bg-orange-50]="countryService.currentCountry.code === c.code" [class.border-l-4]="countryService.currentCountry.code === c.code" [class.border-orange-600]="countryService.currentCountry.code === c.code" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 text-xs font-medium text-slate-800 flex items-center justify-between transition-colors">
-                <div class="flex items-center gap-2.5">
-                  <img [src]="c.flagUrl" [alt]="c.name" class="w-5 h-3.5 object-cover rounded shadow-xs shrink-0">
-                  <div class="flex flex-col">
-                    <span class="font-bold text-slate-900 text-xs">{{ c.name }}</span>
-                    <span class="text-[10px] text-slate-400">{{ c.phonePrefix }}</span>
+
+              <!-- Notice on click upcoming country -->
+              <div *ngIf="countryNotice" class="mx-3 my-2 p-2.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-semibold flex items-start gap-2 shadow-xs transition-all">
+                <i class="fa-solid fa-circle-info text-amber-600 text-xs shrink-0 mt-0.5"></i>
+                <span class="leading-snug">{{ countryNotice }}</span>
+              </div>
+
+              <!-- Section 1: Pays disponible -->
+              <div class="px-3 pt-1 pb-2">
+                <div class="flex items-center justify-between px-2 mb-1.5">
+                  <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Pays disponible</span>
+                  <span class="text-[9px] font-extrabold text-emerald-600 uppercase">Actif</span>
+                </div>
+
+                <div *ngFor="let c of countryService.availableCountries">
+                  <button (click)="selectCountry(c)" class="w-full text-left px-3 py-2.5 rounded-2xl bg-orange-50/80 border border-orange-200 text-xs font-medium text-slate-900 flex items-center justify-between hover:bg-orange-100 transition-all cursor-pointer shadow-xs">
+                    <div class="flex items-center gap-2.5">
+                      <img [src]="c.flagUrl" [alt]="c.name" class="w-6 h-4 object-cover rounded shadow-xs shrink-0 border border-slate-200">
+                      <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5">
+                          <span class="font-extrabold text-slate-900 text-xs">{{ c.name }}</span>
+                          <span class="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md border border-emerald-200">Disponible</span>
+                        </div>
+                        <span class="text-[10px] text-slate-500 font-bold mt-0.5">{{ c.phonePrefix }} • {{ c.currency }}</span>
+                      </div>
+                    </div>
+                    <div class="w-6 h-6 rounded-full bg-orange-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <i class="fa-solid fa-check text-[10px]"></i>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Section 2: À venir -->
+              <div class="px-3 pt-2 pb-1 border-t border-slate-100">
+                <div class="flex items-center justify-between px-2 mb-1.5">
+                  <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Autres pays</span>
+                  <span class="text-[9px] font-bold text-slate-400 uppercase">À venir</span>
+                </div>
+
+                <div class="space-y-1">
+                  <div *ngFor="let c of countryService.upcomingCountries" (click)="selectCountry(c)" class="w-full text-left px-3 py-2 rounded-2xl bg-slate-50/50 hover:bg-amber-50/50 hover:border-amber-100 border border-transparent text-xs text-slate-600 flex items-center justify-between transition-colors cursor-pointer group">
+                    <div class="flex items-center gap-2.5">
+                      <img [src]="c.flagUrl" [alt]="c.name" class="w-5 h-3.5 object-cover rounded shadow-xs shrink-0 opacity-70 group-hover:opacity-100 transition-opacity border border-slate-200">
+                      <div class="flex flex-col">
+                        <span class="font-bold text-slate-700 text-xs group-hover:text-slate-900">{{ c.name }}</span>
+                        <span class="text-[10px] text-slate-400 font-medium">{{ c.phonePrefix }} • {{ c.currency }}</span>
+                      </div>
+                    </div>
+                    <span class="text-[9.5px] font-bold bg-slate-100 group-hover:bg-amber-100 group-hover:text-amber-800 group-hover:border-amber-200 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200 flex items-center gap-1 transition-all">
+                      <i class="fa-regular fa-clock text-[9px] text-slate-400 group-hover:text-amber-600"></i>
+                      À venir
+                    </span>
                   </div>
                 </div>
-                <span class="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
-                  {{ c.currency }}
-                </span>
-              </button>
+              </div>
+
+              <!-- Footer note -->
+              <div class="px-4 pt-2.5 mt-2 border-t border-slate-100 text-center">
+                <p class="text-[10px] text-slate-400 font-medium">
+                  IziVilla est actuellement disponible exclusivement au Sénégal 🇸🇳
+                </p>
+              </div>
+
             </div>
           </div>
 
@@ -226,6 +288,8 @@ export class HeaderComponent implements OnInit {
   selectedAuthRole: 'tenant' | 'owner' | 'agency' = 'tenant';
   showCountryDropdown = false;
   showNotificationsDropdown = false;
+  countryNotice: string | null = null;
+  private countryNoticeTimer: any = null;
 
   unreadCount = 0;
   notifications: any[] = [];
@@ -332,9 +396,21 @@ export class HeaderComponent implements OnInit {
     return this.langService.translate(key);
   }
 
-  selectCountry(code: string): void {
-    this.countryService.setCountryByCode(code);
-    this.showCountryDropdown = false;
+  selectCountry(country: Country | string): void {
+    const code = typeof country === 'string' ? country : country.code;
+    const success = this.countryService.setCountryByCode(code);
+    if (success) {
+      this.showCountryDropdown = false;
+      this.countryNotice = null;
+    } else {
+      const countryObj = typeof country === 'string' ? this.countryService.countries.find(c => c.code === country) : country;
+      const countryName = countryObj?.name || 'Ce pays';
+      this.countryNotice = `${countryName} sera bientôt disponible sur IziVilla ! Actuellement, seul le Sénégal est ouvert.`;
+      if (this.countryNoticeTimer) clearTimeout(this.countryNoticeTimer);
+      this.countryNoticeTimer = setTimeout(() => {
+        this.countryNotice = null;
+      }, 4500);
+    }
   }
 
   toggleLanguage(): void {
