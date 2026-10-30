@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -155,12 +155,15 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
 
           <!-- Notification Bell Pill -->
           <div class="relative shrink-0">
-            <button (click)="showNotificationsDropdown = !showNotificationsDropdown" class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200/80 bg-white hover:bg-orange-50 hover:border-orange-200 text-slate-600 hover:text-orange-600 flex items-center justify-center transition-all shadow-xs cursor-pointer" title="Centre de notifications">
+            <button (click)="showNotificationsDropdown = !showNotificationsDropdown; showCountryDropdown = false" class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200/80 bg-white hover:bg-orange-50 hover:border-orange-200 text-slate-600 hover:text-orange-600 flex items-center justify-center transition-all shadow-xs cursor-pointer" title="Centre de notifications">
               <i class="fa-regular fa-bell text-xs sm:text-sm"></i>
               <span *ngIf="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-600 text-white font-bold text-[8.5px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs animate-pulse">
                 {{ unreadCount }}
               </span>
             </button>
+
+            <!-- Backdrop to close on click outside -->
+            <div *ngIf="showNotificationsDropdown" (click)="showNotificationsDropdown = false" class="fixed inset-0 z-40 bg-transparent"></div>
 
             <!-- Notifications Dropdown -->
             <div *ngIf="showNotificationsDropdown" class="absolute right-0 top-full mt-2 bg-white border border-slate-100 rounded-3xl shadow-2xl z-50 w-80 sm:w-96 overflow-hidden">
@@ -170,9 +173,14 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
                   <span class="font-bold text-xs uppercase tracking-wider">Notifications</span>
                   <span *ngIf="unreadCount > 0" class="bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unreadCount }}</span>
                 </div>
-                <button (click)="markAllAsRead()" class="text-[10px] font-medium text-slate-400 hover:text-white transition-colors">
-                  Tout marquer comme lu
-                </button>
+                <div class="flex items-center gap-2.5">
+                  <button (click)="markAllAsRead()" class="text-[10px] font-medium text-slate-400 hover:text-white transition-colors cursor-pointer">
+                    Tout marquer comme lu
+                  </button>
+                  <button (click)="showNotificationsDropdown = false" class="w-6 h-6 rounded-full hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Fermer les notifications">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                  </button>
+                </div>
               </div>
 
               <div class="max-h-80 overflow-y-auto divide-y divide-slate-100">
@@ -387,6 +395,12 @@ export class HeaderComponent implements OnInit {
     this.propertyService.markAllNotificationsAsRead().subscribe();
   }
 
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.showNotificationsDropdown = false;
+    this.showCountryDropdown = false;
+  }
 
   get isUserLoggedIn(): boolean {
     return this.isLoggedIn;
