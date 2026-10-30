@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -45,8 +45,8 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
         <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           
           <!-- Country Selector Pill -->
-          <div class="relative">
-            <button (click)="showCountryDropdown = !showCountryDropdown; showNotificationsDropdown = false" class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-full px-2 sm:px-3 py-1.5 transition-all shadow-xs group cursor-pointer" title="Pays & Devise">
+          <div id="country-container" class="relative">
+            <button (click)="toggleCountryDropdown($event)" class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-full px-2 sm:px-3 py-1.5 transition-all shadow-xs group cursor-pointer" title="Pays & Devise">
               <img [src]="countryService.currentCountry.flagUrl" [alt]="countryService.currentCountry.name" class="w-4.5 h-3 sm:w-5 sm:h-3.5 object-cover rounded shadow-xs shrink-0">
               <div class="flex items-center gap-1 text-left leading-none hidden 2xl:flex">
                 <span class="text-xs font-semibold text-slate-800 group-hover:text-orange-600 transition-colors whitespace-nowrap">
@@ -61,9 +61,6 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
               </span>
               <i class="fa-solid fa-chevron-down text-[8px] text-slate-400 group-hover:text-orange-600 transition-transform" [class.rotate-180]="showCountryDropdown"></i>
             </button>
-
-            <!-- Backdrop to close dropdown -->
-            <div *ngIf="showCountryDropdown" (click)="showCountryDropdown = false" class="fixed inset-0 z-40 bg-transparent"></div>
 
             <!-- Country Dropdown Menu -->
             <div *ngIf="showCountryDropdown" class="absolute right-0 top-full mt-2 bg-white border border-slate-200/90 rounded-3xl shadow-2xl z-50 py-3 w-[290px] sm:w-[320px] max-h-[440px] overflow-y-auto">
@@ -154,31 +151,28 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
           </a>
 
           <!-- Notification Bell Pill -->
-          <div class="relative shrink-0">
-            <button (click)="showNotificationsDropdown = !showNotificationsDropdown; showCountryDropdown = false" class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200/80 bg-white hover:bg-orange-50 hover:border-orange-200 text-slate-600 hover:text-orange-600 flex items-center justify-center transition-all shadow-xs cursor-pointer" title="Centre de notifications">
+          <div id="notifications-container" class="relative shrink-0">
+            <button (click)="toggleNotifications($event)" class="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-slate-200/80 bg-white hover:bg-orange-50 hover:border-orange-200 text-slate-600 hover:text-orange-600 flex items-center justify-center transition-all shadow-xs cursor-pointer" title="Centre de notifications">
               <i class="fa-regular fa-bell text-xs sm:text-sm"></i>
               <span *ngIf="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-600 text-white font-bold text-[8.5px] w-4 h-4 rounded-full flex items-center justify-center shadow-xs animate-pulse">
                 {{ unreadCount }}
               </span>
             </button>
 
-            <!-- Backdrop to close on click outside -->
-            <div *ngIf="showNotificationsDropdown" (click)="showNotificationsDropdown = false" class="fixed inset-0 z-40 bg-transparent"></div>
-
             <!-- Notifications Dropdown -->
-            <div *ngIf="showNotificationsDropdown" class="absolute right-0 top-full mt-2 bg-white border border-slate-100 rounded-3xl shadow-2xl z-50 w-80 sm:w-96 overflow-hidden">
+            <div *ngIf="showNotificationsDropdown" class="absolute right-0 top-full mt-2 bg-white border border-slate-200/90 rounded-3xl shadow-2xl z-50 w-80 sm:w-96 overflow-hidden">
               <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <i class="fa-solid fa-bell text-orange-400"></i>
                   <span class="font-bold text-xs uppercase tracking-wider">Notifications</span>
                   <span *ngIf="unreadCount > 0" class="bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unreadCount }}</span>
                 </div>
-                <div class="flex items-center gap-2.5">
-                  <button (click)="markAllAsRead()" class="text-[10px] font-medium text-slate-400 hover:text-white transition-colors cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <button type="button" (click)="markAllAsRead()" class="text-[10px] font-medium text-slate-400 hover:text-white transition-colors cursor-pointer py-1 px-1.5 rounded-lg hover:bg-white/10">
                     Tout marquer comme lu
                   </button>
-                  <button (click)="showNotificationsDropdown = false" class="w-6 h-6 rounded-full hover:bg-white/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer" title="Fermer les notifications">
-                    <i class="fa-solid fa-xmark text-xs"></i>
+                  <button type="button" (click)="closeNotifications($event)" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-rose-600 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-slate-700 shadow-xs active:scale-95" title="Fermer">
+                    <i class="fa-solid fa-xmark text-sm font-bold"></i>
                   </button>
                 </div>
               </div>
@@ -198,6 +192,14 @@ import { AuthModalComponent } from '../auth-modal/auth-modal.component';
                   </div>
                   <p class="text-xs text-slate-600 mt-1.5 whitespace-pre-line leading-relaxed bg-slate-50 p-2.5 rounded-xl border border-slate-100">{{ notif.message }}</p>
                 </div>
+              </div>
+
+              <!-- Footer with explicit Close button -->
+              <div class="px-4 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400 font-semibold">IziVilla Notifications</span>
+                <button type="button" (click)="closeNotifications($event)" class="text-[11px] font-bold text-slate-700 hover:text-white hover:bg-slate-900 bg-white border border-slate-200 px-3 py-1 rounded-full transition-all cursor-pointer shadow-xs">
+                  Fermer
+                </button>
               </div>
             </div>
           </div>
@@ -325,7 +327,8 @@ export class HeaderComponent implements OnInit {
     private router: Router,
     public langService: LanguageService,
     public themeService: ThemeService,
-    public countryService: CountryService
+    public countryService: CountryService,
+    private elRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -395,6 +398,49 @@ export class HeaderComponent implements OnInit {
     this.propertyService.markAllNotificationsAsRead().subscribe();
   }
 
+  toggleNotifications(event: Event): void {
+    event.stopPropagation();
+    this.showNotificationsDropdown = !this.showNotificationsDropdown;
+    if (this.showNotificationsDropdown) {
+      this.showCountryDropdown = false;
+    }
+  }
+
+  closeNotifications(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.showNotificationsDropdown = false;
+  }
+
+  toggleCountryDropdown(event: Event): void {
+    event.stopPropagation();
+    this.showCountryDropdown = !this.showCountryDropdown;
+    if (this.showCountryDropdown) {
+      this.showNotificationsDropdown = false;
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  @HostListener('document:touchstart', ['$event'])
+  onDocumentClick(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (!target) return;
+
+    if (this.showNotificationsDropdown) {
+      const notifContainer = this.elRef.nativeElement.querySelector('#notifications-container');
+      if (notifContainer && !notifContainer.contains(target)) {
+        this.showNotificationsDropdown = false;
+      }
+    }
+
+    if (this.showCountryDropdown) {
+      const countryContainer = this.elRef.nativeElement.querySelector('#country-container');
+      if (countryContainer && !countryContainer.contains(target)) {
+        this.showCountryDropdown = false;
+      }
+    }
+  }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
